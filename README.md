@@ -39,6 +39,18 @@ Copy environment variables:
 cp /Users/poski/academy/apps/api/.env.example /Users/poski/academy/apps/api/.env
 ```
 
+Start Postgres containers:
+
+```bash
+docker compose up -d
+docker compose ps
+```
+
+Expected:
+
+- `academy-postgres-dev` is `healthy` on `localhost:5432`
+- `academy-postgres-test` is `healthy` on `localhost:5433`
+
 Run migrations and seed:
 
 ```bash
@@ -87,6 +99,9 @@ pnpm build
 
 - `DATABASE_URL` for local/dev runtime
 - `DATABASE_URL_TEST` for tests (required; tests fail fast if missing)
+- Compose defaults:
+  - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
+  - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
 ## Current Scope (PR-1)
 
@@ -113,4 +128,27 @@ pnpm --filter @academy/api db:reset
 pnpm --filter @academy/api db:seed
 pnpm --filter @academy/api test
 pnpm --filter @academy/api dev
+```
+
+## Compose-Backed Verification Flow
+
+```bash
+docker compose up -d
+cp /Users/poski/academy/apps/api/.env.example /Users/poski/academy/apps/api/.env
+pnpm --filter @academy/api db:migrate
+pnpm --filter @academy/api db:seed
+pnpm --filter @academy/api test
+pnpm --filter @academy/api dev
+```
+
+While API dev server is running:
+
+```bash
+curl http://localhost:3001/health
+```
+
+Expected health response:
+
+```json
+{"status":"ok","db":"ok"}
 ```
