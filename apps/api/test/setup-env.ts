@@ -1,0 +1,5 @@
+if (!process.env.DATABASE_URL_TEST) {
+  throw new Error('DATABASE_URL_TEST is required for e2e tests. Set it in apps/api/.env.test or your shell.');
+}
+
+process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;

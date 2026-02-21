@@ -1,9 +1,9 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { HealthController } from '../src/health.controller';
 
-describe('HealthController (integration)', () => {
+describe('HealthController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -19,8 +19,7 @@ describe('HealthController (integration)', () => {
     await app.close();
   });
 
-  it('returns ok status', () => {
-    const controller = app.get(HealthController);
-    expect(controller.health()).toEqual({ status: 'ok' });
+  it('GET /health returns db ok', async () => {
+    await request(app.getHttpServer()).get('/health').expect(200).expect({ status: 'ok', db: 'ok' });
   });
 });

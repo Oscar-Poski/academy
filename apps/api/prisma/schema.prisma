@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SectionVersionStatus {
+  draft
+  published
+  archived
+}
+
+enum LessonBlockType {
+  markdown
+  callout
+  code
+  quiz
+  checklist
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Path {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?
+  status      String   @default("draft")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  modules Module[]
+
+  @@map("paths")
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  pathId      String   @map("path_id")
+  slug        String   @unique
+  title       String
+  description String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  status      String   @default("draft")
+  creditsCost Int      @default(0) @map("credits_cost")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  path     Path      @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  sections Section[]
+
+  @@index([pathId])
+  @@map("modules")
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  moduleId  String   @map("module_id")
+  slug      String   @unique
+  title     String
+  sortOrder Int      @default(0) @map("sort_order")
+  hasQuiz   Boolean  @default(false) @map("has_quiz")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  module          Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  sectionVersions SectionVersion[]
+
+  @@index([moduleId])
+  @@map("sections")
+}
+
+model SectionVersion {
+  id            String               @id @default(cuid())
+  sectionId     String               @map("section_id")
+  versionNumber Int                  @map("version_number")
+  status        SectionVersionStatus @default(draft)
+  changeLog     String?              @map("change_log")
+  publishedAt   DateTime?            @map("published_at")
+  createdBy     String?              @map("created_by")
+  createdAt     DateTime             @default(now()) @map("created_at")
+
+  section      Section       @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  lessonBlocks LessonBlock[]
+
+  @@unique([sectionId, versionNumber])
+  @@index([sectionId, status])
+  @@map("section_versions")
+}
+
+model LessonBlock {
+  id               String          @id @default(cuid())
+  sectionVersionId String          @map("section_version_id")
+  blockOrder       Int             @map("block_order")
+  blockType        LessonBlockType @map("block_type")
+  contentJson      Json            @map("content_json")
+  estimatedSeconds Int?            @map("estimated_seconds")
+
+  sectionVersion SectionVersion @relation(fields: [sectionVersionId], references: [id], onDelete: Cascade)
+
+  @@unique([sectionVersionId, blockOrder])
+  @@index([sectionVersionId])
+  @@map("lesson_blocks")
+}
