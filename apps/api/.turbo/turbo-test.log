@@ -1,0 +1,13 @@
+
+> @academy/api@0.0.0 test /Users/poski/academy/apps/api
+> jest --config ./jest.config.ts
+
+PASS test/health.e2e-spec.ts
+  HealthController (integration)
+    ✓ returns ok status (2 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        1.919 s, estimated 2 s
+Ran all test suites.

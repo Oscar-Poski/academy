@@ -1,0 +1,4 @@
+
+> @academy/api@0.0.0 lint /Users/poski/academy/apps/api
+> ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts
+

@@ -1,0 +1,4 @@
+
+> @academy/api@0.0.0 build /Users/poski/academy/apps/api
+> tsc -p tsconfig.build.json
+

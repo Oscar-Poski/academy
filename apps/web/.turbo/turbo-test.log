@@ -1,0 +1,15 @@
+
+> @academy/web@0.0.0 test /Users/poski/academy/apps/web
+> vitest run
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v2.1.8 /Users/poski/academy/apps/web
+
+ ✓ src/lib/api.test.ts (1 test) 7ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  11:08:58
+   Duration  1.13s (transform 72ms, setup 0ms, collect 55ms, tests 7ms, environment 1ms, prepare 156ms)
+

@@ -1,0 +1,4 @@
+
+> @academy/shared@0.0.0 typecheck /Users/poski/academy/packages/shared
+> tsc -p tsconfig.json --noEmit
+

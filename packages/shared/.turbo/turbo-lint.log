@@ -1,0 +1,4 @@
+
+> @academy/shared@0.0.0 lint /Users/poski/academy/packages/shared
+> ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts
+

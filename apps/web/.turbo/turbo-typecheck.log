@@ -1,0 +1,4 @@
+
+> @academy/web@0.0.0 typecheck /Users/poski/academy/apps/web
+> tsc -p tsconfig.json --noEmit
+
