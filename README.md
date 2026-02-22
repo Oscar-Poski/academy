@@ -1,6 +1,6 @@
 # Academy
 
-PR-0/PR-1 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-3 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -79,6 +79,32 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
+## Course Player (PR-3)
+
+Web routes now consume the read-only content API:
+
+- `/paths/:pathId`
+- `/modules/:moduleId`
+- `/learn/:sectionId`
+
+Get seeded IDs from the API:
+
+```bash
+curl -s http://localhost:3001/v1/paths | jq
+```
+
+```bash
+PATH_ID=$(curl -s http://localhost:3001/v1/paths | jq -r '.[0].id')
+MODULE_ID=$(curl -s http://localhost:3001/v1/paths/$PATH_ID | jq -r '.modules[0].id')
+SECTION_ID=$(curl -s http://localhost:3001/v1/modules/$MODULE_ID | jq -r '.sections[0].id')
+```
+
+Open in browser:
+
+- `http://localhost:3000/paths/$PATH_ID`
+- `http://localhost:3000/modules/$MODULE_ID`
+- `http://localhost:3000/learn/$SECTION_ID`
+
 ## Validate
 
 ```bash
@@ -103,7 +129,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-1)
+## Current Scope (PR-3)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -115,9 +141,18 @@ pnpm build
 - Initial Postgres schema includes `lesson_blocks`
 - NestJS health endpoint with DB check (`GET /health -> {"status":"ok","db":"ok"}`)
 - Next.js homepage showing basic API health status
-- API e2e test verifies DB-backed health route (requires `DATABASE_URL_TEST`)
+- Read-only Content API endpoints in `apps/api`:
+- `GET /v1/paths`
+- `GET /v1/paths/:pathId`
+- `GET /v1/modules/:moduleId`
+- `GET /v1/sections/:sectionId` (published version only)
+- First read-only Course Player UI in `apps/web`:
+- path page (`/paths/:pathId`)
+- module page (`/modules/:moduleId`)
+- learn/player page (`/learn/:sectionId`)
+- API e2e tests for health and content routes (requires `DATABASE_URL_TEST`)
 
-No content/progress/quiz/unlocks APIs yet.
+No auth/progress/quiz execution/unlocks/gamification yet.
 
 ## Useful API Commands
 
@@ -128,6 +163,14 @@ pnpm --filter @academy/api db:reset
 pnpm --filter @academy/api db:seed
 pnpm --filter @academy/api test
 pnpm --filter @academy/api dev
+```
+
+## Useful Web Commands
+
+```bash
+pnpm --filter @academy/web test
+pnpm --filter @academy/web typecheck
+pnpm --filter @academy/web dev
 ```
 
 ## Compose-Backed Verification Flow

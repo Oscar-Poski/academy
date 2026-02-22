@@ -26,3 +26,386 @@ main {
   border-radius: 12px;
   background: color-mix(in srgb, var(--panel) 90%, black);
 }
+
+.pageShell {
+  max-width: 1080px;
+  margin: 2rem auto 4rem;
+  padding: 0 1rem;
+}
+
+.pageHeader {
+  margin-bottom: 1rem;
+}
+
+.pageEyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pageDescription {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+}
+
+.pageStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.pageCard {
+  padding: 1rem;
+}
+
+.pageCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pageActionLink {
+  color: #b8d8ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.pageActionLink:hover {
+  text-decoration: underline;
+}
+
+.pageMuted {
+  color: var(--muted);
+}
+
+.pageList {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.pageListItem a {
+  color: var(--text);
+  text-decoration: none;
+  display: block;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #223456;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pageListItem a:hover {
+  border-color: #355487;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.playerLayoutShell {
+  max-width: 1320px;
+  margin: 1.5rem auto 3rem;
+  padding: 0 1rem;
+}
+
+.playerLayout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.playerSidebar {
+  position: sticky;
+  top: 1rem;
+  border: 1px solid #223456;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 92%, black);
+  padding: 1rem;
+}
+
+.playerSidebarHeader {
+  margin-bottom: 1rem;
+}
+
+.playerSidebarEyebrow {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.playerSidebarTitle {
+  margin: 0.35rem 0 0;
+  font-size: 1.05rem;
+}
+
+.playerTree {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.playerTreeModule {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.playerTreeModuleHeader {
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(149, 161, 184, 0.2);
+}
+
+.playerTreeModuleLink {
+  color: #cfe1ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.playerTreeModuleLink:hover {
+  text-decoration: underline;
+}
+
+.playerTreeSectionList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.playerTreeSectionLink {
+  display: block;
+  padding: 0.45rem 0.6rem;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.playerTreeSectionLink:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(149, 161, 184, 0.18);
+}
+
+.playerTreeSectionLink.isActive {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.45);
+}
+
+.playerContent {
+  display: grid;
+  gap: 1rem;
+}
+
+.playerCard {
+  border: 1px solid #223456;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 90%, black);
+}
+
+.playerHeader {
+  padding: 1rem 1.25rem;
+}
+
+.playerBreadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.playerBreadcrumb a {
+  color: #b8d8ff;
+  text-decoration: none;
+}
+
+.playerBreadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.playerBreadcrumbSep {
+  color: #6d7c98;
+}
+
+.playerSectionTitle {
+  margin: 0.75rem 0 0;
+  font-size: 1.6rem;
+}
+
+.playerBlocks {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.playerBlockItem {
+  display: contents;
+}
+
+.playerEmptyState {
+  padding: 1rem 1.25rem;
+  color: var(--muted);
+}
+
+.playerFooter {
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.playerNavBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #355487;
+  background: rgba(53, 84, 135, 0.2);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.playerNavBtn:hover {
+  background: rgba(53, 84, 135, 0.34);
+}
+
+.playerNavBtn.isDisabled,
+.playerNavBtn[aria-disabled='true'] {
+  border-color: #24354f;
+  background: rgba(36, 53, 79, 0.25);
+  color: #7f8ca4;
+  cursor: not-allowed;
+}
+
+.block {
+  border: 1px solid #223456;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 90%, black);
+  padding: 1rem 1.1rem;
+}
+
+.blockMarkdownText {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  line-height: 1.55;
+}
+
+.blockCallout {
+  border-left: 4px solid #4ea1ff;
+}
+
+.blockCallout-warning {
+  border-left-color: #f59e0b;
+}
+
+.blockCallout-danger {
+  border-left-color: #ef4444;
+}
+
+.blockCallout-success {
+  border-left-color: #22c55e;
+}
+
+.blockCalloutLabel {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.blockCalloutText {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.blockCode {
+  padding: 0;
+  overflow: hidden;
+}
+
+.blockCodeHeader {
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid #223456;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: lowercase;
+}
+
+.blockCodePre {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.blockChecklistList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.blockChecklistItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.blockChecklistMarker {
+  color: #94a7cb;
+}
+
+.blockQuizPlaceholder {
+  border-style: dashed;
+}
+
+.blockQuizBadge {
+  display: inline-block;
+  font-size: 0.78rem;
+  color: #f1c96b;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.35rem;
+}
+
+.blockQuizText {
+  margin: 0;
+  color: var(--muted);
+}
+
+.blockInvalid,
+.blockUnknown {
+  color: #f5b2b2;
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(127, 29, 29, 0.14);
+}
+
+@media (max-width: 960px) {
+  .playerLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .playerSidebar {
+    position: static;
+  }
+
+  .playerFooter {
+    flex-direction: column;
+  }
+
+  .playerNavBtn {
+    width: 100%;
+  }
+}
