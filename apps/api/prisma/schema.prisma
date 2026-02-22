@@ -21,12 +21,20 @@ enum LessonBlockType {
   checklist
 }
 
+enum ProgressStatus {
+  not_started
+  in_progress
+  completed
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  sectionProgress UserSectionProgress[]
 
   @@map("users")
 }
@@ -77,6 +85,7 @@ model Section {
 
   module          Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   sectionVersions SectionVersion[]
+  sectionProgress UserSectionProgress[]
 
   @@index([moduleId])
   @@map("sections")
@@ -94,6 +103,7 @@ model SectionVersion {
 
   section      Section       @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   lessonBlocks LessonBlock[]
+  sectionProgress UserSectionProgress[]
 
   @@unique([sectionId, versionNumber])
   @@index([sectionId, status])
@@ -113,4 +123,30 @@ model LessonBlock {
   @@unique([sectionVersionId, blockOrder])
   @@index([sectionVersionId])
   @@map("lesson_blocks")
+}
+
+model UserSectionProgress {
+  id              String         @id @default(cuid())
+  userId          String         @map("user_id")
+  sectionId       String         @map("section_id")
+  sectionVersionId String        @map("section_version_id")
+  status          ProgressStatus @default(not_started)
+  startedAt       DateTime?      @map("started_at")
+  lastSeenAt      DateTime?      @map("last_seen_at")
+  completedAt     DateTime?      @map("completed_at")
+  completionPct   Int            @default(0) @map("completion_pct")
+  lastBlockOrder  Int?           @map("last_block_order")
+  timeSpentSeconds Int           @default(0) @map("time_spent_seconds")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  section        Section        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionVersion SectionVersion @relation(fields: [sectionVersionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sectionId])
+  @@index([userId, status, lastSeenAt])
+  @@index([sectionId])
+  @@index([sectionVersionId])
+  @@map("user_section_progress")
 }

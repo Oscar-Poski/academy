@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-3 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-4 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -105,6 +105,34 @@ Open in browser:
 - `http://localhost:3000/modules/$MODULE_ID`
 - `http://localhost:3000/learn/$SECTION_ID`
 
+## Progress Tracking (PR-4)
+
+Progress endpoints are available in `apps/api` (temporary user strategy using `x-user-id` header):
+
+- `POST /v1/progress/sections/:sectionId/start`
+- `PATCH /v1/progress/sections/:sectionId/position`
+- `POST /v1/progress/sections/:sectionId/complete`
+- `GET /v1/progress/modules/:moduleId`
+- `GET /v1/progress/paths/:pathId`
+- `GET /v1/progress/continue`
+
+Get a real seeded `users.id` (used for `x-user-id` and the web continue card):
+
+```bash
+USER_ID=$(docker exec academy-postgres-dev psql -U postgres -d academy_dev -tAc "select id from users where email='student@academy.local' limit 1;")
+echo "$USER_ID"
+```
+
+Set the web temp user env before starting the web app:
+
+```bash
+export NEXT_PUBLIC_TEMP_USER_ID="$USER_ID"
+export NEXT_PUBLIC_API_BASE_URL="http://localhost:3001"
+```
+
+Important: restart `pnpm --filter @academy/web dev` after changing `NEXT_PUBLIC_*` env vars.  
+Next.js server components read env from the running dev server process.
+
 ## Validate
 
 ```bash
@@ -121,6 +149,11 @@ pnpm build
 - If unset or blank, it falls back to `http://localhost:3001`.
 - If set, it should be a full origin (example: `http://localhost:3001`).
 
+`apps/web` progress/continue behavior (PR-4) also expects:
+
+- `NEXT_PUBLIC_TEMP_USER_ID` = existing `users.id` (temporary MVP strategy, no auth yet)
+- `NEXT_PUBLIC_API_BASE_URL` (optional; defaults to `http://localhost:3001` in the web API clients)
+
 `apps/api` expects:
 
 - `DATABASE_URL` for local/dev runtime
@@ -129,7 +162,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-3)
+## Current Scope (PR-4)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -150,9 +183,11 @@ pnpm build
 - path page (`/paths/:pathId`)
 - module page (`/modules/:moduleId`)
 - learn/player page (`/learn/:sectionId`)
-- API e2e tests for health and content routes (requires `DATABASE_URL_TEST`)
+- Authoritative progress tracking in `apps/api` (temporary `x-user-id`, no auth yet)
+- Continue learning API + homepage continue card in `apps/web`
+- API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
 
-No auth/progress/quiz execution/unlocks/gamification yet.
+No auth/quiz execution/unlocks/XP/credits/gamification yet.
 
 ## Useful API Commands
 
@@ -163,6 +198,23 @@ pnpm --filter @academy/api db:reset
 pnpm --filter @academy/api db:seed
 pnpm --filter @academy/api test
 pnpm --filter @academy/api dev
+```
+
+## Useful Progress Curl Commands
+
+```bash
+PATH_ID=$(curl -s http://localhost:3001/v1/paths | jq -r '.[0].id')
+MODULE_ID=$(curl -s http://localhost:3001/v1/paths/$PATH_ID | jq -r '.modules[0].id')
+SECTION_ID=$(curl -s http://localhost:3001/v1/modules/$MODULE_ID | jq -r '.sections[0].id')
+```
+
+```bash
+curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/start" | jq
+curl -s -X PATCH -H "x-user-id: $USER_ID" -H "Content-Type: application/json" -d '{"last_block_order":2,"time_spent_delta":15,"completion_pct":50}' "http://localhost:3001/v1/progress/sections/$SECTION_ID/position" | jq
+curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
+curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/modules/$MODULE_ID" | jq
+curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/paths/$PATH_ID" | jq
+curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/continue" | jq
 ```
 
 ## Useful Web Commands

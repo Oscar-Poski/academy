@@ -27,6 +27,54 @@ main {
   background: color-mix(in srgb, var(--panel) 90%, black);
 }
 
+.homeCard {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #223456;
+}
+
+.homeCard h2 {
+  margin: 0 0 0.75rem;
+}
+
+.homeContinueCard {
+  border: 1px solid #223456;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.homeContinuePath {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.homeContinueSection {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+}
+
+.homeContinueLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #355487;
+  background: rgba(53, 84, 135, 0.2);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.homeContinueLink:hover {
+  background: rgba(53, 84, 135, 0.34);
+}
+
+.homeContinueMuted {
+  color: var(--muted);
+}
+
 .pageShell {
   max-width: 1080px;
   margin: 2rem auto 4rem;
