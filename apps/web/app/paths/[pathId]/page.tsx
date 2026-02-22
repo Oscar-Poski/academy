@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ContentApiError, getPath } from '@/src/lib/api-clients/content.client';
+import { getPathProgress } from '@/src/lib/api-clients/progress.client';
 
 type PathPageProps = {
   params: {
@@ -10,7 +11,13 @@ type PathPageProps = {
 
 export default async function PathPage({ params }: PathPageProps) {
   try {
-    const path = await getPath(params.pathId);
+    const [path, pathProgress] = await Promise.all([
+      getPath(params.pathId),
+      getPathProgress(params.pathId).catch(() => null)
+    ]);
+    const moduleProgressById = new Map(
+      (pathProgress?.modules ?? []).map((moduleProgress) => [moduleProgress.moduleId, moduleProgress])
+    );
 
     return (
       <main className="pageShell">
@@ -18,13 +25,45 @@ export default async function PathPage({ params }: PathPageProps) {
           <p className="pageEyebrow">Path</p>
           <h1>{path.title}</h1>
           {path.description ? <p className="pageDescription">{path.description}</p> : null}
+          <div className="pageMetaRow">
+            {pathProgress ? (
+              <>
+                <span className="progressBadge">Path Progress</span>
+                <span className="pageProgressSummary">
+                  {pathProgress.completionPct}% complete · {pathProgress.completedModules}/
+                  {pathProgress.totalModules} modules
+                </span>
+              </>
+            ) : (
+              <p className="pageProgressNotice">
+                Progress indicators unavailable (API or temp user not configured).
+              </p>
+            )}
+          </div>
         </header>
 
         <div className="pageStack">
           {path.modules.map((module) => (
             <section key={module.id} className="playerCard pageCard">
               <div className="pageCardHeader">
-                <h2>{module.title}</h2>
+                <div>
+                  <h2>{module.title}</h2>
+                  {(() => {
+                    const moduleProgress = moduleProgressById.get(module.id);
+                    if (!moduleProgress) {
+                      return null;
+                    }
+
+                    return (
+                      <div className="pageMetaRow">
+                        <span className="progressBadge">
+                          {moduleProgress.completionPct}% · {moduleProgress.completedSections}/
+                          {moduleProgress.totalSections} sections
+                        </span>
+                      </div>
+                    );
+                  })()}
+                </div>
                 <Link className="pageActionLink" href={`/modules/${module.id}`}>
                   Open Module
                 </Link>

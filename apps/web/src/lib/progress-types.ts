@@ -24,3 +24,36 @@ export type ContinueLearning = {
   pathTitle: string;
   lastSeenAt: string | null;
 };
+
+export type ModuleSectionProgressItem = {
+  sectionId: string;
+  status: SectionProgressStatus;
+  completionPct: number;
+  lastBlockOrder: number | null;
+  lastSeenAt: string | null;
+  completedAt: string | null;
+  sectionVersionId: string | null;
+};
+
+export type ModuleProgress = {
+  moduleId: string;
+  completionPct: number;
+  completedSections: number;
+  totalSections: number;
+  sections: ModuleSectionProgressItem[];
+};
+
+export type PathModuleProgressItem = {
+  moduleId: string;
+  completionPct: number;
+  completedSections: number;
+  totalSections: number;
+};
+
+export type PathProgress = {
+  pathId: string;
+  completionPct: number;
+  completedModules: number;
+  totalModules: number;
+  modules: PathModuleProgressItem[];
+};

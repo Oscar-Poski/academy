@@ -98,6 +98,25 @@ main {
   color: var(--muted);
 }
 
+.pageMetaRow {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.6rem;
+}
+
+.pageProgressSummary {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.pageProgressNotice {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .pageStack {
   display: grid;
   gap: 1rem;
@@ -149,6 +168,60 @@ main {
 .pageListItem a:hover {
   border-color: #355487;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.pageListRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pageListRowMain {
+  min-width: 0;
+  flex: 1;
+}
+
+.pageListRowMeta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.progressBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid #355487;
+  background: rgba(53, 84, 135, 0.18);
+  color: #dbeafe;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.progressBadge--notStarted {
+  border-color: #29405f;
+  background: rgba(41, 64, 95, 0.24);
+  color: #b7c3d7;
+}
+
+.progressBadge--inProgress {
+  border-color: rgba(78, 161, 255, 0.45);
+  background: rgba(78, 161, 255, 0.14);
+  color: #b9ddff;
+}
+
+.progressBadge--completed {
+  border-color: rgba(74, 222, 128, 0.45);
+  background: rgba(74, 222, 128, 0.12);
+  color: #baf7cd;
 }
 
 .playerLayoutShell {
@@ -441,6 +514,16 @@ main {
 }
 
 @media (max-width: 960px) {
+  .pageListRow {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .pageListRowMeta {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   .playerLayout {
     grid-template-columns: 1fr;
   }

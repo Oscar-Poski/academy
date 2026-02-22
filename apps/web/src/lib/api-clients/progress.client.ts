@@ -1,4 +1,9 @@
-import type { ContinueLearning, SectionProgress } from '@/src/lib/progress-types';
+import type {
+  ContinueLearning,
+  ModuleProgress,
+  PathProgress,
+  SectionProgress
+} from '@/src/lib/progress-types';
 import { getTempUserId } from '@/src/lib/temp-user';
 import { ContentApiError } from './content.client';
 
@@ -31,6 +36,14 @@ export function startSectionProgress(sectionId: string): Promise<SectionProgress
   return fetchProgressJson<SectionProgress>(`/v1/progress/sections/${sectionId}/start`, {
     method: 'POST'
   });
+}
+
+export function getModuleProgress(moduleId: string): Promise<ModuleProgress> {
+  return fetchProgressJson<ModuleProgress>(`/v1/progress/modules/${moduleId}`);
+}
+
+export function getPathProgress(pathId: string): Promise<PathProgress> {
+  return fetchProgressJson<PathProgress>(`/v1/progress/paths/${pathId}`);
 }
 
 export function getContinueLearning(): Promise<ContinueLearning> {
