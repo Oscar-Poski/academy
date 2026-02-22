@@ -1,4 +1,5 @@
 import type { PathTree, SectionLessonBlock, SectionNavigation } from '@/src/lib/content-types';
+import type { SectionProgress } from '@/src/lib/progress-types';
 import { PlayerContent } from './PlayerContent';
 import { PlayerSidebar } from './PlayerSidebar';
 
@@ -9,6 +10,7 @@ type PlayerLayoutProps = {
   sectionTitle: string;
   lessonBlocks: SectionLessonBlock[];
   navigation: SectionNavigation;
+  sectionProgress?: SectionProgress | null;
 };
 
 export function PlayerLayout({
@@ -17,7 +19,8 @@ export function PlayerLayout({
   currentModuleId,
   sectionTitle,
   lessonBlocks,
-  navigation
+  navigation,
+  sectionProgress
 }: PlayerLayoutProps) {
   const moduleTitle =
     pathTree.modules.find((module) => module.id === currentModuleId)?.title ?? 'Module';
@@ -36,6 +39,7 @@ export function PlayerLayout({
           }}
           lessonBlocks={lessonBlocks}
           navigation={navigation}
+          sectionProgress={sectionProgress}
         />
       </div>
     </div>

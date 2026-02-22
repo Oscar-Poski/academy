@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { SectionLessonBlock, SectionNavigation } from '@/src/lib/content-types';
+import type { SectionProgress, SectionProgressStatus } from '@/src/lib/progress-types';
 import { LessonBlockRenderer } from './LessonBlockRenderer';
 
 type Breadcrumb = {
@@ -14,9 +15,39 @@ type PlayerContentProps = {
   breadcrumb: Breadcrumb;
   lessonBlocks: SectionLessonBlock[];
   navigation: SectionNavigation;
+  sectionProgress?: SectionProgress | null;
 };
 
-export function PlayerContent({ breadcrumb, lessonBlocks, navigation }: PlayerContentProps) {
+function getStatusLabel(status: SectionProgressStatus): string {
+  switch (status) {
+    case 'completed':
+      return 'Completed';
+    case 'in_progress':
+      return 'In Progress';
+    case 'not_started':
+    default:
+      return 'Not Started';
+  }
+}
+
+function getStatusClassName(status: SectionProgressStatus): string {
+  switch (status) {
+    case 'completed':
+      return 'progressBadge progressBadge--completed';
+    case 'in_progress':
+      return 'progressBadge progressBadge--inProgress';
+    case 'not_started':
+    default:
+      return 'progressBadge progressBadge--notStarted';
+  }
+}
+
+export function PlayerContent({
+  breadcrumb,
+  lessonBlocks,
+  navigation,
+  sectionProgress
+}: PlayerContentProps) {
   return (
     <section className="playerContent">
       <header className="playerHeader playerCard">
@@ -28,6 +59,14 @@ export function PlayerContent({ breadcrumb, lessonBlocks, navigation }: PlayerCo
           <span aria-current="page">{breadcrumb.sectionTitle}</span>
         </nav>
         <h1 className="playerSectionTitle">{breadcrumb.sectionTitle}</h1>
+        {sectionProgress ? (
+          <div className="playerHeaderMeta">
+            <span className={getStatusClassName(sectionProgress.status)}>
+              {getStatusLabel(sectionProgress.status)}
+            </span>
+            <span className="playerHeaderMetaText">{sectionProgress.completionPct}% complete</span>
+          </div>
+        ) : null}
       </header>
 
       <div className="playerBlocks">

@@ -38,6 +38,10 @@ export function startSectionProgress(sectionId: string): Promise<SectionProgress
   });
 }
 
+export function getSectionProgress(sectionId: string): Promise<SectionProgress> {
+  return fetchProgressJson<SectionProgress>(`/v1/progress/sections/${sectionId}`);
+}
+
 export function getModuleProgress(moduleId: string): Promise<ModuleProgress> {
   return fetchProgressJson<ModuleProgress>(`/v1/progress/modules/${moduleId}`);
 }

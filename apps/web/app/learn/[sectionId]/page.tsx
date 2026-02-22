@@ -17,7 +17,7 @@ export default async function LearnPage({ params }: LearnPageProps) {
     // Path fetch must wait until module payload resolves.
     // TODO(content-versioning): Replace temporary x-user-id strategy with authenticated user context (JWT/session)
     // once auth lands, while keeping version-aware section retrieval behavior.
-    const [module] = await Promise.all([
+    const [module, sectionProgress] = await Promise.all([
       getModule(section.moduleId),
       startSectionProgress(section.id).catch(() => null)
     ]);
@@ -31,6 +31,7 @@ export default async function LearnPage({ params }: LearnPageProps) {
         sectionTitle={section.title}
         lessonBlocks={section.lessonBlocks}
         navigation={section.navigation}
+        sectionProgress={sectionProgress}
       />
     );
   } catch (error) {

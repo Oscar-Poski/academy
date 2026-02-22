@@ -356,6 +356,19 @@ main {
   font-size: 1.6rem;
 }
 
+.playerHeaderMeta {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.6rem;
+}
+
+.playerHeaderMetaText {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .playerBlocks {
   display: grid;
   gap: 0.9rem;

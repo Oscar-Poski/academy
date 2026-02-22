@@ -167,6 +167,29 @@ describe('Progress API (e2e)', () => {
     expect(rows).toHaveLength(1);
   });
 
+  it('get section progress returns 404 before start and row after start', async () => {
+    await request(app.getHttpServer())
+      .get(`/v1/progress/sections/${seededSectionId}`)
+      .set('x-user-id', userIds.happy)
+      .expect(404);
+
+    const start = await request(app.getHttpServer())
+      .post(`/v1/progress/sections/${seededSectionId}/start`)
+      .set('x-user-id', userIds.happy)
+      .expect(201);
+
+    const fetched = await request(app.getHttpServer())
+      .get(`/v1/progress/sections/${seededSectionId}`)
+      .set('x-user-id', userIds.happy)
+      .expect(200);
+
+    expect(fetched.body.id).toEqual(expect.any(String));
+    expect(fetched.body.sectionId).toBe(seededSectionId);
+    expect(fetched.body.sectionVersionId).toBe(start.body.sectionVersionId);
+    expect(fetched.body.status).toBe('in_progress');
+    expect(fetched.body.completionPct).toBe(0);
+  });
+
   it('continue returns resume when in_progress exists and fallback otherwise', async () => {
     const fallback = await request(app.getHttpServer())
       .get('/v1/progress/continue')

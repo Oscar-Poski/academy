@@ -37,6 +37,14 @@ export class ProgressController {
     return this.progressService.completeSection(userId, sectionId);
   }
 
+  @Get('sections/:sectionId')
+  getSectionProgress(
+    @Param('sectionId') sectionId: string,
+    @Headers('x-user-id') userId: string
+  ): Promise<SectionProgressDto> {
+    return this.progressService.getSectionProgress(userId, sectionId);
+  }
+
   @Get('modules/:moduleId')
   getModuleProgress(
     @Param('moduleId') moduleId: string,

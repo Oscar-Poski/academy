@@ -137,6 +137,20 @@ export class ProgressService {
     return this.toSectionProgressDto(updated);
   }
 
+  async getSectionProgress(userId: string, sectionId: string): Promise<SectionProgressDto> {
+    await this.assertKnownUser(userId);
+
+    const progress = await this.prisma.userSectionProgress.findUnique({
+      where: { userId_sectionId: { userId, sectionId } }
+    });
+
+    if (!progress) {
+      throw new NotFoundException(`Progress for section ${sectionId} not found`);
+    }
+
+    return this.toSectionProgressDto(progress);
+  }
+
   async getModuleProgress(userId: string, moduleId: string): Promise<ModuleProgressDto> {
     await this.assertKnownUser(userId);
 

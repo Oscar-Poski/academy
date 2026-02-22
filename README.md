@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-6 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-7 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -79,7 +79,7 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
-## Course Player (PR-3, PR-5, PR-6)
+## Course Player (PR-3, PR-5, PR-6, PR-7)
 
 Web routes now consume the read-only content API:
 
@@ -95,6 +95,10 @@ Web progress indicators (PR-6):
 - `/paths/:pathId` now shows path-level progress summary and per-module progress chips
 - `/modules/:moduleId` now shows module-level summary and per-section status badges (`Not Started`, `In Progress`, `Completed`)
 - If progress is unavailable (API down or `NEXT_PUBLIC_TEMP_USER_ID` missing), pages still render and show a non-fatal notice
+
+Player progress chip (PR-7):
+- `/learn/:sectionId` now shows a player-header progress chip (status + completion %) when section progress is available
+- Player page still renders if progress calls fail; chip is omitted as a non-fatal fallback
 
 Get seeded IDs from the API:
 
@@ -119,6 +123,7 @@ Open in browser:
 Progress endpoints are available in `apps/api` (temporary user strategy using `x-user-id` header):
 
 - `POST /v1/progress/sections/:sectionId/start`
+- `GET /v1/progress/sections/:sectionId`
 - `PATCH /v1/progress/sections/:sectionId/position`
 - `POST /v1/progress/sections/:sectionId/complete`
 - `GET /v1/progress/modules/:moduleId`
@@ -171,7 +176,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-6)
+## Current Scope (PR-7)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -196,6 +201,8 @@ pnpm build
 - Continue learning API + homepage continue card in `apps/web`
 - Version-aware section retrieval in `apps/api` using optional `x-user-id` and progress-pinned `sectionVersionId`
 - Web path/module progress indicators (read-only wiring to existing progress endpoints)
+- Read-only section progress endpoint (`GET /v1/progress/sections/:sectionId`) in `apps/api`
+- Player header progress chip on `/learn/:sectionId` in `apps/web`
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
 
 No auth/quiz execution/unlocks/XP/credits/gamification yet.
@@ -221,6 +228,7 @@ SECTION_ID=$(curl -s http://localhost:3001/v1/modules/$MODULE_ID | jq -r '.secti
 
 ```bash
 curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/start" | jq
+curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID" | jq
 curl -s -X PATCH -H "x-user-id: $USER_ID" -H "Content-Type: application/json" -d '{"last_block_order":2,"time_spent_delta":15,"completion_pct":50}' "http://localhost:3001/v1/progress/sections/$SECTION_ID/position" | jq
 curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
 curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/modules/$MODULE_ID" | jq
