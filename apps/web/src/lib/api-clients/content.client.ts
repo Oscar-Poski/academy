@@ -1,4 +1,5 @@
 import type { ModuleDetail, PathListItem, PathTree, SectionDetail } from '@/src/lib/content-types';
+import { getTempUserId } from '@/src/lib/temp-user';
 
 const CONTENT_API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL && process.env.NEXT_PUBLIC_API_BASE_URL.trim().length > 0
@@ -15,8 +16,11 @@ export class ContentApiError extends Error {
   }
 }
 
-async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${CONTENT_API_BASE_URL}${path}`, { cache: 'no-store' });
+async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${CONTENT_API_BASE_URL}${path}`, {
+    cache: 'no-store',
+    ...init
+  });
 
   if (!response.ok) {
     throw new ContentApiError(`Content API request failed for ${path}`, response.status);
@@ -37,6 +41,17 @@ export function getModule(moduleId: string): Promise<ModuleDetail> {
   return fetchJson<ModuleDetail>(`/v1/modules/${moduleId}`);
 }
 
-export function getSection(sectionId: string): Promise<SectionDetail> {
-  return fetchJson<SectionDetail>(`/v1/sections/${sectionId}`);
+export function getSection(
+  sectionId: string,
+  options?: { includeUserContext?: boolean }
+): Promise<SectionDetail> {
+  if (!options?.includeUserContext) {
+    return fetchJson<SectionDetail>(`/v1/sections/${sectionId}`);
+  }
+
+  return fetchJson<SectionDetail>(`/v1/sections/${sectionId}`, {
+    headers: {
+      'x-user-id': getTempUserId()
+    }
+  });
 }

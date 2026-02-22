@@ -11,12 +11,12 @@ type LearnPageProps = {
 
 export default async function LearnPage({ params }: LearnPageProps) {
   try {
-    const section = await getSection(params.sectionId);
+    const section = await getSection(params.sectionId, { includeUserContext: true });
 
     // API currently returns moduleId in section payload, but not pathId.
     // Path fetch must wait until module payload resolves.
-    // TODO(content-versioning): startSectionProgress pins a section_version_id, but this page still fetches
-    // content from the published-only endpoint. Switch to a version-aware content fetch in a future PR.
+    // TODO(content-versioning): Replace temporary x-user-id strategy with authenticated user context (JWT/session)
+    // once auth lands, while keeping version-aware section retrieval behavior.
     const [module] = await Promise.all([
       getModule(section.moduleId),
       startSectionProgress(section.id).catch(() => null)

@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Param } from '@nestjs/common';
+import { Controller, Get, Headers, Inject, Param } from '@nestjs/common';
 import { ContentService } from './content.service';
 
 @Controller('v1')
@@ -21,7 +21,7 @@ export class ContentController {
   }
 
   @Get('sections/:sectionId')
-  getSection(@Param('sectionId') sectionId: string) {
-    return this.contentService.getSection(sectionId);
+  getSection(@Param('sectionId') sectionId: string, @Headers('x-user-id') userId?: string) {
+    return this.contentService.getSection(sectionId, userId);
   }
 }

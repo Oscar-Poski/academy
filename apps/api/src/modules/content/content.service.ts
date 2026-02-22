@@ -113,7 +113,7 @@ export class ContentService {
     return module;
   }
 
-  async getSection(sectionId: string): Promise<SectionDetailDto> {
+  async getSection(sectionId: string, userId?: string): Promise<SectionDetailDto> {
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
       select: {
@@ -129,29 +129,10 @@ export class ContentService {
       throw new NotFoundException(`Section ${sectionId} not found`);
     }
 
-    const sectionVersion = await this.prisma.sectionVersion.findFirst({
-      where: {
-        sectionId,
-        status: SectionVersionStatus.published
-      },
-      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }, { id: 'asc' }],
-      select: {
-        id: true,
-        lessonBlocks: {
-          orderBy: [{ blockOrder: 'asc' }, { id: 'asc' }],
-          select: {
-            id: true,
-            blockOrder: true,
-            blockType: true,
-            contentJson: true,
-            estimatedSeconds: true
-          }
-        }
-      }
-    });
+    const sectionVersion = await this.resolveSectionVersion(sectionId, userId);
 
     if (!sectionVersion) {
-      throw new NotFoundException(`Section ${sectionId} has no published version`);
+      throw new NotFoundException('No published version for section');
     }
 
     const siblings = await this.prisma.section.findMany({
@@ -174,5 +155,67 @@ export class ContentService {
       lessonBlocks: sectionVersion.lessonBlocks,
       navigation
     };
+  }
+
+  private async resolveSectionVersion(sectionId: string, userId?: string) {
+    if (userId && userId.trim().length > 0) {
+      const progress = await this.prisma.userSectionProgress.findFirst({
+        where: {
+          userId: userId.trim(),
+          sectionId
+        },
+        select: {
+          sectionVersionId: true
+        }
+      });
+
+      if (progress) {
+        const pinnedVersion = await this.prisma.sectionVersion.findFirst({
+          where: {
+            id: progress.sectionVersionId,
+            sectionId,
+            status: { in: [SectionVersionStatus.published, SectionVersionStatus.archived] }
+          },
+          select: {
+            id: true,
+            lessonBlocks: {
+              orderBy: [{ blockOrder: 'asc' }, { id: 'asc' }],
+              select: {
+                id: true,
+                blockOrder: true,
+                blockType: true,
+                contentJson: true,
+                estimatedSeconds: true
+              }
+            }
+          }
+        });
+
+        if (pinnedVersion) {
+          return pinnedVersion;
+        }
+      }
+    }
+
+    return this.prisma.sectionVersion.findFirst({
+      where: {
+        sectionId,
+        status: SectionVersionStatus.published
+      },
+      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }, { id: 'asc' }],
+      select: {
+        id: true,
+        lessonBlocks: {
+          orderBy: [{ blockOrder: 'asc' }, { id: 'asc' }],
+          select: {
+            id: true,
+            blockOrder: true,
+            blockType: true,
+            contentJson: true,
+            estimatedSeconds: true
+          }
+        }
+      }
+    });
   }
 }
