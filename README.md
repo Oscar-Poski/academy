@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-8 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-9 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -79,7 +79,7 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
-## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8)
+## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9)
 
 Web routes now consume the read-only content API:
 
@@ -104,6 +104,10 @@ Player completion CTA (PR-8):
 - `/learn/:sectionId` footer now includes a `Mark Complete` button wired to the existing progress complete endpoint
 - CTA shows pending/success/error states without breaking navigation
 - On success, the player refreshes so the server-rendered progress chip updates to `Completed / 100%`
+
+Footer navigation checkpoint save (PR-9):
+- Clicking `Previous Section` / `Next Section` in the player footer now performs a best-effort progress position save before navigating
+- The UI still navigates even if the position update fails (API unavailable or temp user missing)
 
 Get seeded IDs from the API:
 
@@ -181,7 +185,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-8)
+## Current Scope (PR-9)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -209,6 +213,7 @@ pnpm build
 - Read-only section progress endpoint (`GET /v1/progress/sections/:sectionId`) in `apps/api`
 - Player header progress chip on `/learn/:sectionId` in `apps/web`
 - Player footer `Mark Complete` CTA on `/learn/:sectionId` in `apps/web` (uses existing complete endpoint)
+- Player footer prev/next navigation performs best-effort position save (`PATCH /v1/progress/sections/:sectionId/position`) before route change
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
 
 No auth/quiz execution/unlocks/XP/credits/gamification yet.

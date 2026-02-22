@@ -14,6 +14,12 @@ export type SectionProgress = {
   timeSpentSeconds: number;
 };
 
+export type UpdateSectionPositionRequest = {
+  last_block_order: number;
+  time_spent_delta: number;
+  completion_pct?: number;
+};
+
 export type ContinueLearning = {
   source: 'resume' | 'fallback';
   sectionId: string;

@@ -3,6 +3,7 @@ import type { SectionLessonBlock, SectionNavigation } from '@/src/lib/content-ty
 import type { SectionProgress, SectionProgressStatus } from '@/src/lib/progress-types';
 import { LessonBlockRenderer } from './LessonBlockRenderer';
 import { PlayerCompleteButton } from './PlayerCompleteButton';
+import { PlayerNavButton } from './PlayerNavButton';
 
 type Breadcrumb = {
   pathId: string;
@@ -51,6 +52,9 @@ export function PlayerContent({
   navigation,
   sectionProgress
 }: PlayerContentProps) {
+  const lastBlockOrderToPersist =
+    lessonBlocks.length > 0 ? Math.max(...lessonBlocks.map((block) => block.blockOrder)) : 0;
+
   return (
     <section className="playerContent">
       <header className="playerHeader playerCard">
@@ -85,15 +89,13 @@ export function PlayerContent({
       </div>
 
       <footer className="playerFooter playerCard">
-        {navigation.prevSectionId ? (
-          <Link className="playerNavBtn" href={`/learn/${navigation.prevSectionId}`}>
-            Previous Section
-          </Link>
-        ) : (
-          <span className="playerNavBtn isDisabled" aria-disabled="true">
-            Previous Section
-          </span>
-        )}
+        <PlayerNavButton
+          direction="prev"
+          label="Previous Section"
+          targetSectionId={navigation.prevSectionId}
+          currentSectionId={currentSectionId}
+          lastBlockOrderToPersist={lastBlockOrderToPersist}
+        />
 
         <PlayerCompleteButton
           key={currentSectionId}
@@ -101,15 +103,13 @@ export function PlayerContent({
           initialSectionProgress={sectionProgress}
         />
 
-        {navigation.nextSectionId ? (
-          <Link className="playerNavBtn" href={`/learn/${navigation.nextSectionId}`}>
-            Next Section
-          </Link>
-        ) : (
-          <span className="playerNavBtn isDisabled" aria-disabled="true">
-            Next Section
-          </span>
-        )}
+        <PlayerNavButton
+          direction="next"
+          label="Next Section"
+          targetSectionId={navigation.nextSectionId}
+          currentSectionId={currentSectionId}
+          lastBlockOrderToPersist={lastBlockOrderToPersist}
+        />
       </footer>
     </section>
   );

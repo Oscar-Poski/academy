@@ -2,7 +2,8 @@ import type {
   ContinueLearning,
   ModuleProgress,
   PathProgress,
-  SectionProgress
+  SectionProgress,
+  UpdateSectionPositionRequest
 } from '@/src/lib/progress-types';
 import { getTempUserId } from '@/src/lib/temp-user';
 import { ContentApiError } from './content.client';
@@ -46,6 +47,16 @@ export function completeSectionProgress(sectionId: string): Promise<SectionProgr
 
 export function getSectionProgress(sectionId: string): Promise<SectionProgress> {
   return fetchProgressJson<SectionProgress>(`/v1/progress/sections/${sectionId}`);
+}
+
+export function updateSectionPosition(
+  sectionId: string,
+  body: UpdateSectionPositionRequest
+): Promise<SectionProgress> {
+  return fetchProgressJson<SectionProgress>(`/v1/progress/sections/${sectionId}/position`, {
+    method: 'PATCH',
+    body: JSON.stringify(body)
+  });
 }
 
 export function getModuleProgress(moduleId: string): Promise<ModuleProgress> {
