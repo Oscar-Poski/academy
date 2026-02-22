@@ -38,6 +38,12 @@ export function startSectionProgress(sectionId: string): Promise<SectionProgress
   });
 }
 
+export function completeSectionProgress(sectionId: string): Promise<SectionProgress> {
+  return fetchProgressJson<SectionProgress>(`/v1/progress/sections/${sectionId}/complete`, {
+    method: 'POST'
+  });
+}
+
 export function getSectionProgress(sectionId: string): Promise<SectionProgress> {
   return fetchProgressJson<SectionProgress>(`/v1/progress/sections/${sectionId}`);
 }

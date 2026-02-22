@@ -30,6 +30,7 @@ export function PlayerLayout({
       <div className="playerLayout">
         <PlayerSidebar pathTree={pathTree} currentSectionId={currentSectionId} />
         <PlayerContent
+          currentSectionId={currentSectionId}
           breadcrumb={{
             pathId: pathTree.id,
             pathTitle: pathTree.title,

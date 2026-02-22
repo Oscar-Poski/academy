@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-7 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-8 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -79,7 +79,7 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
-## Course Player (PR-3, PR-5, PR-6, PR-7)
+## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8)
 
 Web routes now consume the read-only content API:
 
@@ -99,6 +99,11 @@ Web progress indicators (PR-6):
 Player progress chip (PR-7):
 - `/learn/:sectionId` now shows a player-header progress chip (status + completion %) when section progress is available
 - Player page still renders if progress calls fail; chip is omitted as a non-fatal fallback
+
+Player completion CTA (PR-8):
+- `/learn/:sectionId` footer now includes a `Mark Complete` button wired to the existing progress complete endpoint
+- CTA shows pending/success/error states without breaking navigation
+- On success, the player refreshes so the server-rendered progress chip updates to `Completed / 100%`
 
 Get seeded IDs from the API:
 
@@ -176,7 +181,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-7)
+## Current Scope (PR-8)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -203,6 +208,7 @@ pnpm build
 - Web path/module progress indicators (read-only wiring to existing progress endpoints)
 - Read-only section progress endpoint (`GET /v1/progress/sections/:sectionId`) in `apps/api`
 - Player header progress chip on `/learn/:sectionId` in `apps/web`
+- Player footer `Mark Complete` CTA on `/learn/:sectionId` in `apps/web` (uses existing complete endpoint)
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
 
 No auth/quiz execution/unlocks/XP/credits/gamification yet.

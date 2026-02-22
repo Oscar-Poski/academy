@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { SectionLessonBlock, SectionNavigation } from '@/src/lib/content-types';
 import type { SectionProgress, SectionProgressStatus } from '@/src/lib/progress-types';
 import { LessonBlockRenderer } from './LessonBlockRenderer';
+import { PlayerCompleteButton } from './PlayerCompleteButton';
 
 type Breadcrumb = {
   pathId: string;
@@ -12,6 +13,7 @@ type Breadcrumb = {
 };
 
 type PlayerContentProps = {
+  currentSectionId: string;
   breadcrumb: Breadcrumb;
   lessonBlocks: SectionLessonBlock[];
   navigation: SectionNavigation;
@@ -43,6 +45,7 @@ function getStatusClassName(status: SectionProgressStatus): string {
 }
 
 export function PlayerContent({
+  currentSectionId,
   breadcrumb,
   lessonBlocks,
   navigation,
@@ -91,6 +94,12 @@ export function PlayerContent({
             Previous Section
           </span>
         )}
+
+        <PlayerCompleteButton
+          key={currentSectionId}
+          sectionId={currentSectionId}
+          initialSectionProgress={sectionProgress}
+        />
 
         {navigation.nextSectionId ? (
           <Link className="playerNavBtn" href={`/learn/${navigation.nextSectionId}`}>
