@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-9 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-10 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -139,6 +139,19 @@ Progress endpoints are available in `apps/api` (temporary user strategy using `x
 - `GET /v1/progress/paths/:pathId`
 - `GET /v1/progress/continue`
 
+## Analytics Ingest (PR-10)
+
+Analytics baseline is now available in `apps/api`:
+
+- Raw `analytics_events` table (Prisma/Postgres)
+- `POST /v1/analytics/events` (single-event ingest)
+
+Current PR-10 behavior:
+- accepts a single raw event payload (snake_case fields)
+- validates required `event_name` and `occurred_at`
+- stores `received_at` server-side
+- no idempotency key support yet (planned for later PR)
+
 Get a real seeded `users.id` (used for `x-user-id` and the web continue card):
 
 ```bash
@@ -185,7 +198,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-9)
+## Current Scope (PR-10)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -214,7 +227,9 @@ pnpm build
 - Player header progress chip on `/learn/:sectionId` in `apps/web`
 - Player footer `Mark Complete` CTA on `/learn/:sectionId` in `apps/web` (uses existing complete endpoint)
 - Player footer prev/next navigation performs best-effort position save (`PATCH /v1/progress/sections/:sectionId/position`) before route change
+- Analytics ingest baseline in `apps/api` (`analytics_events` + `POST /v1/analytics/events`)
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
+- API e2e tests now include analytics ingest coverage
 
 No auth/quiz execution/unlocks/XP/credits/gamification yet.
 
@@ -227,6 +242,27 @@ pnpm --filter @academy/api db:reset
 pnpm --filter @academy/api db:seed
 pnpm --filter @academy/api test
 pnpm --filter @academy/api dev
+```
+
+## Useful Analytics Curl Command
+
+```bash
+PATH_ID=$(curl -s http://localhost:3001/v1/paths | jq -r '.[0].id')
+MODULE_ID=$(curl -s http://localhost:3001/v1/paths/$PATH_ID | jq -r '.modules[0].id')
+SECTION_ID=$(curl -s http://localhost:3001/v1/modules/$MODULE_ID | jq -r '.sections[0].id')
+SECTION_VERSION_ID=$(curl -s http://localhost:3001/v1/sections/$SECTION_ID | jq -r '.sectionVersionId')
+```
+
+```bash
+curl -s -X POST "http://localhost:3001/v1/analytics/events" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name":"section_complete",
+    "occurred_at":"2026-02-22T18:00:00.000Z",
+    "section_id":"'"$SECTION_ID"'",
+    "section_version_id":"'"$SECTION_VERSION_ID"'",
+    "payload_json":{"source":"manual"}
+  }' | jq
 ```
 
 ## Useful Progress Curl Commands

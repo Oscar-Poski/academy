@@ -150,3 +150,22 @@ model UserSectionProgress {
   @@index([sectionVersionId])
   @@map("user_section_progress")
 }
+
+model AnalyticsEvent {
+  id               String   @id @default(cuid())
+  userId           String?  @map("user_id")
+  eventName        String   @map("event_name")
+  pathId           String?  @map("path_id")
+  moduleId         String?  @map("module_id")
+  sectionId        String?  @map("section_id")
+  sectionVersionId String?  @map("section_version_id")
+  payloadJson      Json     @map("payload_json")
+  occurredAt       DateTime @map("occurred_at")
+  receivedAt       DateTime @default(now()) @map("received_at")
+
+  @@index([eventName, occurredAt])
+  @@index([userId, occurredAt])
+  @@index([sectionId, occurredAt])
+  @@index([moduleId, occurredAt])
+  @@map("analytics_events")
+}
