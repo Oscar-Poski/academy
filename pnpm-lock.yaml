@@ -59,6 +59,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@academy/content-importer':
+        specifier: workspace:*
+        version: link:../../packages/content-importer
       '@academy/shared':
         specifier: workspace:*
         version: link:../../packages/shared

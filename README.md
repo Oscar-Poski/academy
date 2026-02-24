@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-13 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-14 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -163,7 +163,7 @@ PR-11 additions:
 - optional `idempotency_key` is supported and deduplicates repeated requests
 - `payload_json` must be an object when provided
 
-## Content Importer (PR-12, PR-13)
+## Content Importer (PR-12, PR-13, PR-14)
 
 `packages/content-importer` now provides a markdown import parser + CLI for dry-run parsing and draft DB upserts:
 
@@ -174,6 +174,7 @@ PR-11 additions:
 - PR-13 adds `--apply` mode to upsert `paths/modules/sections` and draft `section_versions` + `lesson_blocks`
 - existing `published` / `archived` section versions are preserved (skipped, not overwritten)
 - repeated `--apply` runs are idempotent (draft versions update in place)
+- PR-14 adds `POST /v1/admin/content/import` in `apps/api` to run the same importer logic over HTTP (`dryRun` / `apply`)
 
 Run the importer dry-run against the included fixture bundle:
 
@@ -191,6 +192,32 @@ pnpm --filter @academy/content-importer run import -- --root /Users/poski/academ
 Example PR-13 apply result (seeded DB):
 - first run: creates new draft version(s) and updates existing draft version(s)
 - second run: no duplicate versions created; draft versions are updated in place
+
+Call the admin import endpoint (PR-14) using a server-local bundle path:
+
+```bash
+curl -s -X POST http://localhost:3001/v1/admin/content/import \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bundle_path": "/Users/poski/academy/packages/content-importer/fixtures/sample-bundle",
+    "mode": "dryRun"
+  }' | jq
+```
+
+```bash
+curl -s -X POST http://localhost:3001/v1/admin/content/import \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bundle_path": "/Users/poski/academy/packages/content-importer/fixtures/sample-bundle",
+    "mode": "apply"
+  }' | jq
+```
+
+PR-14 endpoint behavior:
+- returns `200` with importer report JSON for both `dryRun` and `apply`
+- `apply` parse errors return a non-writing report (`applied: false`, `abortedReason: "parse_errors"`) instead of a request error
+- invalid body or unreadable/nonexistent `bundle_path` returns `400`
+- optional `CONTENT_IMPORT_ROOT` restricts allowed import paths when set in the API process environment
 
 Alternative (bypasses `pnpm import` built-in command name collision):
 
@@ -249,7 +276,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-13)
+## Current Scope (PR-14)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -283,8 +310,9 @@ pnpm build
 - Web player emits best-effort analytics events (`section_start`, `section_complete`)
 - `packages/content-importer` parser + CLI for `.md/.mdx` frontmatter bundles (dry-run and `--apply` draft upsert mode)
 - Importer `--apply` upserts `paths/modules/sections` and draft `section_versions` + `lesson_blocks` while preserving non-draft versions
+- Admin content import endpoint in `apps/api` (`POST /v1/admin/content/import`) for `dryRun`/`apply` using the shared importer package
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
-- API e2e tests now include analytics ingest coverage
+- API e2e tests now include analytics ingest and admin content import coverage
 
 No auth/quiz execution/unlocks/XP/credits/gamification yet.
 
