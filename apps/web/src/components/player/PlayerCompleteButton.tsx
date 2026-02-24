@@ -2,16 +2,21 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.client';
 import { completeSectionProgress } from '@/src/lib/api-clients/progress.client';
 import type { SectionProgress } from '@/src/lib/progress-types';
 
 type PlayerCompleteButtonProps = {
   sectionId: string;
+  pathId: string;
+  moduleId: string;
   initialSectionProgress?: SectionProgress | null;
 };
 
 export function PlayerCompleteButton({
   sectionId,
+  pathId,
+  moduleId,
   initialSectionProgress
 }: PlayerCompleteButtonProps) {
   const router = useRouter();
@@ -37,6 +42,20 @@ export function PlayerCompleteButton({
       if (result.status === 'completed') {
         setIsCompleted(true);
       }
+
+      void postAnalyticsEvent({
+        event_name: 'section_complete',
+        occurred_at: new Date().toISOString(),
+        idempotency_key: `section_complete:${result.id}`,
+        user_id: result.userId,
+        path_id: pathId,
+        module_id: moduleId,
+        section_id: result.sectionId,
+        section_version_id: result.sectionVersionId,
+        payload_json: {
+          source: 'player_complete_cta'
+        }
+      }).catch(() => null);
 
       startRefreshTransition(() => {
         router.refresh();

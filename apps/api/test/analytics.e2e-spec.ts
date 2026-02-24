@@ -8,6 +8,7 @@ describe('Analytics API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaClient;
   const createdEventIds: string[] = [];
+  const createdIdempotencyKeys: string[] = [];
 
   beforeAll(async () => {
     prisma = new PrismaClient();
@@ -22,17 +23,32 @@ describe('Analytics API (e2e)', () => {
 
   afterEach(async () => {
     if (createdEventIds.length === 0) {
-      return;
+      if (createdIdempotencyKeys.length === 0) {
+        return;
+      }
     }
 
-    await prisma.analyticsEvent.deleteMany({
-      where: {
-        id: {
-          in: [...createdEventIds]
+    if (createdIdempotencyKeys.length > 0) {
+      await prisma.analyticsEvent.deleteMany({
+        where: {
+          idempotencyKey: {
+            in: [...createdIdempotencyKeys]
+          }
         }
-      }
-    });
+      });
+    }
+
+    if (createdEventIds.length > 0) {
+      await prisma.analyticsEvent.deleteMany({
+        where: {
+          id: {
+            in: [...createdEventIds]
+          }
+        }
+      });
+    }
     createdEventIds.length = 0;
+    createdIdempotencyKeys.length = 0;
   });
 
   afterAll(async () => {
@@ -99,5 +115,51 @@ describe('Analytics API (e2e)', () => {
         occurred_at: 'not-a-date'
       })
       .expect(400);
+  });
+
+  it('POST /v1/analytics/events rejects unsupported event_name', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/analytics/events')
+      .send({
+        event_name: 'random_event',
+        occurred_at: '2026-02-22T18:00:00.000Z'
+      })
+      .expect(400);
+  });
+
+  it('POST /v1/analytics/events rejects invalid payload_json type', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/analytics/events')
+      .send({
+        event_name: 'section_start',
+        occurred_at: '2026-02-22T18:00:00.000Z',
+        payload_json: ['not', 'an', 'object']
+      })
+      .expect(400);
+  });
+
+  it('POST /v1/analytics/events deduplicates by idempotency_key', async () => {
+    const key = `analytics-dedupe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    createdIdempotencyKeys.push(key);
+
+    const body = {
+      event_name: 'section_start',
+      occurred_at: '2026-02-22T18:00:00.000Z',
+      idempotency_key: key,
+      payload_json: { source: 'dedupe-test' }
+    };
+
+    const first = await request(app.getHttpServer()).post('/v1/analytics/events').send(body).expect(201);
+    const second = await request(app.getHttpServer()).post('/v1/analytics/events').send(body).expect(201);
+
+    expect(first.body.id).toEqual(expect.any(String));
+    expect(second.body.id).toBe(first.body.id);
+
+    const rows = await prisma.analyticsEvent.findMany({
+      where: { idempotencyKey: key },
+      select: { id: true }
+    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].id).toBe(first.body.id);
   });
 });

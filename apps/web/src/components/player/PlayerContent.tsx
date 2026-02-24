@@ -100,6 +100,8 @@ export function PlayerContent({
         <PlayerCompleteButton
           key={currentSectionId}
           sectionId={currentSectionId}
+          pathId={breadcrumb.pathId}
+          moduleId={breadcrumb.moduleId}
           initialSectionProgress={sectionProgress}
         />
 

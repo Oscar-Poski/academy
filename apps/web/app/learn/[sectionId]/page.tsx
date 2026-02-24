@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { PlayerLayout } from '@/src/components/player/PlayerLayout';
 import { ContentApiError, getModule, getPath, getSection } from '@/src/lib/api-clients/content.client';
+import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.client';
 import { startSectionProgress } from '@/src/lib/api-clients/progress.client';
 
 type LearnPageProps = {
@@ -22,6 +23,22 @@ export default async function LearnPage({ params }: LearnPageProps) {
       startSectionProgress(section.id).catch(() => null)
     ]);
     const [pathTree] = await Promise.all([getPath(module.pathId)]);
+
+    if (sectionProgress) {
+      await postAnalyticsEvent({
+        event_name: 'section_start',
+        occurred_at: new Date().toISOString(),
+        idempotency_key: `section_start:${sectionProgress.id}`,
+        user_id: sectionProgress.userId,
+        path_id: module.pathId,
+        module_id: module.id,
+        section_id: section.id,
+        section_version_id: sectionProgress.sectionVersionId,
+        payload_json: {
+          source: 'learn_page'
+        }
+      }).catch(() => null);
+    }
 
     return (
       <PlayerLayout

@@ -153,6 +153,7 @@ model UserSectionProgress {
 
 model AnalyticsEvent {
   id               String   @id @default(cuid())
+  idempotencyKey   String?  @unique @map("idempotency_key")
   userId           String?  @map("user_id")
   eventName        String   @map("event_name")
   pathId           String?  @map("path_id")

@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-10 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-11 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -79,7 +79,7 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
-## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9)
+## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11)
 
 Web routes now consume the read-only content API:
 
@@ -108,6 +108,11 @@ Player completion CTA (PR-8):
 Footer navigation checkpoint save (PR-9):
 - Clicking `Previous Section` / `Next Section` in the player footer now performs a best-effort progress position save before navigating
 - The UI still navigates even if the position update fails (API unavailable or temp user missing)
+
+Player analytics emission (PR-11):
+- `/learn/:sectionId` emits a best-effort `section_start` analytics event on page load after progress start succeeds
+- Clicking `Mark Complete` emits a best-effort `section_complete` analytics event after successful completion
+- Analytics failures do not block page render, completion, or navigation UX
 
 Get seeded IDs from the API:
 
@@ -139,7 +144,7 @@ Progress endpoints are available in `apps/api` (temporary user strategy using `x
 - `GET /v1/progress/paths/:pathId`
 - `GET /v1/progress/continue`
 
-## Analytics Ingest (PR-10)
+## Analytics Ingest (PR-10, PR-11)
 
 Analytics baseline is now available in `apps/api`:
 
@@ -151,6 +156,11 @@ Current PR-10 behavior:
 - validates required `event_name` and `occurred_at`
 - stores `received_at` server-side
 - no idempotency key support yet (planned for later PR)
+
+PR-11 additions:
+- `event_name` is now validated against an allowlist (`section_start`, `section_complete`, `player_exit`, `player_dropoff`)
+- optional `idempotency_key` is supported and deduplicates repeated requests
+- `payload_json` must be an object when provided
 
 Get a real seeded `users.id` (used for `x-user-id` and the web continue card):
 
@@ -198,7 +208,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-10)
+## Current Scope (PR-11)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -228,6 +238,8 @@ pnpm build
 - Player footer `Mark Complete` CTA on `/learn/:sectionId` in `apps/web` (uses existing complete endpoint)
 - Player footer prev/next navigation performs best-effort position save (`PATCH /v1/progress/sections/:sectionId/position`) before route change
 - Analytics ingest baseline in `apps/api` (`analytics_events` + `POST /v1/analytics/events`)
+- Analytics ingest validation + idempotency in `apps/api` (`event_name` allowlist + optional `idempotency_key`)
+- Web player emits best-effort analytics events (`section_start`, `section_complete`)
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
 - API e2e tests now include analytics ingest coverage
 
