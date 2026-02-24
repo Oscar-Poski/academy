@@ -12,6 +12,7 @@
     "import": "tsx src/cli.ts"
   },
   "dependencies": {
+    "@prisma/client": "5.22.0",
     "gray-matter": "^4.0.3",
     "zod": "3.24.1"
   }

@@ -1,24 +1,34 @@
+import { applyParsedContentReport, createDryRunApplyReport } from './apply';
 import { parseContentBundle } from './importer';
 
 type CliOptions = {
   root: string;
+  apply: boolean;
   pretty: boolean;
   strict: boolean;
 };
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const report = await parseContentBundle(options.root);
+  const parseReport = await parseContentBundle(options.root);
+  const report = options.apply
+    ? await applyParsedContentReport(parseReport)
+    : createDryRunApplyReport(parseReport);
   const spacing = options.pretty ? 2 : 0;
   process.stdout.write(`${JSON.stringify(report, null, spacing)}\n`);
 
-  if (options.strict && report.errorCount > 0) {
+  if (options.strict && parseReport.errorCount > 0) {
+    process.exitCode = 1;
+  }
+
+  if (options.apply && report.abortedReason === 'parse_errors') {
     process.exitCode = 1;
   }
 }
 
 function parseArgs(args: string[]): CliOptions {
   let root: string | null = null;
+  let apply = false;
   let pretty = true;
   let strict = false;
 
@@ -45,6 +55,11 @@ function parseArgs(args: string[]): CliOptions {
       continue;
     }
 
+    if (arg === '--apply') {
+      apply = true;
+      continue;
+    }
+
     if (arg === '--strict') {
       strict = true;
       continue;
@@ -67,7 +82,7 @@ function parseArgs(args: string[]): CliOptions {
     throw new Error('Missing required --root <path>');
   }
 
-  return { root, pretty, strict };
+  return { root, apply, pretty, strict };
 }
 
 main().catch((error) => {

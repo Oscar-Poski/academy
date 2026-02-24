@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-12 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-13 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -163,21 +163,34 @@ PR-11 additions:
 - optional `idempotency_key` is supported and deduplicates repeated requests
 - `payload_json` must be an object when provided
 
-## Content Importer (PR-12)
+## Content Importer (PR-12, PR-13)
 
-`packages/content-importer` now provides an in-memory markdown import parser + dry-run CLI:
+`packages/content-importer` now provides a markdown import parser + CLI for dry-run parsing and draft DB upserts:
 
 - recursively scans a local bundle root for `.md` / `.mdx`
 - parses frontmatter + body into normalized draft `paths/modules/sections/sectionVersions`
 - converts each file body into a single `markdown` lesson block (`blockOrder = 1`)
 - emits structured validation messages (errors/warnings)
-- does not write to DB yet (DB upsert is deferred to PR-13)
+- PR-13 adds `--apply` mode to upsert `paths/modules/sections` and draft `section_versions` + `lesson_blocks`
+- existing `published` / `archived` section versions are preserved (skipped, not overwritten)
+- repeated `--apply` runs are idempotent (draft versions update in place)
 
 Run the importer dry-run against the included fixture bundle:
 
 ```bash
 pnpm --filter @academy/content-importer run import -- --root /Users/poski/academy/packages/content-importer/fixtures/sample-bundle
 ```
+
+Apply the fixture bundle to the local dev DB (`DATABASE_URL` required):
+
+```bash
+set -a; . /Users/poski/academy/apps/api/.env.example; set +a
+pnpm --filter @academy/content-importer run import -- --root /Users/poski/academy/packages/content-importer/fixtures/sample-bundle --apply
+```
+
+Example PR-13 apply result (seeded DB):
+- first run: creates new draft version(s) and updates existing draft version(s)
+- second run: no duplicate versions created; draft versions are updated in place
 
 Alternative (bypasses `pnpm import` built-in command name collision):
 
@@ -188,6 +201,7 @@ node --import tsx /Users/poski/academy/packages/content-importer/src/cli.ts --ro
 Notes:
 - use `run import` (not just `pnpm ... import`) because `pnpm import` is a built-in pnpm command
 - add `--strict` to return exit code `1` when parser errors are present
+- `--apply` aborts without DB writes when parse errors are present
 
 Get a real seeded `users.id` (used for `x-user-id` and the web continue card):
 
@@ -235,7 +249,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-12)
+## Current Scope (PR-13)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -267,7 +281,8 @@ pnpm build
 - Analytics ingest baseline in `apps/api` (`analytics_events` + `POST /v1/analytics/events`)
 - Analytics ingest validation + idempotency in `apps/api` (`event_name` allowlist + optional `idempotency_key`)
 - Web player emits best-effort analytics events (`section_start`, `section_complete`)
-- `packages/content-importer` dry-run parser CLI for `.md/.mdx` frontmatter bundles (in-memory normalization only)
+- `packages/content-importer` parser + CLI for `.md/.mdx` frontmatter bundles (dry-run and `--apply` draft upsert mode)
+- Importer `--apply` upserts `paths/modules/sections` and draft `section_versions` + `lesson_blocks` while preserving non-draft versions
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
 - API e2e tests now include analytics ingest coverage
 

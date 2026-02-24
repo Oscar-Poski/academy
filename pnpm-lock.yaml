@@ -129,6 +129,9 @@ importers:
 
   packages/content-importer:
     dependencies:
+      '@prisma/client':
+        specifier: 5.22.0
+        version: 5.22.0(prisma@5.22.0)
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3

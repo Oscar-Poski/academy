@@ -69,3 +69,34 @@ export type ParsedFrontmatterDocument = {
   ignoredStatusProvided: boolean;
 };
 
+export type ImportApplyMode = 'dry_run' | 'apply';
+
+export type ImportApplyEntityCounts = {
+  pathsCreated: number;
+  pathsUpdated: number;
+  modulesCreated: number;
+  modulesUpdated: number;
+  sectionsCreated: number;
+  sectionsUpdated: number;
+  sectionVersionsCreated: number;
+  sectionVersionsUpdated: number;
+  lessonBlocksReplaced: number;
+  sectionVersionsSkippedNonDraft: number;
+};
+
+export type ImportApplySkip = {
+  code: 'section_version_not_draft';
+  message: string;
+  sectionSlug: string;
+  versionNumber: number;
+  sourcePath: string;
+};
+
+export type ContentImportApplyReport = {
+  mode: ImportApplyMode;
+  parseReport: ImportParseReport;
+  applied: boolean;
+  abortedReason: 'parse_errors' | null;
+  counts: ImportApplyEntityCounts;
+  skips: ImportApplySkip[];
+};
