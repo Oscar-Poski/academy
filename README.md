@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-11 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-12 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -17,6 +17,7 @@ PR-0 through PR-11 scaffold for an HTB-style learning platform monorepo.
 - `/Users/poski/academy/apps/api`
 - `/Users/poski/academy/packages/shared`
 - `/Users/poski/academy/packages/config`
+- `/Users/poski/academy/packages/content-importer`
 
 ## Prerequisites
 
@@ -162,6 +163,32 @@ PR-11 additions:
 - optional `idempotency_key` is supported and deduplicates repeated requests
 - `payload_json` must be an object when provided
 
+## Content Importer (PR-12)
+
+`packages/content-importer` now provides an in-memory markdown import parser + dry-run CLI:
+
+- recursively scans a local bundle root for `.md` / `.mdx`
+- parses frontmatter + body into normalized draft `paths/modules/sections/sectionVersions`
+- converts each file body into a single `markdown` lesson block (`blockOrder = 1`)
+- emits structured validation messages (errors/warnings)
+- does not write to DB yet (DB upsert is deferred to PR-13)
+
+Run the importer dry-run against the included fixture bundle:
+
+```bash
+pnpm --filter @academy/content-importer run import -- --root /Users/poski/academy/packages/content-importer/fixtures/sample-bundle
+```
+
+Alternative (bypasses `pnpm import` built-in command name collision):
+
+```bash
+node --import tsx /Users/poski/academy/packages/content-importer/src/cli.ts --root /Users/poski/academy/packages/content-importer/fixtures/sample-bundle
+```
+
+Notes:
+- use `run import` (not just `pnpm ... import`) because `pnpm import` is a built-in pnpm command
+- add `--strict` to return exit code `1` when parser errors are present
+
 Get a real seeded `users.id` (used for `x-user-id` and the web continue card):
 
 ```bash
@@ -208,7 +235,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-11)
+## Current Scope (PR-12)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -240,6 +267,7 @@ pnpm build
 - Analytics ingest baseline in `apps/api` (`analytics_events` + `POST /v1/analytics/events`)
 - Analytics ingest validation + idempotency in `apps/api` (`event_name` allowlist + optional `idempotency_key`)
 - Web player emits best-effort analytics events (`section_start`, `section_complete`)
+- `packages/content-importer` dry-run parser CLI for `.md/.mdx` frontmatter bundles (in-memory normalization only)
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
 - API e2e tests now include analytics ingest coverage
 
