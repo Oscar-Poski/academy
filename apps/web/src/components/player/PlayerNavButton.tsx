@@ -10,6 +10,8 @@ type PlayerNavButtonProps = {
   targetSectionId: string | null;
   currentSectionId: string;
   lastBlockOrderToPersist: number;
+  isLocked?: boolean;
+  lockReason?: string | null;
 };
 
 export function PlayerNavButton({
@@ -17,12 +19,13 @@ export function PlayerNavButton({
   label,
   targetSectionId,
   currentSectionId,
-  lastBlockOrderToPersist
+  lastBlockOrderToPersist,
+  isLocked
 }: PlayerNavButtonProps) {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
 
-  if (!targetSectionId) {
+  if (!targetSectionId || isLocked) {
     return (
       <span
         className="playerNavBtn isDisabled"
@@ -35,7 +38,7 @@ export function PlayerNavButton({
   }
 
   async function handleClick() {
-    if (isNavigating) {
+    if (isNavigating || isLocked || !targetSectionId) {
       return;
     }
 

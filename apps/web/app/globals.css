@@ -139,6 +139,15 @@ main {
   font-weight: 600;
 }
 
+.pageActionLink.isDisabled {
+  color: #7f8ca4;
+  cursor: not-allowed;
+}
+
+.pageActionLink.isDisabled:hover {
+  text-decoration: none;
+}
+
 .pageActionLink:hover {
   text-decoration: underline;
 }
@@ -224,6 +233,46 @@ main {
   color: #baf7cd;
 }
 
+.lockBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.lockBadge--locked {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+
+.lockedText {
+  color: #9aa6bc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #223456;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: not-allowed;
+}
+
+.pageLockedReason {
+  margin: 0;
+  color: #e7bf74;
+  font-size: 0.84rem;
+}
+
 .playerLayoutShell {
   max-width: 1320px;
   margin: 1.5rem auto 3rem;
@@ -283,6 +332,15 @@ main {
   font-weight: 600;
 }
 
+.playerTreeModuleLink.isLocked {
+  color: #9aa6bc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  cursor: not-allowed;
+}
+
 .playerTreeModuleLink:hover {
   text-decoration: underline;
 }
@@ -312,6 +370,15 @@ main {
 .playerTreeSectionLink.isActive {
   background: rgba(74, 222, 128, 0.12);
   border-color: rgba(74, 222, 128, 0.45);
+}
+
+.playerTreeSectionLink.isLocked {
+  color: #9aa6bc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  cursor: not-allowed;
 }
 
 .playerContent {
@@ -450,6 +517,14 @@ main {
   line-height: 1.2;
   text-align: center;
  }
+
+.playerNavLockReason {
+  margin: 0;
+  width: 100%;
+  color: #e7bf74;
+  font-size: 0.85rem;
+  text-align: center;
+}
 
 .block {
   border: 1px solid #223456;

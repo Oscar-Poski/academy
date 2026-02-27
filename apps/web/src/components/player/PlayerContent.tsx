@@ -54,6 +54,11 @@ export function PlayerContent({
 }: PlayerContentProps) {
   const lastBlockOrderToPersist =
     lessonBlocks.length > 0 ? Math.max(...lessonBlocks.map((block) => block.blockOrder)) : 0;
+  const prevLockReason = navigation.prevSectionLock?.reasons[0] ?? null;
+  const nextLockReason = navigation.nextSectionLock?.reasons[0] ?? null;
+  const footerLockReason =
+    (navigation.nextSectionLock?.isLocked ? nextLockReason : null) ??
+    (navigation.prevSectionLock?.isLocked ? prevLockReason : null);
 
   return (
     <section className="playerContent">
@@ -95,6 +100,8 @@ export function PlayerContent({
           targetSectionId={navigation.prevSectionId}
           currentSectionId={currentSectionId}
           lastBlockOrderToPersist={lastBlockOrderToPersist}
+          isLocked={navigation.prevSectionLock?.isLocked}
+          lockReason={prevLockReason}
         />
 
         <PlayerCompleteButton
@@ -111,7 +118,10 @@ export function PlayerContent({
           targetSectionId={navigation.nextSectionId}
           currentSectionId={currentSectionId}
           lastBlockOrderToPersist={lastBlockOrderToPersist}
+          isLocked={navigation.nextSectionLock?.isLocked}
+          lockReason={nextLockReason}
         />
+        {footerLockReason ? <p className="playerNavLockReason">{footerLockReason}</p> : null}
       </footer>
     </section>
   );

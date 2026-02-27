@@ -19,10 +19,10 @@ export default async function LearnPage({ params }: LearnPageProps) {
     // TODO(content-versioning): Replace temporary x-user-id strategy with authenticated user context (JWT/session)
     // once auth lands, while keeping version-aware section retrieval behavior.
     const [module, sectionProgress] = await Promise.all([
-      getModule(section.moduleId),
+      getModule(section.moduleId, { includeUserContext: true }),
       startSectionProgress(section.id).catch(() => null)
     ]);
-    const [pathTree] = await Promise.all([getPath(module.pathId)]);
+    const [pathTree] = await Promise.all([getPath(module.pathId, { includeUserContext: true })]);
 
     if (sectionProgress) {
       await postAnalyticsEvent({

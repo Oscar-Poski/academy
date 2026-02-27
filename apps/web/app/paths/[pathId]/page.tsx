@@ -12,7 +12,7 @@ type PathPageProps = {
 export default async function PathPage({ params }: PathPageProps) {
   try {
     const [path, pathProgress] = await Promise.all([
-      getPath(params.pathId),
+      getPath(params.pathId, { includeUserContext: true }),
       getPathProgress(params.pathId).catch(() => null)
     ]);
     const moduleProgressById = new Map(
@@ -48,6 +48,12 @@ export default async function PathPage({ params }: PathPageProps) {
               <div className="pageCardHeader">
                 <div>
                   <h2>{module.title}</h2>
+                  {module.lock?.isLocked ? (
+                    <div className="pageMetaRow">
+                      <span className="lockBadge lockBadge--locked">Locked</span>
+                      <span className="pageLockedReason">{module.lock.reasons[0] ?? 'Locked'}</span>
+                    </div>
+                  ) : null}
                   {(() => {
                     const moduleProgress = moduleProgressById.get(module.id);
                     if (!moduleProgress) {
@@ -64,9 +70,15 @@ export default async function PathPage({ params }: PathPageProps) {
                     );
                   })()}
                 </div>
-                <Link className="pageActionLink" href={`/modules/${module.id}`}>
-                  Open Module
-                </Link>
+                {module.lock?.isLocked ? (
+                  <span className="pageActionLink isDisabled" aria-disabled="true">
+                    Open Module
+                  </span>
+                ) : (
+                  <Link className="pageActionLink" href={`/modules/${module.id}`}>
+                    Open Module
+                  </Link>
+                )}
               </div>
 
               {module.sections.length === 0 ? (
@@ -75,7 +87,14 @@ export default async function PathPage({ params }: PathPageProps) {
                 <ul className="pageList">
                   {module.sections.map((section) => (
                     <li key={section.id} className="pageListItem">
-                      <Link href={`/learn/${section.id}`}>{section.title}</Link>
+                      {section.lock?.isLocked ? (
+                        <div className="lockedText">
+                          <span>{section.title}</span>
+                          <span className="lockBadge lockBadge--locked">Locked</span>
+                        </div>
+                      ) : (
+                        <Link href={`/learn/${section.id}`}>{section.title}</Link>
+                      )}
                     </li>
                   ))}
                 </ul>

@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-22 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-23 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -80,7 +80,7 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
-## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11)
+## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11, PR-23)
 
 Web routes now consume the read-only content API:
 
@@ -114,6 +114,11 @@ Player analytics emission (PR-11):
 - `/learn/:sectionId` emits a best-effort `section_start` analytics event on page load after progress start succeeds
 - Clicking `Mark Complete` emits a best-effort `section_complete` analytics event after successful completion
 - Analytics failures do not block page render, completion, or navigation UX
+
+Locked-state web rendering (PR-23):
+- path/module/player navigation now renders locked badges and reason messaging from content lock metadata
+- locked modules/sections/next navigation are non-clickable in the web UI
+- if lock metadata is missing (anonymous/unknown user context), UI falls back to the existing clickable behavior
 
 Get seeded IDs from the API:
 
@@ -378,7 +383,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-22)
+## Current Scope (PR-23)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -431,6 +436,7 @@ pnpm build
 - `GET /v1/modules/:moduleId` (module/section lock metadata)
 - `GET /v1/sections/:sectionId` (navigation lock metadata)
 - Anonymous and unknown-user content requests remain backward-compatible (lock fields omitted)
+- Web locked-state rendering now consumes content lock metadata in path/module/player routes (badges, reasons, disabled locked navigation)
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
 - API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, unlock-seed, unlock-status, unlock-evaluate, and content-lock-metadata coverage
 

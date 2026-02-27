@@ -12,6 +12,7 @@ export type PathTreeSection = {
   slug: string;
   title: string;
   sortOrder: number;
+  lock?: ContentLockMetadata;
 };
 
 export type PathTreeModule = {
@@ -20,6 +21,7 @@ export type PathTreeModule = {
   title: string;
   sortOrder: number;
   sections: PathTreeSection[];
+  lock?: ContentLockMetadata;
 };
 
 export type PathTree = {
@@ -35,6 +37,7 @@ export type ModuleDetailSection = {
   slug: string;
   title: string;
   sortOrder: number;
+  lock?: ContentLockMetadata;
 };
 
 export type ModuleDetail = {
@@ -45,6 +48,7 @@ export type ModuleDetail = {
   description: string | null;
   sortOrder: number;
   sections: ModuleDetailSection[];
+  lock?: ContentLockMetadata;
 };
 
 export type LessonBlockType = 'markdown' | 'callout' | 'code' | 'quiz' | 'checklist';
@@ -60,6 +64,15 @@ export type SectionLessonBlock = {
 export type SectionNavigation = {
   prevSectionId: string | null;
   nextSectionId: string | null;
+  prevSectionLock?: ContentLockMetadata | null;
+  nextSectionLock?: ContentLockMetadata | null;
+};
+
+export type ContentLockMetadata = {
+  isLocked: boolean;
+  reasons: string[];
+  requiresCredits: boolean;
+  creditsCost: number;
 };
 
 export type SectionDetail = {

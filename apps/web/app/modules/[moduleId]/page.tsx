@@ -37,7 +37,7 @@ function getStatusClassName(status: SectionProgressStatus): string {
 export default async function ModulePage({ params }: ModulePageProps) {
   try {
     const [module, moduleProgress] = await Promise.all([
-      getModule(params.moduleId),
+      getModule(params.moduleId, { includeUserContext: true }),
       getModuleProgress(params.moduleId).catch(() => null)
     ]);
     const sectionProgressById = new Map(
@@ -50,6 +50,12 @@ export default async function ModulePage({ params }: ModulePageProps) {
           <p className="pageEyebrow">Module</p>
           <h1>{module.title}</h1>
           {module.description ? <p className="pageDescription">{module.description}</p> : null}
+          {module.lock?.isLocked ? (
+            <div className="pageMetaRow">
+              <span className="lockBadge lockBadge--locked">Locked</span>
+              <span className="pageLockedReason">{module.lock.reasons[0] ?? 'Locked'}</span>
+            </div>
+          ) : null}
           <div className="pageMetaRow">
             {moduleProgress ? (
               <>
@@ -81,7 +87,17 @@ export default async function ModulePage({ params }: ModulePageProps) {
                 if (!moduleProgress) {
                   return (
                     <li key={section.id} className="pageListItem">
-                      <Link href={`/learn/${section.id}`}>{section.title}</Link>
+                      {section.lock?.isLocked ? (
+                        <div>
+                          <div className="lockedText">
+                            <span>{section.title}</span>
+                            <span className="lockBadge lockBadge--locked">Locked</span>
+                          </div>
+                          <p className="pageLockedReason">{section.lock.reasons[0] ?? 'Locked'}</p>
+                        </div>
+                      ) : (
+                        <Link href={`/learn/${section.id}`}>{section.title}</Link>
+                      )}
                     </li>
                   );
                 }
@@ -90,10 +106,23 @@ export default async function ModulePage({ params }: ModulePageProps) {
                   <li key={section.id} className="pageListItem">
                     <div className="pageListRow">
                       <div className="pageListRowMain">
-                        <Link href={`/learn/${section.id}`}>{section.title}</Link>
+                        {section.lock?.isLocked ? (
+                          <div>
+                            <div className="lockedText">
+                              <span>{section.title}</span>
+                              <span className="lockBadge lockBadge--locked">Locked</span>
+                            </div>
+                            <p className="pageLockedReason">{section.lock.reasons[0] ?? 'Locked'}</p>
+                          </div>
+                        ) : (
+                          <Link href={`/learn/${section.id}`}>{section.title}</Link>
+                        )}
                       </div>
                       <div className="pageListRowMeta">
                         <span className={getStatusClassName(status)}>{getStatusLabel(status)}</span>
+                        {section.lock?.isLocked ? (
+                          <span className="pageLockedReason">{section.lock.reasons[0] ?? 'Locked'}</span>
+                        ) : null}
                         {status === 'in_progress' ? (
                           <span className="progressBadge">{completionPct}%</span>
                         ) : null}

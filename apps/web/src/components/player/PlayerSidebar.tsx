@@ -18,13 +18,34 @@ export function PlayerSidebar({ pathTree, currentSectionId }: PlayerSidebarProps
         {pathTree.modules.map((module) => (
           <section key={module.id} className="playerTreeModule">
             <div className="playerTreeModuleHeader">
-              <Link className="playerTreeModuleLink" href={`/modules/${module.id}`}>
-                {module.title}
-              </Link>
+              {module.lock?.isLocked ? (
+                <div className="playerTreeModuleLink isLocked">
+                  <span>{module.title}</span>
+                  <span className="lockBadge lockBadge--locked">Locked</span>
+                </div>
+              ) : (
+                <Link className="playerTreeModuleLink" href={`/modules/${module.id}`}>
+                  {module.title}
+                </Link>
+              )}
+              {module.lock?.isLocked ? (
+                <p className="pageLockedReason">{module.lock.reasons[0] ?? 'Locked'}</p>
+              ) : null}
             </div>
             <ul className="playerTreeSectionList">
               {module.sections.map((section) => {
                 const isActive = section.id === currentSectionId;
+                if (section.lock?.isLocked) {
+                  return (
+                    <li key={section.id}>
+                      <div className={`playerTreeSectionLink isLocked${isActive ? ' isActive' : ''}`}>
+                        <span>{section.title}</span>
+                        <span className="lockBadge lockBadge--locked">Locked</span>
+                      </div>
+                    </li>
+                  );
+                }
+
                 return (
                   <li key={section.id}>
                     <Link
