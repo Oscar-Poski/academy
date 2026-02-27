@@ -63,7 +63,15 @@ describe('Auth schema foundation (e2e)', () => {
   });
 
   it('keeps refresh token table queryable and empty after seed', async () => {
-    const refreshTokenCount = await prisma.authRefreshToken.count();
-    expect(refreshTokenCount).toBe(0);
+    const seededUsers = await prisma.user.findMany({
+      where: { email: { in: ['student@academy.local', 'admin@academy.local'] } },
+      select: { id: true }
+    });
+
+    const refreshTokenCountForSeededUsers = await prisma.authRefreshToken.count({
+      where: { userId: { in: seededUsers.map((user) => user.id) } }
+    });
+
+    expect(refreshTokenCountForSeededUsers).toBe(0);
   });
 });

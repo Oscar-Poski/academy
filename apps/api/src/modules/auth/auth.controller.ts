@@ -1,7 +1,14 @@
 import { Body, Controller, Get, HttpCode, Inject, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { BearerAuthGuard } from './bearer-auth.guard';
-import type { AuthMeDto, LoginRequestDto, LoginResponseDto } from './dto';
+import type {
+  AuthMeDto,
+  LoginRequestDto,
+  LoginResponseDto,
+  LogoutRequestDto,
+  LogoutResponseDto,
+  RefreshRequestDto
+} from './dto';
 import type { AuthenticatedRequest } from './auth.types';
 
 @Controller('v1/auth')
@@ -12,6 +19,18 @@ export class AuthController {
   @HttpCode(200)
   login(@Body() body: LoginRequestDto): Promise<LoginResponseDto> {
     return this.authService.login(body);
+  }
+
+  @Post('refresh')
+  @HttpCode(200)
+  refresh(@Body() body: RefreshRequestDto): Promise<LoginResponseDto> {
+    return this.authService.refresh(body);
+  }
+
+  @Post('logout')
+  @HttpCode(200)
+  logout(@Body() body: LogoutRequestDto): Promise<LogoutResponseDto> {
+    return this.authService.logout(body);
   }
 
   @Get('me')

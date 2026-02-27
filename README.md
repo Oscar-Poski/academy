@@ -165,17 +165,21 @@ PR-24 completion gating:
 - self-prerequisite unlock reasons for the current section are ignored in completion checks to avoid deadlock
 - blocked completion returns `409` with `code: "completion_blocked"` and gating reasons
 
-## Auth API (PR-27)
+## Auth API (PR-28)
 
 Auth MVP endpoints are now available in `apps/api`:
 
 - `POST /v1/auth/login` with `{ email, password }`
+- `POST /v1/auth/refresh` with `{ refresh_token }`
+- `POST /v1/auth/logout` with `{ refresh_token }`
 - `GET /v1/auth/me` with `Authorization: Bearer <access_token>`
 
-PR-27 behavior:
-- login returns `{ access_token, token_type, expires_in }`
+PR-28 behavior:
+- login/refresh return `{ access_token, token_type, expires_in, refresh_token, refresh_expires_in }`
+- refresh rotates refresh tokens as one-time-use (replay is rejected)
+- logout revokes the current refresh token
 - `auth/me` returns `{ id, email, name, role }` for the authenticated principal
-- refresh/logout lifecycle is not included yet (planned for PR-28)
+- refresh/logout transport uses JSON body (no cookie flow yet)
 
 Example:
 
@@ -186,6 +190,15 @@ LOGIN_RESPONSE=$(curl -s -X POST "http://localhost:3001/v1/auth/login" \
 
 ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.access_token')
 curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/auth/me" | jq
+
+REFRESH_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.refresh_token')
+curl -s -X POST "http://localhost:3001/v1/auth/refresh" \
+  -H "Content-Type: application/json" \
+  -d "{\"refresh_token\":\"$REFRESH_TOKEN\"}" | jq
+
+curl -s -X POST "http://localhost:3001/v1/auth/logout" \
+  -H "Content-Type: application/json" \
+  -d "{\"refresh_token\":\"$REFRESH_TOKEN\"}" | jq
 ```
 
 ## Analytics Ingest (PR-10, PR-11)
@@ -431,11 +444,13 @@ pnpm build
 - `DATABASE_URL_TEST` for tests (required; tests fail fast if missing)
 - `JWT_SECRET` for access token signing/verification
 - `JWT_EXPIRES_IN` access token TTL in seconds (defaults to `900` when unset/invalid)
+- `JWT_REFRESH_SECRET` for refresh token signing/verification
+- `JWT_REFRESH_EXPIRES_IN` refresh token TTL in seconds (defaults to `604800` when unset/invalid)
 - Compose defaults:
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-27)
+## Current Scope (PR-28)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -447,6 +462,7 @@ pnpm build
 - Initial Postgres schema includes `lesson_blocks`
 - Auth schema foundation in `apps/api` (`users.role`, `users.password_hash`, `auth_refresh_tokens`, `UserRole`)
 - Auth API MVP in `apps/api` (`POST /v1/auth/login`, `GET /v1/auth/me`) with bearer-token principal resolution
+- Auth refresh/logout lifecycle in `apps/api` (`POST /v1/auth/refresh`, `POST /v1/auth/logout`) with one-time refresh rotation
 - NestJS health endpoint with DB check (`GET /health -> {"status":"ok","db":"ok"}`)
 - Next.js homepage showing basic API health status
 - Read-only Content API endpoints in `apps/api`:

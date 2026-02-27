@@ -4,6 +4,11 @@ export interface AuthPrincipal {
   role: 'user' | 'admin';
 }
 
+export interface RefreshPrincipal {
+  sub: string;
+  jti: string;
+}
+
 export interface AuthenticatedRequest {
   headers: Record<string, string | string[] | undefined>;
   user?: AuthPrincipal;

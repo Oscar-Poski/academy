@@ -40,6 +40,7 @@ describe('Auth API (e2e)', () => {
 
   afterAll(async () => {
     if (fixtureUserId) {
+      await prisma.authRefreshToken.deleteMany({ where: { userId: fixtureUserId } });
       await prisma.user.deleteMany({ where: { id: fixtureUserId } });
     }
 
@@ -47,7 +48,7 @@ describe('Auth API (e2e)', () => {
     await prisma.$disconnect();
   });
 
-  it('POST /v1/auth/login returns token and metadata for valid credentials', async () => {
+  it('POST /v1/auth/login returns access+refresh token metadata for valid credentials', async () => {
     const response = await request(app.getHttpServer()).post('/v1/auth/login').send({
       email: fixtureEmail,
       password: fixturePassword
@@ -59,6 +60,10 @@ describe('Auth API (e2e)', () => {
     expect(response.body.token_type).toBe('Bearer');
     expect(typeof response.body.expires_in).toBe('number');
     expect(response.body.expires_in).toBeGreaterThan(0);
+    expect(typeof response.body.refresh_token).toBe('string');
+    expect(response.body.refresh_token.length).toBeGreaterThan(0);
+    expect(typeof response.body.refresh_expires_in).toBe('number');
+    expect(response.body.refresh_expires_in).toBeGreaterThan(0);
   });
 
   it('POST /v1/auth/login rejects unknown email and wrong password', async () => {
@@ -82,6 +87,56 @@ describe('Auth API (e2e)', () => {
     expect(wrongPassword.body).toEqual({
       code: 'invalid_credentials',
       message: 'Invalid email or password'
+    });
+  });
+
+  it('POST /v1/auth/refresh rotates refresh token and rejects replay', async () => {
+    const login = await request(app.getHttpServer()).post('/v1/auth/login').send({
+      email: fixtureEmail,
+      password: fixturePassword
+    });
+
+    const refreshOne = await request(app.getHttpServer()).post('/v1/auth/refresh').send({
+      refresh_token: login.body.refresh_token
+    });
+
+    expect(refreshOne.status).toBe(200);
+    expect(typeof refreshOne.body.access_token).toBe('string');
+    expect(typeof refreshOne.body.refresh_token).toBe('string');
+    expect(refreshOne.body.refresh_token).not.toBe(login.body.refresh_token);
+
+    const replay = await request(app.getHttpServer()).post('/v1/auth/refresh').send({
+      refresh_token: login.body.refresh_token
+    });
+
+    expect(replay.status).toBe(401);
+    expect(replay.body).toEqual({
+      code: 'unauthorized',
+      message: 'Invalid refresh token'
+    });
+  });
+
+  it('POST /v1/auth/logout invalidates refresh token for next refresh', async () => {
+    const login = await request(app.getHttpServer()).post('/v1/auth/login').send({
+      email: fixtureEmail,
+      password: fixturePassword
+    });
+
+    const logout = await request(app.getHttpServer()).post('/v1/auth/logout').send({
+      refresh_token: login.body.refresh_token
+    });
+
+    expect(logout.status).toBe(200);
+    expect(logout.body).toEqual({ success: true });
+
+    const refreshAfterLogout = await request(app.getHttpServer()).post('/v1/auth/refresh').send({
+      refresh_token: login.body.refresh_token
+    });
+
+    expect(refreshAfterLogout.status).toBe(401);
+    expect(refreshAfterLogout.body).toEqual({
+      code: 'unauthorized',
+      message: 'Invalid refresh token'
     });
   });
 
