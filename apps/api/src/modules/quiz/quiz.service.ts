@@ -10,6 +10,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { GamificationService } from '../gamification/gamification.service';
 import type {
   QuizAttemptResultDto,
+  QuizDeliveryDto,
+  QuizDeliveryQuestionDto,
   QuizLatestAttemptDto,
   QuizResultDto,
   QuizSubmissionDto
@@ -181,6 +183,49 @@ export class QuizService {
       passed: attempt.passed,
       submittedAt: attempt.submittedAt.toISOString(),
       feedback: gradedAnswers
+    };
+  }
+
+  async getQuizDelivery(userId: string, sectionId: string): Promise<QuizDeliveryDto> {
+    await this.assertKnownUser(userId);
+    await this.assertSectionExists(sectionId);
+
+    const sectionVersionId = await this.resolveSectionVersionId(sectionId, userId);
+    const questions = await this.prisma.question.findMany({
+      where: {
+        sectionVersionId,
+        type: {
+          in: [QuestionType.mcq, QuestionType.short_answer]
+        }
+      },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+      select: {
+        id: true,
+        type: true,
+        prompt: true,
+        optionsJson: true,
+        points: true,
+        sortOrder: true
+      }
+    });
+
+    if (questions.length === 0) {
+      throw new NotFoundException(`Quiz not found for section ${sectionId}`);
+    }
+
+    const payload: QuizDeliveryQuestionDto[] = questions.map((question) => ({
+      id: question.id,
+      type: question.type === QuestionType.mcq ? 'mcq' : 'short_answer',
+      prompt: question.prompt,
+      options: question.type === QuestionType.mcq ? this.getOptionsFromJson(question.optionsJson) : null,
+      points: question.points,
+      sortOrder: question.sortOrder
+    }));
+
+    return {
+      sectionId,
+      sectionVersionId,
+      questions: payload
     };
   }
 
@@ -628,5 +673,22 @@ export class QuizService {
     }
     const trimmed = answerText.trim();
     return trimmed.length > 0 ? trimmed : null;
+  }
+
+  private getOptionsFromJson(value: unknown): string[] | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return null;
+    }
+
+    const raw = (value as { options?: unknown }).options;
+    if (!Array.isArray(raw)) {
+      return null;
+    }
+
+    const options = raw
+      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+      .filter((entry) => entry.length > 0);
+
+    return options.length > 0 ? options : null;
   }
 }

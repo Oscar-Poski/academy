@@ -278,12 +278,15 @@ PR-18 expands quiz execution and read APIs:
 
 - `POST /v1/quizzes/sections/:sectionId/attempts` now scores both `mcq` and `short_answer`
 - short-answer grading modes supported: `exact`, `exact_ci`, `regex`
+- `GET /v1/quizzes/sections/:sectionId` returns renderable quiz inputs for the resolved section version
 - `GET /v1/quizzes/sections/:sectionId/attempts/latest` returns the latest detailed attempt for the user
 - `GET /v1/quizzes/sections/:sectionId/result` returns stable pass-state summary (`hasAttempt` + `latestAttempt`)
+- quiz delivery response never includes answer-key fields (`answerKeyJson`, `correct_option`, `accepted`, `pattern`)
 
 Example PR-18 quiz read commands:
 
 ```bash
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID" | jq
 curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/attempts/latest" | jq
 curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/result" | jq
 ```
