@@ -76,7 +76,7 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
   }
 
   return (
-    <section className="playerCard quizPanel" aria-label="Section quiz">
+    <section id="section-quiz-panel" tabIndex={-1} className="playerCard quizPanel" aria-label="Section quiz">
       <header className="quizPanelHeader">
         <h2 className="quizPanelTitle">Section Quiz</h2>
         <p className="quizPanelSubtitle">Answer the questions below and submit when you are ready.</p>

@@ -1,23 +1,22 @@
 import { NextResponse } from 'next/server';
-import { fetchWithAuth, AuthenticatedApiError } from '@/src/lib/api-clients/authenticated-fetch.server';
-import type { SectionProgress } from '@/src/lib/progress-types';
+import { AuthenticatedApiError, fetchWithAuth } from '@/src/lib/api-clients/authenticated-fetch.server';
+import type { UnlockDecision } from '@/src/lib/unlock-types';
 
 type RouteContext = {
   params: {
-    sectionId: string;
+    moduleId: string;
   };
 };
 
 export async function POST(_request: Request, context: RouteContext): Promise<Response> {
   try {
-    const upstream = await fetchWithAuth(
-      `/v1/progress/sections/${context.params.sectionId}/complete`,
-      { method: 'POST' }
-    );
+    const upstream = await fetchWithAuth(`/v1/unlocks/modules/${context.params.moduleId}/evaluate`, {
+      method: 'POST'
+    });
 
     const payload = (await upstream.json().catch(() => null)) as
-      | SectionProgress
-      | { code?: string; message?: string; reasons?: string[]; requiresQuizPass?: boolean; requiresUnlock?: boolean }
+      | UnlockDecision
+      | { code?: string; message?: string }
       | null;
 
     return NextResponse.json(payload, { status: upstream.status });

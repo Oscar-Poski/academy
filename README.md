@@ -87,7 +87,7 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
-## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11, PR-23, PR-31, PR-34)
+## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11, PR-23, PR-31, PR-34, PR-35)
 
 Web routes now consume the read-only content API:
 
@@ -134,6 +134,13 @@ Interactive quiz UI (PR-34):
 - learner sees pass/fail, score summary, per-question correctness feedback, and a retry CTA
 - if no quiz is available for a section, the quiz panel is hidden
 
+Completion gating UX feedback (PR-35):
+- when `Mark Complete` is blocked with `409 completion_blocked`, learner now sees explicit reasons inline in the player footer
+- blocked state includes direct actions:
+  - `Go to Quiz` scrolls/focuses the section quiz panel
+  - `Evaluate Unlock` calls unlock evaluation through web BFF route `POST /api/unlocks/modules/:moduleId/evaluate`
+- if unlock evaluation returns `isUnlocked: true`, the web client auto-retries completion once
+
 Get seeded IDs from the API:
 
 ```bash
@@ -171,6 +178,10 @@ PR-24 completion gating:
 - already-completed sections remain idempotent (returns completed state without re-gating)
 - self-prerequisite unlock reasons for the current section are ignored in completion checks to avoid deadlock
 - blocked completion returns `409` with `code: "completion_blocked"` and gating reasons
+
+PR-35 web handling for completion gating:
+- web BFF route `POST /api/progress/sections/:sectionId/complete` preserves backend `409 completion_blocked` payloads
+- web no longer collapses blocked completion into generic/silent failure
 
 ## Auth API (PR-32)
 

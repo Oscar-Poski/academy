@@ -518,6 +518,59 @@ main {
   text-align: center;
  }
 
+.completionBlockedCard {
+  width: 100%;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  background: rgba(180, 83, 9, 0.14);
+  border-radius: 10px;
+  padding: 0.7rem 0.75rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.completionBlockedTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fde68a;
+}
+
+.completionBlockedReasons {
+  margin: 0;
+  padding-left: 1.05rem;
+  display: grid;
+  gap: 0.3rem;
+  color: #f3e4c3;
+  font-size: 0.86rem;
+}
+
+.completionBlockedActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.completionBlockedActionBtn {
+  border: 1px solid rgba(245, 158, 11, 0.48);
+  border-radius: 8px;
+  background: rgba(120, 53, 15, 0.42);
+  color: #fef3c7;
+  padding: 0.45rem 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.completionBlockedActionBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.completionBlockedMeta {
+  margin: 0;
+  color: #f3e4c3;
+  font-size: 0.82rem;
+}
+
 .playerNavLockReason {
   margin: 0;
   width: 100%;
@@ -863,6 +916,14 @@ main {
 
   .playerFooterError {
     text-align: left;
+  }
+
+  .completionBlockedActions {
+    flex-direction: column;
+  }
+
+  .completionBlockedActionBtn {
+    width: 100%;
   }
 
   .quizActions {

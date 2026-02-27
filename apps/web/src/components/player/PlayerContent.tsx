@@ -116,6 +116,7 @@ export function PlayerContent({
         <PlayerCompleteButton
           key={currentSectionId}
           sectionId={currentSectionId}
+          hasQuizPanel={Boolean(quizDelivery)}
           pathId={breadcrumb.pathId}
           moduleId={breadcrumb.moduleId}
           initialSectionProgress={sectionProgress}

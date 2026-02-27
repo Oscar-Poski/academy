@@ -20,6 +20,13 @@ export type UpdateSectionPositionRequest = {
   completion_pct?: number;
 };
 
+export type CompletionBlockedError = {
+  code: 'completion_blocked';
+  reasons: string[];
+  requiresQuizPass: boolean;
+  requiresUnlock: boolean;
+};
+
 export type ContinueLearning = {
   source: 'resume' | 'fallback';
   sectionId: string;
