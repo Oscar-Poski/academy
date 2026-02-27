@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-20 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-21 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -211,7 +211,7 @@ curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SEC
 curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/result" | jq
 ```
 
-## Unlock Foundation (PR-19, PR-20)
+## Unlock Foundation (PR-19, PR-20, PR-21)
 
 Unlock backend foundation is now present in `apps/api`:
 
@@ -227,8 +227,15 @@ PR-20 adds the first unlock status endpoint:
 
 - `GET /v1/unlocks/modules/:moduleId/status` (requires `x-user-id`)
 - evaluates active module-scope unlock rules (read-only; no writes to `user_unlocks`)
-- currently supports `prereq_sections` rule evaluation and returns deterministic unmet reasons
+- initially shipped with `prereq_sections` rule evaluation and deterministic unmet reasons
 - includes `requiresCredits` and `creditsCost` as informational metadata
+
+PR-21 adds unlock evaluation and persistence:
+
+- `POST /v1/unlocks/modules/:moduleId/evaluate` (requires `x-user-id`)
+- persists module unlocks in `user_unlocks` when rules are satisfied (idempotent on retries)
+- extends both status/evaluate rule evaluation to support `quiz_pass` rules
+- `GET /v1/unlocks/modules/:moduleId/status` now also honors persisted module unlock grants
 
 ## Content Importer & Admin Versioning (PR-12, PR-13, PR-14, PR-15)
 
@@ -364,7 +371,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-20)
+## Current Scope (PR-21)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -410,10 +417,12 @@ pnpm build
 - Unlock core schema foundation in `apps/api` (`unlock_rules`, `user_unlocks`, `UnlockScopeType`, `UnlockRuleType`)
 - Seeded module-scope prerequisite unlock rule for `http-basics-module`
 - Unlock status endpoint in `apps/api` (`GET /v1/unlocks/modules/:moduleId/status`) with read-only prerequisite evaluation
+- Unlock evaluate endpoint in `apps/api` (`POST /v1/unlocks/modules/:moduleId/evaluate`) with idempotent `user_unlocks` persistence
+- Unlock evaluator now supports `quiz_pass` rules and persisted unlock grants
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
-- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, unlock-seed, and unlock-status coverage
+- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, unlock-seed, unlock-status, and unlock-evaluate coverage
 
-No auth/unlock-persistence endpoints/XP/credits/gamification yet.
+No auth/credits-redemption endpoints/XP/credits/gamification yet.
 
 ## Useful API Commands
 
@@ -463,6 +472,25 @@ curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sect
 curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/modules/$MODULE_ID" | jq
 curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/paths/$PATH_ID" | jq
 curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/continue" | jq
+```
+
+## Useful Unlock Curl Commands
+
+```bash
+MODULE_ID=$(curl -s http://localhost:3001/v1/paths | jq -r '.[0].modules[0].id')
+SECTION_ID=$(curl -s http://localhost:3001/v1/modules/$MODULE_ID | jq -r '.sections[0].id')
+```
+
+```bash
+# Check current unlock status
+curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/status" | jq
+
+# Try to evaluate + persist unlock (idempotent)
+curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/evaluate" | jq
+
+# Complete prerequisite section, then evaluate again
+curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
+curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/evaluate" | jq
 ```
 
 ## Useful Web Commands

@@ -1,4 +1,4 @@
-import { Controller, Get, Headers, Inject, Param } from '@nestjs/common';
+import { Controller, Get, Headers, HttpCode, Inject, Param, Post } from '@nestjs/common';
 import type { UnlockDecisionDto } from './dto';
 import { UnlocksService } from './unlocks.service';
 
@@ -12,5 +12,14 @@ export class UnlocksController {
     @Headers('x-user-id') userId: string
   ): Promise<UnlockDecisionDto> {
     return this.unlocksService.getModuleStatus(userId, moduleId);
+  }
+
+  @Post('modules/:moduleId/evaluate')
+  @HttpCode(200)
+  evaluateModuleUnlock(
+    @Param('moduleId') moduleId: string,
+    @Headers('x-user-id') userId: string
+  ): Promise<UnlockDecisionDto> {
+    return this.unlocksService.evaluateModuleUnlock(userId, moduleId);
   }
 }

@@ -64,6 +64,9 @@ describe('Unlock Status API (e2e)', () => {
   });
 
   beforeEach(async () => {
+    await prisma.userUnlock.deleteMany({
+      where: { userId: { in: Object.values(userIds) } }
+    });
     await prisma.userSectionProgress.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
@@ -84,6 +87,9 @@ describe('Unlock Status API (e2e)', () => {
   });
 
   afterAll(async () => {
+    await prisma.userUnlock.deleteMany({
+      where: { userId: { in: Object.values(userIds) } }
+    });
     await prisma.userSectionProgress.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
@@ -159,6 +165,26 @@ describe('Unlock Status API (e2e)', () => {
       .expect(200);
 
     expect(response.body.moduleId).toBe(tempModule.id);
+    expect(response.body.isUnlocked).toBe(true);
+    expect(response.body.reasons).toEqual([]);
+  });
+
+  it('returns unlocked when a persisted module unlock grant exists', async () => {
+    await prisma.userUnlock.create({
+      data: {
+        userId: userIds.locked,
+        scopeType: 'module',
+        scopeId: seededModuleId,
+        reason: 'test_grant'
+      }
+    });
+
+    const response = await request(app.getHttpServer())
+      .get(`/v1/unlocks/modules/${seededModuleId}/status`)
+      .set('x-user-id', userIds.locked)
+      .expect(200);
+
+    expect(response.body.moduleId).toBe(seededModuleId);
     expect(response.body.isUnlocked).toBe(true);
     expect(response.body.reasons).toEqual([]);
   });

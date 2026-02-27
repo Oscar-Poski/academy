@@ -20,8 +20,83 @@ export class UnlocksService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async getModuleStatus(userId: string, moduleId: string): Promise<UnlockDecisionDto> {
-    await this.assertKnownUser(userId);
+    const normalizedUserId = await this.assertKnownUser(userId);
+    const module = await this.getModuleOrThrow(moduleId);
 
+    const existingUnlock = await this.findExistingModuleUnlock(normalizedUserId, module.id);
+    if (existingUnlock) {
+      return this.buildDecision(module.id, module.creditsCost, []);
+    }
+
+    const rules = await this.getActiveModuleRules(module.id);
+    const reasons = await this.evaluateRules(normalizedUserId, rules);
+    return this.buildDecision(module.id, module.creditsCost, reasons);
+  }
+
+  async evaluateModuleUnlock(userId: string, moduleId: string): Promise<UnlockDecisionDto> {
+    const normalizedUserId = await this.assertKnownUser(userId);
+    const module = await this.getModuleOrThrow(moduleId);
+
+    const existingUnlock = await this.findExistingModuleUnlock(normalizedUserId, module.id);
+    if (existingUnlock) {
+      return this.buildDecision(module.id, module.creditsCost, []);
+    }
+
+    const rules = await this.getActiveModuleRules(module.id);
+    const reasons = await this.evaluateRules(normalizedUserId, rules);
+    if (reasons.length > 0) {
+      return this.buildDecision(module.id, module.creditsCost, reasons);
+    }
+
+    await this.prisma.userUnlock.upsert({
+      where: {
+        userId_scopeType_scopeId: {
+          userId: normalizedUserId,
+          scopeType: UnlockScopeType.module,
+          scopeId: module.id
+        }
+      },
+      update: {},
+      create: {
+        userId: normalizedUserId,
+        scopeType: UnlockScopeType.module,
+        scopeId: module.id,
+        reason: 'rules_satisfied'
+      }
+    });
+
+    return this.buildDecision(module.id, module.creditsCost, []);
+  }
+
+  private buildDecision(moduleId: string, creditsCost: number, reasons: string[]): UnlockDecisionDto {
+    return {
+      moduleId,
+      isUnlocked: reasons.length === 0,
+      reasons,
+      requiresCredits: creditsCost > 0,
+      creditsCost
+    };
+  }
+
+  private async assertKnownUser(userId: string): Promise<string> {
+    if (typeof userId !== 'string' || userId.trim().length === 0) {
+      throw new BadRequestException('x-user-id header is required');
+    }
+
+    const normalizedUserId = userId.trim();
+    const user = await this.prisma.user.findUnique({
+      where: { id: normalizedUserId },
+      select: { id: true }
+    });
+
+    if (!user) {
+      throw new BadRequestException(`Unknown user: ${userId}`);
+    }
+
+    return normalizedUserId;
+  }
+
+  private async getModuleOrThrow(moduleId: string): Promise<{ id: string; creditsCost: number }> {
     const module = await this.prisma.module.findUnique({
       where: { id: moduleId },
       select: {
@@ -34,41 +109,20 @@ export class UnlocksService {
       throw new NotFoundException(`Module ${moduleId} not found`);
     }
 
-    const rules = await this.getActiveModuleRules(module.id);
-    const reasons: string[] = [];
-
-    for (const rule of rules) {
-      if (rule.ruleType === UnlockRuleType.prereq_sections) {
-        const unmetReasons = await this.evaluatePrereqSectionsRule(userId.trim(), rule);
-        reasons.push(...unmetReasons);
-        continue;
-      }
-
-      reasons.push(`Unsupported unlock rule in PR-20: ${rule.ruleType}`);
-    }
-
-    return {
-      moduleId: module.id,
-      isUnlocked: reasons.length === 0,
-      reasons,
-      requiresCredits: module.creditsCost > 0,
-      creditsCost: module.creditsCost
-    };
+    return module;
   }
 
-  private async assertKnownUser(userId: string): Promise<void> {
-    if (typeof userId !== 'string' || userId.trim().length === 0) {
-      throw new BadRequestException('x-user-id header is required');
-    }
-
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId.trim() },
+  private findExistingModuleUnlock(userId: string, moduleId: string): Promise<{ id: string } | null> {
+    return this.prisma.userUnlock.findUnique({
+      where: {
+        userId_scopeType_scopeId: {
+          userId,
+          scopeType: UnlockScopeType.module,
+          scopeId: moduleId
+        }
+      },
       select: { id: true }
     });
-
-    if (!user) {
-      throw new BadRequestException(`Unknown user: ${userId}`);
-    }
   }
 
   private async getActiveModuleRules(moduleId: string): Promise<ModuleRule[]> {
@@ -87,8 +141,34 @@ export class UnlocksService {
     });
   }
 
+  private async evaluateRules(userId: string, rules: ModuleRule[]): Promise<string[]> {
+    const reasons: string[] = [];
+
+    for (const rule of rules) {
+      if (rule.ruleType === UnlockRuleType.prereq_sections) {
+        const unmetReasons = await this.evaluatePrereqSectionsRule(userId, rule);
+        reasons.push(...unmetReasons);
+        continue;
+      }
+
+      if (rule.ruleType === UnlockRuleType.quiz_pass) {
+        const unmetReasons = await this.evaluateQuizPassRule(userId, rule);
+        reasons.push(...unmetReasons);
+        continue;
+      }
+
+      reasons.push(`Unsupported unlock rule in PR-21: ${rule.ruleType}`);
+    }
+
+    return reasons;
+  }
+
   private async evaluatePrereqSectionsRule(userId: string, rule: ModuleRule): Promise<string[]> {
-    const sectionIds = this.validatePrereqRuleConfig(rule.ruleConfigJson, rule.id);
+    const sectionIds = this.validateSectionIdsRuleConfig(
+      rule.ruleConfigJson,
+      rule.id,
+      UnlockRuleType.prereq_sections
+    );
 
     const completedRows = await this.prisma.userSectionProgress.findMany({
       where: {
@@ -113,14 +193,46 @@ export class UnlocksService {
     return reasons;
   }
 
-  private validatePrereqRuleConfig(ruleConfigJson: unknown, ruleId: string): string[] {
+  private async evaluateQuizPassRule(userId: string, rule: ModuleRule): Promise<string[]> {
+    const sectionIds = this.validateSectionIdsRuleConfig(
+      rule.ruleConfigJson,
+      rule.id,
+      UnlockRuleType.quiz_pass
+    );
+    const reasons: string[] = [];
+
+    for (const sectionId of sectionIds) {
+      const latestAttempt = await this.prisma.quizAttempt.findFirst({
+        where: {
+          userId,
+          sectionId
+        },
+        orderBy: [{ submittedAt: 'desc' }, { attemptNo: 'desc' }, { id: 'asc' }],
+        select: {
+          passed: true
+        }
+      });
+
+      if (!latestAttempt || latestAttempt.passed !== true) {
+        reasons.push(`Pass quiz for section: ${sectionId}`);
+      }
+    }
+
+    return reasons;
+  }
+
+  private validateSectionIdsRuleConfig(
+    ruleConfigJson: unknown,
+    ruleId: string,
+    ruleType: UnlockRuleType
+  ): string[] {
     if (!ruleConfigJson || typeof ruleConfigJson !== 'object' || Array.isArray(ruleConfigJson)) {
-      throw new InternalServerErrorException(`Malformed prereq_sections rule config for rule ${ruleId}`);
+      throw new InternalServerErrorException(`Malformed ${ruleType} rule config for rule ${ruleId}`);
     }
 
     const sectionIds = (ruleConfigJson as { section_ids?: unknown }).section_ids;
     if (!Array.isArray(sectionIds) || sectionIds.length === 0) {
-      throw new InternalServerErrorException(`Malformed prereq_sections rule config for rule ${ruleId}`);
+      throw new InternalServerErrorException(`Malformed ${ruleType} rule config for rule ${ruleId}`);
     }
 
     const normalized = sectionIds
@@ -128,7 +240,7 @@ export class UnlocksService {
       .filter((value) => value.length > 0);
 
     if (normalized.length === 0) {
-      throw new InternalServerErrorException(`Malformed prereq_sections rule config for rule ${ruleId}`);
+      throw new InternalServerErrorException(`Malformed ${ruleType} rule config for rule ${ruleId}`);
     }
 
     return Array.from(new Set(normalized));
