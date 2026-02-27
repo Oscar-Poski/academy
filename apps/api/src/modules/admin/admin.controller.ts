@@ -1,4 +1,7 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Post, UseGuards } from '@nestjs/common';
+import { AdminBearerAuthGuard } from '../auth/admin-bearer-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import type {
   ImportContentRequestDto,
   ImportContentResponseDto,
@@ -9,6 +12,8 @@ import type {
 import { AdminService } from './admin.service';
 
 @Controller('v1/admin')
+@UseGuards(AdminBearerAuthGuard, RolesGuard)
+@Roles('admin')
 export class AdminController {
   constructor(@Inject(AdminService) private readonly adminService: AdminService) {}
 

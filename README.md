@@ -165,7 +165,7 @@ PR-24 completion gating:
 - self-prerequisite unlock reasons for the current section are ignored in completion checks to avoid deadlock
 - blocked completion returns `409` with `code: "completion_blocked"` and gating reasons
 
-## Auth API (PR-28)
+## Auth API (PR-30)
 
 Auth MVP endpoints are now available in `apps/api`:
 
@@ -182,6 +182,13 @@ PR-28 behavior:
 - refresh/logout transport uses JSON body (no cookie flow yet)
 - bridge mode for learner APIs: bearer auth is accepted and takes precedence over `x-user-id` when both are present
 - `x-user-id` remains temporarily supported as fallback (removal planned in PR-32)
+
+PR-30 admin RBAC enforcement:
+- all `/v1/admin/*` endpoints are now bearer-only and require `role=admin`
+- `x-user-id` is not accepted on admin endpoints
+- denied admin access (missing token, invalid token, non-admin role) returns:
+  - HTTP `403`
+  - `{ "code": "forbidden", "message": "Admin access required" }`
 
 Example:
 

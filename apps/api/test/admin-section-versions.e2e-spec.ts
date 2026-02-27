@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import { LessonBlockType, PrismaClient, SectionVersionStatus } from '@prisma/client';
+import { LessonBlockType, PrismaClient, SectionVersionStatus, UserRole } from '@prisma/client';
 import { Test } from '@nestjs/testing';
+import { hash } from 'bcryptjs';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 
@@ -13,6 +14,10 @@ type VersionFixture = {
 describe('Admin Section Versions API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaClient;
+  let adminAccessToken = '';
+  let adminUserId = '';
+  const fixtureAdminEmail = `admin-versions-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@academy.local`;
+  const fixtureAdminPassword = 'admin123';
   const createdFixtures: VersionFixture[] = [];
 
   beforeAll(async () => {
@@ -24,6 +29,20 @@ describe('Admin Section Versions API (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
+
+    const passwordHash = await hash(fixtureAdminPassword, 10);
+    const fixtureAdmin = await prisma.user.create({
+      data: {
+        email: fixtureAdminEmail,
+        name: 'Admin Section Versions Fixture',
+        role: UserRole.admin,
+        passwordHash
+      },
+      select: { id: true }
+    });
+    adminUserId = fixtureAdmin.id;
+
+    adminAccessToken = await loginAsAdmin();
   });
 
   afterEach(async () => {
@@ -57,6 +76,11 @@ describe('Admin Section Versions API (e2e)', () => {
   });
 
   afterAll(async () => {
+    if (adminUserId) {
+      await prisma.authRefreshToken.deleteMany({ where: { userId: adminUserId } });
+      await prisma.user.deleteMany({ where: { id: adminUserId } });
+    }
+
     await app.close();
     await prisma.$disconnect();
   });
@@ -66,6 +90,7 @@ describe('Admin Section Versions API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .get(`/v1/admin/sections/${fixture.section.id}/versions`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(200);
 
     expect(Array.isArray(response.body)).toBe(true);
@@ -84,6 +109,7 @@ describe('Admin Section Versions API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .get(`/v1/admin/sections/${fixture.section.id}/versions/${fixture.v2.id}`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(200);
 
     expect(response.body.id).toBe(fixture.v2.id);
@@ -110,6 +136,7 @@ describe('Admin Section Versions API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/admin/sections/${fixture.section.id}/publish/${fixture.v2.id}`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(200);
 
     expect(response.body.sectionId).toBe(fixture.section.id);
@@ -163,6 +190,7 @@ describe('Admin Section Versions API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post(`/v1/admin/sections/${fixture.section.id}/publish/${fixture.v2.id}`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(200);
 
     const pinnedResponse = await request(app.getHttpServer())
@@ -184,6 +212,7 @@ describe('Admin Section Versions API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post(`/v1/admin/sections/${fixture.section.id}/publish/${fixture.v1.id}`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(409);
   });
 
@@ -193,14 +222,17 @@ describe('Admin Section Versions API (e2e)', () => {
 
     await request(app.getHttpServer())
       .get(`/v1/admin/sections/${fixtureOne.section.id}/versions/${fixtureTwo.v2.id}`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(404);
 
     await request(app.getHttpServer())
       .post(`/v1/admin/sections/${fixtureOne.section.id}/publish/${fixtureTwo.v2.id}`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(404);
 
     await request(app.getHttpServer())
       .get(`/v1/admin/sections/nonexistent-section-id/versions`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(404);
   });
 
@@ -298,5 +330,17 @@ describe('Admin Section Versions API (e2e)', () => {
       v3
     };
   }
-});
 
+  async function loginAsAdmin(): Promise<string> {
+    const response = await request(app.getHttpServer()).post('/v1/auth/login').send({
+      email: fixtureAdminEmail,
+      password: fixtureAdminPassword
+    });
+
+    if (response.status !== 200 || typeof response.body.access_token !== 'string') {
+      throw new Error('admin login failed in admin-section-versions.e2e-spec');
+    }
+
+    return response.body.access_token;
+  }
+});

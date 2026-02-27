@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import { PrismaClient, SectionVersionStatus } from '@prisma/client';
+import { PrismaClient, SectionVersionStatus, UserRole } from '@prisma/client';
 import { Test } from '@nestjs/testing';
+import { hash } from 'bcryptjs';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -18,6 +19,10 @@ type TempBundleRecord = {
 describe('Admin Content Import API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaClient;
+  let adminAccessToken = '';
+  let adminUserId = '';
+  const fixtureAdminEmail = `admin-content-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@academy.local`;
+  const fixtureAdminPassword = 'admin123';
   const tempBundles: TempBundleRecord[] = [];
   const tempDirs: string[] = [];
 
@@ -30,6 +35,20 @@ describe('Admin Content Import API (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
+
+    const passwordHash = await hash(fixtureAdminPassword, 10);
+    const fixtureAdmin = await prisma.user.create({
+      data: {
+        email: fixtureAdminEmail,
+        name: 'Admin Content Import Fixture',
+        role: UserRole.admin,
+        passwordHash
+      },
+      select: { id: true }
+    });
+    adminUserId = fixtureAdmin.id;
+
+    adminAccessToken = await loginAsAdmin();
   });
 
   afterEach(async () => {
@@ -43,6 +62,11 @@ describe('Admin Content Import API (e2e)', () => {
   });
 
   afterAll(async () => {
+    if (adminUserId) {
+      await prisma.authRefreshToken.deleteMany({ where: { userId: adminUserId } });
+      await prisma.user.deleteMany({ where: { id: adminUserId } });
+    }
+
     await app.close();
     await prisma.$disconnect();
   });
@@ -52,6 +76,7 @@ describe('Admin Content Import API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .send({
         bundle_path: bundle.dir,
         mode: 'dryRun'
@@ -74,6 +99,7 @@ describe('Admin Content Import API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .send({
         bundle_path: bundle.dir,
         mode: 'apply'
@@ -127,6 +153,7 @@ describe('Admin Content Import API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .send({
         bundle_path: bundle.dir,
         mode: 'apply'
@@ -135,6 +162,7 @@ describe('Admin Content Import API (e2e)', () => {
 
     const second = await request(app.getHttpServer())
       .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .send({
         bundle_path: bundle.dir,
         mode: 'apply'
@@ -163,6 +191,7 @@ describe('Admin Content Import API (e2e)', () => {
   it('POST /v1/admin/content/import rejects invalid request body', async () => {
     await request(app.getHttpServer())
       .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .send({
         bundle_path: '',
         mode: 'nope'
@@ -173,6 +202,7 @@ describe('Admin Content Import API (e2e)', () => {
   it('POST /v1/admin/content/import rejects nonexistent bundle path', async () => {
     await request(app.getHttpServer())
       .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .send({
         bundle_path: `/tmp/academy-import-missing-${Date.now()}`,
         mode: 'dryRun'
@@ -185,6 +215,7 @@ describe('Admin Content Import API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
       .send({
         bundle_path: bundle.dir,
         mode: 'apply'
@@ -279,5 +310,17 @@ section_title: Invalid Section ${seed}
     await mkdir(path.dirname(fullPath), { recursive: true });
     await writeFile(fullPath, contents, 'utf8');
   }
-});
 
+  async function loginAsAdmin(): Promise<string> {
+    const response = await request(app.getHttpServer()).post('/v1/auth/login').send({
+      email: fixtureAdminEmail,
+      password: fixtureAdminPassword
+    });
+
+    if (response.status !== 200 || typeof response.body.access_token !== 'string') {
+      throw new Error('admin login failed in admin-content-import.e2e-spec');
+    }
+
+    return response.body.access_token;
+  }
+});

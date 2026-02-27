@@ -1,4 +1,4 @@
 export interface AuthErrorDto {
-  code: 'invalid_credentials' | 'unauthorized';
+  code: 'invalid_credentials' | 'unauthorized' | 'forbidden';
   message: string;
 }
