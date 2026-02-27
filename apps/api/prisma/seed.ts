@@ -1,4 +1,4 @@
-import { LessonBlockType, PrismaClient, SectionVersionStatus } from '@prisma/client';
+import { LessonBlockType, PrismaClient, QuestionType, SectionVersionStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -52,6 +52,40 @@ async function upsertSectionVersionWithPublishedBlocks(params: {
       });
     });
   }
+}
+
+async function replaceSeedQuestionsForVersion(params: {
+  sectionVersionId: string;
+  questions: Array<{
+    type: QuestionType;
+    prompt: string;
+    optionsJson: Record<string, unknown> | null;
+    answerKeyJson: Record<string, unknown>;
+    explanation?: string;
+    points?: number;
+    sortOrder: number;
+  }>;
+}) {
+  await prisma.question.deleteMany({
+    where: { sectionVersionId: params.sectionVersionId }
+  });
+
+  if (params.questions.length === 0) {
+    return;
+  }
+
+  await prisma.question.createMany({
+    data: params.questions.map((question) => ({
+      sectionVersionId: params.sectionVersionId,
+      type: question.type,
+      prompt: question.prompt,
+      optionsJson: question.optionsJson,
+      answerKeyJson: question.answerKeyJson,
+      explanation: question.explanation ?? null,
+      points: question.points ?? 1,
+      sortOrder: question.sortOrder
+    }))
+  });
 }
 
 async function main() {
@@ -210,7 +244,58 @@ async function main() {
     createdBy: user.id
   });
 
-  console.log('Seed complete: user, path, module, sections, section versions, lesson blocks');
+  const sectionOnePublishedVersion = await prisma.sectionVersion.findUnique({
+    where: {
+      sectionId_versionNumber: {
+        sectionId: sectionOne.id,
+        versionNumber: 1
+      }
+    },
+    select: { id: true }
+  });
+
+  if (sectionOnePublishedVersion) {
+    await replaceSeedQuestionsForVersion({
+      sectionVersionId: sectionOnePublishedVersion.id,
+      questions: [
+        {
+          type: QuestionType.mcq,
+          prompt: 'Which HTTP method is typically used for a read-only fetch operation?',
+          optionsJson: {
+            options: ['GET', 'POST', 'DELETE', 'PATCH']
+          },
+          answerKeyJson: { correct_option: 'GET' },
+          explanation: 'GET is conventionally used for safe, read-only requests.',
+          points: 1,
+          sortOrder: 1
+        },
+        {
+          type: QuestionType.mcq,
+          prompt: 'Which status code range represents successful responses?',
+          optionsJson: {
+            options: ['1xx', '2xx', '3xx', '5xx']
+          },
+          answerKeyJson: { correct_option: '2xx' },
+          explanation: '2xx indicates that a request was successfully received and processed.',
+          points: 1,
+          sortOrder: 2
+        },
+        {
+          type: QuestionType.short_answer,
+          prompt: 'Name the header that identifies the destination host in an HTTP/1.1 request.',
+          optionsJson: null,
+          answerKeyJson: { accepted: ['host'], mode: 'exact_ci' },
+          explanation: 'The Host header is required in HTTP/1.1 requests.',
+          points: 1,
+          sortOrder: 3
+        }
+      ]
+    });
+  }
+
+  console.log(
+    'Seed complete: user, path, module, sections, section versions, lesson blocks, and quiz questions'
+  );
 }
 
 main()

@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-15 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-16 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -163,6 +163,20 @@ PR-11 additions:
 - optional `idempotency_key` is supported and deduplicates repeated requests
 - `payload_json` must be an object when provided
 
+## Quiz Foundation (PR-16)
+
+Quiz backend foundation is now present in `apps/api`:
+
+- Prisma quiz enum/model additions:
+  - `QuestionType` (`mcq`, `short_answer`)
+  - `questions`
+  - `quiz_attempts`
+  - `quiz_attempt_answers`
+- seed data now inserts deterministic quiz questions for `request-response-cycle` published v1
+- new `QuizModule` scaffold is registered in `AppModule` (no public quiz endpoints yet)
+
+PR-16 intentionally does not add quiz HTTP endpoints yet; submit/score APIs are planned for PR-17+.
+
 ## Content Importer & Admin Versioning (PR-12, PR-13, PR-14, PR-15)
 
 `packages/content-importer` now provides a markdown import parser + CLI for dry-run parsing and draft DB upserts:
@@ -297,7 +311,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-15)
+## Current Scope (PR-16)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -335,8 +349,11 @@ pnpm build
 - Admin section version list/preview endpoints in `apps/api` (`GET /v1/admin/sections/:sectionId/versions`, `GET /v1/admin/sections/:sectionId/versions/:versionId`)
 - Admin publish endpoint in `apps/api` (`POST /v1/admin/sections/:sectionId/publish/:versionId`) archives prior published version(s) and publishes a draft version transactionally
 - Publish flow preserves pinned-version behavior for in-progress users (old version becomes `archived` but remains resolvable via pinned progress)
+- Quiz core schema foundation in `apps/api` (`questions`, `quiz_attempts`, `quiz_attempt_answers`, `QuestionType`)
+- Seeded quiz questions for published `request-response-cycle` section version
+- `QuizModule` scaffold in `apps/api` (registered, no quiz routes exposed yet)
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
-- API e2e tests now include analytics ingest, admin content import, and admin section version/publish coverage
+- API e2e tests now include analytics ingest, admin content import, admin section version/publish, and quiz-seed coverage
 
 No auth/quiz execution/unlocks/XP/credits/gamification yet.
 

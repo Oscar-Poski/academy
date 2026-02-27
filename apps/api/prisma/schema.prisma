@@ -27,6 +27,11 @@ enum ProgressStatus {
   completed
 }
 
+enum QuestionType {
+  mcq
+  short_answer
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -35,6 +40,7 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   sectionProgress UserSectionProgress[]
+  quizAttempts    QuizAttempt[]
 
   @@map("users")
 }
@@ -86,6 +92,7 @@ model Section {
   module          Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   sectionVersions SectionVersion[]
   sectionProgress UserSectionProgress[]
+  quizAttempts    QuizAttempt[]
 
   @@index([moduleId])
   @@map("sections")
@@ -101,8 +108,10 @@ model SectionVersion {
   createdBy     String?              @map("created_by")
   createdAt     DateTime             @default(now()) @map("created_at")
 
-  section      Section       @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  lessonBlocks LessonBlock[]
+  section         Section              @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  lessonBlocks    LessonBlock[]
+  questions       Question[]
+  quizAttempts    QuizAttempt[]
   sectionProgress UserSectionProgress[]
 
   @@unique([sectionId, versionNumber])
@@ -119,10 +128,73 @@ model LessonBlock {
   estimatedSeconds Int?            @map("estimated_seconds")
 
   sectionVersion SectionVersion @relation(fields: [sectionVersionId], references: [id], onDelete: Cascade)
+  questions      Question[]
 
   @@unique([sectionVersionId, blockOrder])
   @@index([sectionVersionId])
   @@map("lesson_blocks")
+}
+
+model Question {
+  id               String       @id @default(cuid())
+  sectionVersionId String       @map("section_version_id")
+  blockId          String?      @map("block_id")
+  type             QuestionType
+  prompt           String
+  optionsJson      Json?        @map("options_json")
+  answerKeyJson    Json         @map("answer_key_json")
+  explanation      String?
+  points           Int          @default(1)
+  sortOrder        Int          @default(0) @map("sort_order")
+  createdAt        DateTime     @default(now()) @map("created_at")
+
+  sectionVersion SectionVersion    @relation(fields: [sectionVersionId], references: [id], onDelete: Cascade)
+  block          LessonBlock?      @relation(fields: [blockId], references: [id], onDelete: SetNull)
+  attemptAnswers QuizAttemptAnswer[]
+
+  @@index([sectionVersionId, sortOrder])
+  @@index([blockId])
+  @@map("questions")
+}
+
+model QuizAttempt {
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  sectionId         String   @map("section_id")
+  sectionVersionId  String   @map("section_version_id")
+  attemptNo         Int      @map("attempt_no")
+  submittedAt       DateTime @default(now()) @map("submitted_at")
+  score             Int
+  maxScore          Int      @map("max_score")
+  passed            Boolean
+  gradingDetailsJson Json    @map("grading_details_json")
+
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  section        Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionVersion SectionVersion    @relation(fields: [sectionVersionId], references: [id], onDelete: Cascade)
+  answers        QuizAttemptAnswer[]
+
+  @@unique([userId, sectionId, attemptNo])
+  @@index([userId, sectionId, submittedAt])
+  @@index([sectionVersionId])
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptAnswer {
+  id           String  @id @default(cuid())
+  attemptId    String  @map("attempt_id")
+  questionId   String  @map("question_id")
+  answerJson   Json    @map("answer_json")
+  isCorrect    Boolean @map("is_correct")
+  awardedPoints Int    @default(0) @map("awarded_points")
+
+  attempt  QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+  @@map("quiz_attempt_answers")
 }
 
 model UserSectionProgress {
