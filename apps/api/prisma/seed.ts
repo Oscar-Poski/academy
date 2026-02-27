@@ -3,11 +3,14 @@ import {
   PrismaClient,
   QuestionType,
   SectionVersionStatus,
+  UserRole,
   UnlockRuleType,
   UnlockScopeType
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
+const SEEDED_STUDENT_PASSWORD_HASH = '$2b$10$rI7AKMGo2fEWYkXlBf9fWOf5z0fGHQllXifWfM6M0ehAFri0W2Dxq';
+const SEEDED_ADMIN_PASSWORD_HASH = '$2b$10$8eaRbSEeV4fCO8xjW8fkE.gU3P7m.7hRd2.EUk7QjVbup73QFdKVK';
 
 async function upsertSectionVersionWithPublishedBlocks(params: {
   sectionId: string;
@@ -125,10 +128,31 @@ async function replaceSeedUnlockRulesForModule(params: {
 async function main() {
   const user = await prisma.user.upsert({
     where: { email: 'student@academy.local' },
-    update: { name: 'Academy Student' },
+    update: {
+      name: 'Academy Student',
+      role: UserRole.user,
+      passwordHash: SEEDED_STUDENT_PASSWORD_HASH
+    },
     create: {
       email: 'student@academy.local',
-      name: 'Academy Student'
+      name: 'Academy Student',
+      role: UserRole.user,
+      passwordHash: SEEDED_STUDENT_PASSWORD_HASH
+    }
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'admin@academy.local' },
+    update: {
+      name: 'Academy Admin',
+      role: UserRole.admin,
+      passwordHash: SEEDED_ADMIN_PASSWORD_HASH
+    },
+    create: {
+      email: 'admin@academy.local',
+      name: 'Academy Admin',
+      role: UserRole.admin,
+      passwordHash: SEEDED_ADMIN_PASSWORD_HASH
     }
   });
 

@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-25 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-26 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -58,6 +58,13 @@ Run migrations and seed:
 pnpm --filter @academy/api db:migrate
 pnpm --filter @academy/api db:seed
 ```
+
+PR-26 auth schema foundation:
+- database now includes `users.role`, `users.password_hash`, and `auth_refresh_tokens`
+- seeded local users:
+  - learner: `student@academy.local`
+  - admin: `admin@academy.local`
+- auth HTTP endpoints are not available yet (planned starting PR-27)
 
 ## Run
 
@@ -392,7 +399,7 @@ pnpm build
 
 `apps/web` progress/continue behavior (PR-4) also expects:
 
-- `NEXT_PUBLIC_TEMP_USER_ID` = existing `users.id` (temporary MVP strategy, no auth yet)
+- `NEXT_PUBLIC_TEMP_USER_ID` = existing `users.id` (temporary bridge; auth schema exists, but auth endpoints are not live yet)
 - `NEXT_PUBLIC_API_BASE_URL` (optional; defaults to `http://localhost:3001` in the web API clients)
 
 `apps/api` expects:
@@ -403,7 +410,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-25)
+## Current Scope (PR-26)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -413,6 +420,7 @@ pnpm build
 - Initial Postgres schema includes `sections`
 - Initial Postgres schema includes `section_versions`
 - Initial Postgres schema includes `lesson_blocks`
+- Auth schema foundation in `apps/api` (`users.role`, `users.password_hash`, `auth_refresh_tokens`, `UserRole`)
 - NestJS health endpoint with DB check (`GET /health -> {"status":"ok","db":"ok"}`)
 - Next.js homepage showing basic API health status
 - Read-only Content API endpoints in `apps/api`:
@@ -424,7 +432,7 @@ pnpm build
 - path page (`/paths/:pathId`)
 - module page (`/modules/:moduleId`)
 - learn/player page (`/learn/:sectionId`)
-- Authoritative progress tracking in `apps/api` (temporary `x-user-id`, no auth yet)
+- Authoritative progress tracking in `apps/api` (temporary `x-user-id` bridge while auth endpoints are pending)
 - Continue learning API + homepage continue card in `apps/web`
 - Version-aware section retrieval in `apps/api` using optional `x-user-id` and progress-pinned `sectionVersionId`
 - Web path/module progress indicators (read-only wiring to existing progress endpoints)
