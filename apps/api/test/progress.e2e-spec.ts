@@ -174,6 +174,7 @@ describe('Progress API (e2e)', () => {
 
   it('start -> position -> complete happy path', async () => {
     await submitPassingQuizAttempt(app, userIds.happy, seededSectionId, seededQuestions);
+    await ensureModuleUnlocked(prisma, userIds.happy);
 
     const start = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/start`)
@@ -210,6 +211,7 @@ describe('Progress API (e2e)', () => {
 
   it('complete is idempotent and preserves completedAt', async () => {
     await submitPassingQuizAttempt(app, userIds.complete, seededSectionId, seededQuestions);
+    await ensureModuleUnlocked(prisma, userIds.complete);
 
     const first = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/complete`)
@@ -341,6 +343,33 @@ function getCorrectOption(answerKeyJson: unknown): string {
   }
 
   return value;
+}
+
+async function ensureModuleUnlocked(prisma: PrismaClient, userId: string): Promise<void> {
+  const module = await prisma.module.findUnique({
+    where: { slug: 'http-basics-module' },
+    select: { id: true }
+  });
+  if (!module) {
+    throw new Error('Seeded module http-basics-module not found.');
+  }
+
+  await prisma.userUnlock.upsert({
+    where: {
+      userId_scopeType_scopeId: {
+        userId,
+        scopeType: 'module',
+        scopeId: module.id
+      }
+    },
+    update: {},
+    create: {
+      userId,
+      scopeType: 'module',
+      scopeId: module.id,
+      reason: 'test_override'
+    }
+  });
 }
 
 function getCorrectShortAnswer(answerKeyJson: unknown): string {

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { ProgressStatus, SectionVersionStatus, UserSectionProgress } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { GamificationService } from '../gamification/gamification.service';
 import { UnlocksService } from '../unlocks/unlocks.service';
 import type {
   CompleteSectionGatingErrorDto,
@@ -21,6 +22,7 @@ import type {
 export class ProgressService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(GamificationService) private readonly gamificationService: GamificationService,
     @Inject(UnlocksService) private readonly unlocksService: UnlocksService
   ) {}
 
@@ -139,14 +141,20 @@ export class ProgressService {
     }
 
     const now = new Date();
-    const updated = await this.prisma.userSectionProgress.update({
-      where: { id: ensured.id },
-      data: {
-        status: ProgressStatus.completed,
-        completionPct: 100,
-        completedAt: now,
-        lastSeenAt: now
-      }
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const completed = await tx.userSectionProgress.update({
+        where: { id: ensured.id },
+        data: {
+          status: ProgressStatus.completed,
+          completionPct: 100,
+          completedAt: now,
+          lastSeenAt: now
+        }
+      });
+
+      await this.gamificationService.awardSectionCompleteXp(userId, sectionId, tx);
+
+      return completed;
     });
 
     return this.toSectionProgressDto(updated);

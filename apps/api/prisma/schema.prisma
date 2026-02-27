@@ -45,6 +45,20 @@ enum UnlockRuleType {
   min_level
 }
 
+enum XpEventType {
+  section_complete
+  quiz_pass
+  streak
+  manual
+}
+
+enum XpSourceType {
+  section
+  quiz_attempt
+  system
+  manual
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -55,6 +69,8 @@ model User {
   sectionProgress UserSectionProgress[]
   quizAttempts    QuizAttempt[]
   unlocks         UserUnlock[]
+  xpEvents        XpEvent[]
+  userLevel       UserLevel?
 
   @@map("users")
 }
@@ -288,4 +304,32 @@ model UserUnlock {
   @@index([scopeType, scopeId])
   @@index([userId, unlockedAt])
   @@map("user_unlocks")
+}
+
+model XpEvent {
+  id             String       @id @default(cuid())
+  userId         String       @map("user_id")
+  eventType      XpEventType  @map("event_type")
+  sourceType     XpSourceType @map("source_type")
+  sourceId       String       @map("source_id")
+  xpDelta        Int          @map("xp_delta")
+  idempotencyKey String       @unique @map("idempotency_key")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([eventType, createdAt])
+  @@map("xp_events")
+}
+
+model UserLevel {
+  userId    String   @id @map("user_id")
+  totalXp   Int      @default(0) @map("total_xp")
+  level     Int      @default(1)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_levels")
 }

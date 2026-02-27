@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-24 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-25 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -186,7 +186,7 @@ Quiz backend foundation is now present in `apps/api`:
   - `quiz_attempts`
   - `quiz_attempt_answers`
 - seed data now inserts deterministic quiz questions for `request-response-cycle` published v1
-- new `QuizModule` scaffold is registered in `AppModule` (no public quiz endpoints yet)
+- `QuizModule` is registered in `AppModule`
 
 PR-17 adds the first executable quiz endpoint:
 
@@ -256,6 +256,18 @@ PR-22 adds user-aware lock metadata to content APIs (additive only):
 - for known users, response payloads include lock metadata for modules and sections
 - `GET /v1/sections/:sectionId` now includes additive navigation lock metadata for known users
 - anonymous/unknown-user callers keep legacy payload shape (lock metadata omitted)
+
+## Gamification Foundation (PR-25)
+
+Gamification v1 is now available in `apps/api`:
+
+- `GET /v1/gamification/me` (requires `x-user-id`) returns `{ userId, totalXp, level }`
+- XP is awarded exactly once per user+section rule for:
+  - first section completion (`section_complete`)
+  - first quiz pass (`quiz_pass`)
+- XP awards are persisted in `xp_events` with unique idempotency keys
+- aggregate XP/level is stored in `user_levels`
+- baseline level formula is linear: `level = floor(totalXp / 100) + 1`
 
 ## Content Importer & Admin Versioning (PR-12, PR-13, PR-14, PR-15)
 
@@ -391,7 +403,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-24)
+## Current Scope (PR-25)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -440,6 +452,9 @@ pnpm build
 - Unlock status endpoint in `apps/api` (`GET /v1/unlocks/modules/:moduleId/status`) with read-only prerequisite evaluation
 - Unlock evaluate endpoint in `apps/api` (`POST /v1/unlocks/modules/:moduleId/evaluate`) with idempotent `user_unlocks` persistence
 - Unlock evaluator now supports `quiz_pass` rules and persisted unlock grants
+- Gamification schema foundation in `apps/api` (`xp_events`, `user_levels`, `XpEventType`, `XpSourceType`)
+- Gamification summary endpoint in `apps/api` (`GET /v1/gamification/me`)
+- XP awards on first section completion and first quiz pass per user+section rule (idempotent)
 - Content API lock metadata (additive) for known users on:
 - `GET /v1/paths/:pathId` (module/section lock metadata)
 - `GET /v1/modules/:moduleId` (module/section lock metadata)
@@ -447,9 +462,9 @@ pnpm build
 - Anonymous and unknown-user content requests remain backward-compatible (lock fields omitted)
 - Web locked-state rendering now consumes content lock metadata in path/module/player routes (badges, reasons, disabled locked navigation)
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
-- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, unlock-seed, unlock-status, unlock-evaluate, and content-lock-metadata coverage
+- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, unlock-seed, unlock-status, unlock-evaluate, content-lock-metadata, and gamification coverage
 
-No auth/credits-redemption endpoints/XP/credits/gamification yet.
+No auth or credits-redemption endpoints yet.
 
 ## Useful API Commands
 
@@ -518,6 +533,12 @@ curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/unlocks/modul
 # Complete prerequisite section, then evaluate again
 curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
 curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/evaluate" | jq
+```
+
+## Useful Gamification Curl Commands
+
+```bash
+curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/gamification/me" | jq
 ```
 
 ## Useful Web Commands

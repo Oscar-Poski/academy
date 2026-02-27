@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { QuestionType, SectionVersionStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { GamificationService } from '../gamification/gamification.service';
 import type {
   QuizAttemptResultDto,
   QuizLatestAttemptDto,
@@ -42,7 +43,10 @@ type GradedAnswer = {
 
 @Injectable()
 export class QuizService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(GamificationService) private readonly gamificationService: GamificationService
+  ) {}
 
   async submitAttempt(
     userId: string,
@@ -158,6 +162,10 @@ export class QuizService {
           awardedPoints: answer.awardedPoints
         }))
       });
+
+      if (createdAttempt.passed) {
+        await this.gamificationService.awardQuizPassXp(userId, sectionId, createdAttempt.id, tx);
+      }
 
       return createdAttempt;
     });
