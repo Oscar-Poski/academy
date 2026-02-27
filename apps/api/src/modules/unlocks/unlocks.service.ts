@@ -21,16 +21,12 @@ export class UnlocksService {
 
   async getModuleStatus(userId: string, moduleId: string): Promise<UnlockDecisionDto> {
     const normalizedUserId = await this.assertKnownUser(userId);
+    return this.getModuleStatusForKnownUser(normalizedUserId, moduleId);
+  }
+
+  async getModuleStatusForKnownUser(userId: string, moduleId: string): Promise<UnlockDecisionDto> {
     const module = await this.getModuleOrThrow(moduleId);
-
-    const existingUnlock = await this.findExistingModuleUnlock(normalizedUserId, module.id);
-    if (existingUnlock) {
-      return this.buildDecision(module.id, module.creditsCost, []);
-    }
-
-    const rules = await this.getActiveModuleRules(module.id);
-    const reasons = await this.evaluateRules(normalizedUserId, rules);
-    return this.buildDecision(module.id, module.creditsCost, reasons);
+    return this.getModuleStatusForKnownUserAndModule(userId, module);
   }
 
   async evaluateModuleUnlock(userId: string, moduleId: string): Promise<UnlockDecisionDto> {
@@ -66,6 +62,20 @@ export class UnlocksService {
     });
 
     return this.buildDecision(module.id, module.creditsCost, []);
+  }
+
+  private async getModuleStatusForKnownUserAndModule(
+    userId: string,
+    module: { id: string; creditsCost: number }
+  ): Promise<UnlockDecisionDto> {
+    const existingUnlock = await this.findExistingModuleUnlock(userId, module.id);
+    if (existingUnlock) {
+      return this.buildDecision(module.id, module.creditsCost, []);
+    }
+
+    const rules = await this.getActiveModuleRules(module.id);
+    const reasons = await this.evaluateRules(userId, rules);
+    return this.buildDecision(module.id, module.creditsCost, reasons);
   }
 
   private buildDecision(moduleId: string, creditsCost: number, reasons: string[]): UnlockDecisionDto {

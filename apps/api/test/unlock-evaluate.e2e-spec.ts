@@ -9,6 +9,7 @@ describe('Unlock Evaluate API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaClient;
   let moduleId: string;
+  let tempModuleId: string | null = null;
   let sectionId: string;
   let scorableQuestions: Array<{ id: string; type: QuestionType; answerKeyJson: unknown }>;
 
@@ -34,12 +35,25 @@ describe('Unlock Evaluate API (e2e)', () => {
 
     const seededModule = await prisma.module.findUnique({
       where: { slug: 'http-basics-module' },
-      select: { id: true }
+      select: { id: true, pathId: true }
     });
     if (!seededModule) {
       throw new Error('Seeded module not found. Run API migrate + seed before tests.');
     }
-    moduleId = seededModule.id;
+    const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const tempModule = await prisma.module.create({
+      data: {
+        pathId: seededModule.pathId,
+        slug: `unlock-evaluate-temp-module-${unique}`,
+        title: `Unlock Evaluate Temp Module ${unique}`,
+        description: 'Temporary module for unlock evaluate e2e tests',
+        sortOrder: 9991,
+        status: 'published'
+      },
+      select: { id: true }
+    });
+    tempModuleId = tempModule.id;
+    moduleId = tempModule.id;
 
     const seededSection = await prisma.section.findUnique({
       where: { slug: 'request-response-cycle' },
@@ -141,6 +155,11 @@ describe('Unlock Evaluate API (e2e)', () => {
     await prisma.unlockRule.deleteMany({
       where: { id: { in: createdRuleIds.splice(0) } }
     });
+    if (tempModuleId) {
+      await prisma.module.deleteMany({
+        where: { id: tempModuleId }
+      });
+    }
 
     await app.close();
     await prisma.$disconnect();
@@ -170,7 +189,6 @@ describe('Unlock Evaluate API (e2e)', () => {
 
   it('denies evaluate when latest quiz attempt failed', async () => {
     await createQuizPassRule();
-    await completePrerequisite(userIds.failed);
     await submitAttempt(userIds.failed, buildAllWrongAnswers());
 
     const response = await request(app.getHttpServer())
@@ -193,7 +211,6 @@ describe('Unlock Evaluate API (e2e)', () => {
 
   it('persists unlock when latest quiz attempt passed', async () => {
     await createQuizPassRule();
-    await completePrerequisite(userIds.passed);
     await submitAttempt(userIds.passed, buildAllCorrectAnswers());
 
     const response = await request(app.getHttpServer())
@@ -217,7 +234,6 @@ describe('Unlock Evaluate API (e2e)', () => {
 
   it('evaluate is idempotent after unlock is persisted', async () => {
     await createQuizPassRule();
-    await completePrerequisite(userIds.passed);
     await submitAttempt(userIds.passed, buildAllCorrectAnswers());
 
     await request(app.getHttpServer())
@@ -274,13 +290,6 @@ describe('Unlock Evaluate API (e2e)', () => {
       select: { id: true }
     });
     createdRuleIds.push(rule.id);
-  }
-
-  async function completePrerequisite(userId: string): Promise<void> {
-    await request(app.getHttpServer())
-      .post(`/v1/progress/sections/${sectionId}/complete`)
-      .set('x-user-id', userId)
-      .expect(201);
   }
 
   async function submitAttempt(

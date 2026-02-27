@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { SectionVersionStatus } from '@prisma/client';
 import {
+  ContentLockMetadataDto,
   ModuleDetailDto,
   PathListItemDto,
   PathTreeDto,
@@ -8,10 +9,14 @@ import {
   SectionNavigationDto
 } from './dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UnlocksService } from '../unlocks/unlocks.service';
 
 @Injectable()
 export class ContentService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(UnlocksService) private readonly unlocksService: UnlocksService
+  ) {}
 
   async getPaths(): Promise<PathListItemDto[]> {
     const paths = await this.prisma.path.findMany({
@@ -48,7 +53,7 @@ export class ContentService {
     }));
   }
 
-  async getPathTree(pathId: string): Promise<PathTreeDto> {
+  async getPathTree(pathId: string, userId?: string): Promise<PathTreeDto> {
     const path = await this.prisma.path.findUnique({
       where: { id: pathId },
       select: {
@@ -81,10 +86,42 @@ export class ContentService {
       throw new NotFoundException(`Path ${pathId} not found`);
     }
 
-    return path;
+    const knownUserId = await this.resolveKnownUserIdForLockContext(userId);
+    if (!knownUserId) {
+      return path;
+    }
+
+    const lockByModuleId = new Map<string, ContentLockMetadataDto>();
+    await Promise.all(
+      path.modules.map(async (module) => {
+        const lock = await this.getModuleLockMetadata(module.id, knownUserId);
+        if (lock) {
+          lockByModuleId.set(module.id, lock);
+        }
+      })
+    );
+
+    return {
+      ...path,
+      modules: path.modules.map((module) => {
+        const lock = lockByModuleId.get(module.id);
+        if (!lock) {
+          return module;
+        }
+
+        return {
+          ...module,
+          lock,
+          sections: module.sections.map((section) => ({
+            ...section,
+            lock
+          }))
+        };
+      })
+    };
   }
 
-  async getModule(moduleId: string): Promise<ModuleDetailDto> {
+  async getModule(moduleId: string, userId?: string): Promise<ModuleDetailDto> {
     const module = await this.prisma.module.findUnique({
       where: { id: moduleId },
       select: {
@@ -110,7 +147,24 @@ export class ContentService {
       throw new NotFoundException(`Module ${moduleId} not found`);
     }
 
-    return module;
+    const knownUserId = await this.resolveKnownUserIdForLockContext(userId);
+    if (!knownUserId) {
+      return module;
+    }
+
+    const lock = await this.getModuleLockMetadata(module.id, knownUserId);
+    if (!lock) {
+      return module;
+    }
+
+    return {
+      ...module,
+      lock,
+      sections: module.sections.map((section) => ({
+        ...section,
+        lock
+      }))
+    };
   }
 
   async getSection(sectionId: string, userId?: string): Promise<SectionDetailDto> {
@@ -149,12 +203,56 @@ export class ContentService {
         currentIndex >= 0 && currentIndex < siblings.length - 1 ? siblings[currentIndex + 1].id : null
     };
 
+    const knownUserId = await this.resolveKnownUserIdForLockContext(userId);
+    if (knownUserId) {
+      const moduleLock = await this.getModuleLockMetadata(section.moduleId, knownUserId);
+      if (moduleLock) {
+        navigation.prevSectionLock = navigation.prevSectionId ? moduleLock : null;
+        navigation.nextSectionLock = navigation.nextSectionId ? moduleLock : null;
+      }
+    }
+
     return {
       ...section,
       sectionVersionId: sectionVersion.id,
       lessonBlocks: sectionVersion.lessonBlocks,
       navigation
     };
+  }
+
+  private async resolveKnownUserIdForLockContext(userId?: string): Promise<string | null> {
+    if (typeof userId !== 'string' || userId.trim().length === 0) {
+      return null;
+    }
+
+    const normalizedUserId = userId.trim();
+    const user = await this.prisma.user.findUnique({
+      where: { id: normalizedUserId },
+      select: { id: true }
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return normalizedUserId;
+  }
+
+  private async getModuleLockMetadata(
+    moduleId: string,
+    knownUserId: string
+  ): Promise<ContentLockMetadataDto | null> {
+    try {
+      const decision = await this.unlocksService.getModuleStatusForKnownUser(knownUserId, moduleId);
+      return {
+        isLocked: !decision.isUnlocked,
+        reasons: decision.reasons,
+        requiresCredits: decision.requiresCredits,
+        creditsCost: decision.creditsCost
+      };
+    } catch {
+      return null;
+    }
   }
 
   private async resolveSectionVersion(sectionId: string, userId?: string) {

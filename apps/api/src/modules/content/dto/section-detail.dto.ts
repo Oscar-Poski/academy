@@ -1,4 +1,5 @@
 import { LessonBlockType } from '@prisma/client';
+import type { ContentLockMetadataDto } from './lock-metadata.dto';
 
 export interface SectionLessonBlockDto {
   id: string;
@@ -11,6 +12,8 @@ export interface SectionLessonBlockDto {
 export interface SectionNavigationDto {
   prevSectionId: string | null;
   nextSectionId: string | null;
+  prevSectionLock?: ContentLockMetadataDto | null;
+  nextSectionLock?: ContentLockMetadataDto | null;
 }
 
 export interface SectionDetailDto {

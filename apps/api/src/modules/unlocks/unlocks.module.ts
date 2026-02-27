@@ -4,6 +4,7 @@ import { UnlocksService } from './unlocks.service';
 
 @Module({
   controllers: [UnlocksController],
-  providers: [UnlocksService]
+  providers: [UnlocksService],
+  exports: [UnlocksService]
 })
 export class UnlocksModule {}

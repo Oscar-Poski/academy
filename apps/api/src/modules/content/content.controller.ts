@@ -11,13 +11,13 @@ export class ContentController {
   }
 
   @Get('paths/:pathId')
-  getPath(@Param('pathId') pathId: string) {
-    return this.contentService.getPathTree(pathId);
+  getPath(@Param('pathId') pathId: string, @Headers('x-user-id') userId?: string) {
+    return this.contentService.getPathTree(pathId, userId);
   }
 
   @Get('modules/:moduleId')
-  getModule(@Param('moduleId') moduleId: string) {
-    return this.contentService.getModule(moduleId);
+  getModule(@Param('moduleId') moduleId: string, @Headers('x-user-id') userId?: string) {
+    return this.contentService.getModule(moduleId, userId);
   }
 
   @Get('sections/:sectionId')

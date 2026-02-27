@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-21 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-22 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -211,7 +211,7 @@ curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SEC
 curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/result" | jq
 ```
 
-## Unlock Foundation (PR-19, PR-20, PR-21)
+## Unlock Foundation (PR-19, PR-20, PR-21, PR-22)
 
 Unlock backend foundation is now present in `apps/api`:
 
@@ -236,6 +236,13 @@ PR-21 adds unlock evaluation and persistence:
 - persists module unlocks in `user_unlocks` when rules are satisfied (idempotent on retries)
 - extends both status/evaluate rule evaluation to support `quiz_pass` rules
 - `GET /v1/unlocks/modules/:moduleId/status` now also honors persisted module unlock grants
+
+PR-22 adds user-aware lock metadata to content APIs (additive only):
+
+- `GET /v1/paths/:pathId` and `GET /v1/modules/:moduleId` now accept optional `x-user-id`
+- for known users, response payloads include lock metadata for modules and sections
+- `GET /v1/sections/:sectionId` now includes additive navigation lock metadata for known users
+- anonymous/unknown-user callers keep legacy payload shape (lock metadata omitted)
 
 ## Content Importer & Admin Versioning (PR-12, PR-13, PR-14, PR-15)
 
@@ -371,7 +378,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-21)
+## Current Scope (PR-22)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -419,8 +426,13 @@ pnpm build
 - Unlock status endpoint in `apps/api` (`GET /v1/unlocks/modules/:moduleId/status`) with read-only prerequisite evaluation
 - Unlock evaluate endpoint in `apps/api` (`POST /v1/unlocks/modules/:moduleId/evaluate`) with idempotent `user_unlocks` persistence
 - Unlock evaluator now supports `quiz_pass` rules and persisted unlock grants
+- Content API lock metadata (additive) for known users on:
+- `GET /v1/paths/:pathId` (module/section lock metadata)
+- `GET /v1/modules/:moduleId` (module/section lock metadata)
+- `GET /v1/sections/:sectionId` (navigation lock metadata)
+- Anonymous and unknown-user content requests remain backward-compatible (lock fields omitted)
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
-- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, unlock-seed, unlock-status, and unlock-evaluate coverage
+- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, unlock-seed, unlock-status, unlock-evaluate, and content-lock-metadata coverage
 
 No auth/credits-redemption endpoints/XP/credits/gamification yet.
 
