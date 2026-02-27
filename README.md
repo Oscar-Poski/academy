@@ -180,6 +180,8 @@ PR-28 behavior:
 - logout revokes the current refresh token
 - `auth/me` returns `{ id, email, name, role }` for the authenticated principal
 - refresh/logout transport uses JSON body (no cookie flow yet)
+- bridge mode for learner APIs: bearer auth is accepted and takes precedence over `x-user-id` when both are present
+- `x-user-id` remains temporarily supported as fallback (removal planned in PR-32)
 
 Example:
 
@@ -463,6 +465,7 @@ pnpm build
 - Auth schema foundation in `apps/api` (`users.role`, `users.password_hash`, `auth_refresh_tokens`, `UserRole`)
 - Auth API MVP in `apps/api` (`POST /v1/auth/login`, `GET /v1/auth/me`) with bearer-token principal resolution
 - Auth refresh/logout lifecycle in `apps/api` (`POST /v1/auth/refresh`, `POST /v1/auth/logout`) with one-time refresh rotation
+- Guarded user-context bridge: progress/quiz/unlocks/gamification/content endpoints now accept bearer principal first with temporary `x-user-id` fallback
 - NestJS health endpoint with DB check (`GET /health -> {"status":"ok","db":"ok"}`)
 - Next.js homepage showing basic API health status
 - Read-only Content API endpoints in `apps/api`:

@@ -1,4 +1,7 @@
-import { Controller, Get, Headers, Inject, Param } from '@nestjs/common';
+import { Controller, Get, Headers, Inject, Param, Req, UseGuards } from '@nestjs/common';
+import { OptionalBearerAuthGuard } from '../auth/optional-bearer-auth.guard';
+import { resolveUserIdFromRequest } from '../auth/resolve-user-id';
+import type { AuthenticatedRequest } from '../auth/auth.types';
 import { ContentService } from './content.service';
 
 @Controller('v1')
@@ -11,17 +14,32 @@ export class ContentController {
   }
 
   @Get('paths/:pathId')
-  getPath(@Param('pathId') pathId: string, @Headers('x-user-id') userId?: string) {
-    return this.contentService.getPathTree(pathId, userId);
+  @UseGuards(OptionalBearerAuthGuard)
+  getPath(
+    @Param('pathId') pathId: string,
+    @Headers('x-user-id') userId: string | undefined,
+    @Req() request: AuthenticatedRequest
+  ) {
+    return this.contentService.getPathTree(pathId, resolveUserIdFromRequest(request, userId));
   }
 
   @Get('modules/:moduleId')
-  getModule(@Param('moduleId') moduleId: string, @Headers('x-user-id') userId?: string) {
-    return this.contentService.getModule(moduleId, userId);
+  @UseGuards(OptionalBearerAuthGuard)
+  getModule(
+    @Param('moduleId') moduleId: string,
+    @Headers('x-user-id') userId: string | undefined,
+    @Req() request: AuthenticatedRequest
+  ) {
+    return this.contentService.getModule(moduleId, resolveUserIdFromRequest(request, userId));
   }
 
   @Get('sections/:sectionId')
-  getSection(@Param('sectionId') sectionId: string, @Headers('x-user-id') userId?: string) {
-    return this.contentService.getSection(sectionId, userId);
+  @UseGuards(OptionalBearerAuthGuard)
+  getSection(
+    @Param('sectionId') sectionId: string,
+    @Headers('x-user-id') userId: string | undefined,
+    @Req() request: AuthenticatedRequest
+  ) {
+    return this.contentService.getSection(sectionId, resolveUserIdFromRequest(request, userId));
   }
 }

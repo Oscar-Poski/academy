@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { hash } from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
@@ -14,6 +15,11 @@ describe('Content API lock metadata (e2e)', () => {
   const userIds = {
     locked: 'content-lock-locked-user',
     unlocked: 'content-lock-unlocked-user'
+  } as const;
+  const bearerUser = {
+    id: 'content-lock-bearer-user',
+    email: 'content-lock-bearer@academy.local',
+    password: 'password123'
   } as const;
 
   beforeAll(async () => {
@@ -66,19 +72,42 @@ describe('Content API lock metadata (e2e)', () => {
         })
       )
     );
+
+    const bearerHash = await hash(bearerUser.password, 10);
+    await prisma.user.upsert({
+      where: { email: bearerUser.email },
+      update: {
+        id: bearerUser.id,
+        name: 'Content Lock Bearer User',
+        role: 'user',
+        passwordHash: bearerHash
+      },
+      create: {
+        id: bearerUser.id,
+        email: bearerUser.email,
+        name: 'Content Lock Bearer User',
+        role: 'user',
+        passwordHash: bearerHash
+      }
+    });
   });
 
   beforeEach(async () => {
     await prisma.userUnlock.deleteMany({
       where: {
-        userId: { in: Object.values(userIds) },
+        userId: { in: [...Object.values(userIds), bearerUser.id] },
         scopeType: 'module',
         scopeId: moduleId
       }
     });
     await prisma.userSectionProgress.deleteMany({
       where: {
-        userId: { in: Object.values(userIds) }
+        userId: { in: [...Object.values(userIds), bearerUser.id] }
+      }
+    });
+    await prisma.authRefreshToken.deleteMany({
+      where: {
+        userId: bearerUser.id
       }
     });
   });
@@ -86,15 +115,21 @@ describe('Content API lock metadata (e2e)', () => {
   afterAll(async () => {
     await prisma.userUnlock.deleteMany({
       where: {
-        userId: { in: Object.values(userIds) },
+        userId: { in: [...Object.values(userIds), bearerUser.id] },
         scopeType: 'module',
         scopeId: moduleId
       }
     });
     await prisma.userSectionProgress.deleteMany({
       where: {
-        userId: { in: Object.values(userIds) }
+        userId: { in: [...Object.values(userIds), bearerUser.id] }
       }
+    });
+    await prisma.authRefreshToken.deleteMany({
+      where: { userId: bearerUser.id }
+    });
+    await prisma.user.deleteMany({
+      where: { id: bearerUser.id }
     });
     await app.close();
     await prisma.$disconnect();
@@ -218,4 +253,71 @@ describe('Content API lock metadata (e2e)', () => {
       expect(sectionResponse.body.navigation.nextSectionLock.reasons).toEqual([]);
     }
   });
+
+  it('accepts optional bearer auth context for content lock metadata', async () => {
+    await prisma.userUnlock.create({
+      data: {
+        userId: bearerUser.id,
+        scopeType: 'module',
+        scopeId: moduleId,
+        reason: 'test_bearer_grant'
+      }
+    });
+
+    const token = await loginAndGetAccessToken();
+
+    const pathResponse = await request(app.getHttpServer())
+      .get(`/v1/paths/${pathId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    const moduleInPath = pathResponse.body.modules.find((item: { id: string }) => item.id === moduleId);
+    expect(moduleInPath).toBeTruthy();
+    expect(moduleInPath.lock.isLocked).toBe(false);
+  });
+
+  it('treats invalid bearer token without header as anonymous on content routes', async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/v1/paths/${pathId}`)
+      .set('Authorization', 'Bearer invalid-token')
+      .expect(200);
+
+    const moduleInPath = response.body.modules.find((item: { id: string }) => item.id === moduleId);
+    expect(moduleInPath).toBeTruthy();
+    expect(moduleInPath.lock).toBeUndefined();
+  });
+
+  it('prefers bearer principal over conflicting x-user-id on content routes', async () => {
+    await prisma.userUnlock.create({
+      data: {
+        userId: bearerUser.id,
+        scopeType: 'module',
+        scopeId: moduleId,
+        reason: 'test_bearer_priority'
+      }
+    });
+
+    const token = await loginAndGetAccessToken();
+
+    const response = await request(app.getHttpServer())
+      .get(`/v1/paths/${pathId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('x-user-id', userIds.locked)
+      .expect(200);
+
+    const moduleInPath = response.body.modules.find((item: { id: string }) => item.id === moduleId);
+    expect(moduleInPath).toBeTruthy();
+    expect(moduleInPath.lock.isLocked).toBe(false);
+  });
+
+  async function loginAndGetAccessToken(): Promise<string> {
+    const login = await request(app.getHttpServer()).post('/v1/auth/login').send({
+      email: bearerUser.email,
+      password: bearerUser.password
+    });
+
+    expect(login.status).toBe(200);
+    expect(typeof login.body.access_token).toBe('string');
+    return login.body.access_token;
+  }
 });

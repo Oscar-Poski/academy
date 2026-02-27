@@ -4,10 +4,12 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthTokenService } from './auth-token.service';
 import { BearerAuthGuard } from './bearer-auth.guard';
+import { OptionalBearerAuthGuard } from './optional-bearer-auth.guard';
 
 @Module({
   imports: [JwtModule.register({})],
   controllers: [AuthController],
-  providers: [AuthService, AuthTokenService, BearerAuthGuard]
+  providers: [AuthService, AuthTokenService, BearerAuthGuard, OptionalBearerAuthGuard],
+  exports: [AuthTokenService, OptionalBearerAuthGuard]
 })
 export class AuthModule {}
