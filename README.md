@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-16 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-17 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -163,7 +163,7 @@ PR-11 additions:
 - optional `idempotency_key` is supported and deduplicates repeated requests
 - `payload_json` must be an object when provided
 
-## Quiz Foundation (PR-16)
+## Quiz Foundation (PR-16, PR-17)
 
 Quiz backend foundation is now present in `apps/api`:
 
@@ -175,7 +175,27 @@ Quiz backend foundation is now present in `apps/api`:
 - seed data now inserts deterministic quiz questions for `request-response-cycle` published v1
 - new `QuizModule` scaffold is registered in `AppModule` (no public quiz endpoints yet)
 
-PR-16 intentionally does not add quiz HTTP endpoints yet; submit/score APIs are planned for PR-17+.
+PR-17 adds the first executable quiz endpoint:
+
+- `POST /v1/quizzes/sections/:sectionId/attempts`
+- MCQ-only scoring for now (`short_answer` is ignored in scoring in PR-17)
+- persists `quiz_attempts` and `quiz_attempt_answers`
+- returns attempt score/maxScore/pass state and per-question feedback
+- resolves section version with progress pinning semantics (pinned published/archived first, otherwise latest published)
+
+Example PR-17 quiz submit command:
+
+```bash
+curl -s -X POST "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/attempts" \
+  -H "Content-Type: application/json" \
+  -H "x-user-id: $USER_ID" \
+  -d '{
+    "answers": [
+      {"question_id":"<MCQ_Q1_ID>","selected_option":"GET"},
+      {"question_id":"<MCQ_Q2_ID>","selected_option":"2xx"}
+    ]
+  }' | jq
+```
 
 ## Content Importer & Admin Versioning (PR-12, PR-13, PR-14, PR-15)
 
@@ -311,7 +331,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-16)
+## Current Scope (PR-17)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -351,11 +371,11 @@ pnpm build
 - Publish flow preserves pinned-version behavior for in-progress users (old version becomes `archived` but remains resolvable via pinned progress)
 - Quiz core schema foundation in `apps/api` (`questions`, `quiz_attempts`, `quiz_attempt_answers`, `QuestionType`)
 - Seeded quiz questions for published `request-response-cycle` section version
-- `QuizModule` scaffold in `apps/api` (registered, no quiz routes exposed yet)
+- Quiz attempts submit endpoint in `apps/api` (`POST /v1/quizzes/sections/:sectionId/attempts`) with MCQ scoring and persisted attempt/answer rows
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
-- API e2e tests now include analytics ingest, admin content import, admin section version/publish, and quiz-seed coverage
+- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, and quiz-attempts coverage
 
-No auth/quiz execution/unlocks/XP/credits/gamification yet.
+No auth/short-answer scoring/unlocks/XP/credits/gamification yet.
 
 ## Useful API Commands
 
