@@ -1,13 +1,15 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
-import { ProgressStatus, UnlockRuleType, UnlockScopeType } from '@prisma/client';
+import { Prisma, ProgressStatus, UnlockRuleType, UnlockScopeType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import type { UnlockDecisionDto } from './dto';
+import { CreditsService } from '../credits/credits.service';
+import type { InsufficientCreditsErrorDto, UnlockBlockedErrorDto, UnlockDecisionDto } from './dto';
 
 type ModuleRule = {
   id: string;
@@ -17,7 +19,10 @@ type ModuleRule = {
 
 @Injectable()
 export class UnlocksService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(CreditsService) private readonly creditsService: CreditsService
+  ) {}
 
   async getModuleStatus(userId: string, moduleId: string): Promise<UnlockDecisionDto> {
     const normalizedUserId = await this.assertKnownUser(userId);
@@ -39,7 +44,7 @@ export class UnlocksService {
     }
 
     const rules = await this.getActiveModuleRules(module.id);
-    const reasons = await this.evaluateRules(normalizedUserId, rules);
+    const reasons = await this.evaluateRules(normalizedUserId, module, rules);
     if (reasons.length > 0) {
       return this.buildDecision(module.id, module.creditsCost, reasons);
     }
@@ -64,6 +69,104 @@ export class UnlocksService {
     return this.buildDecision(module.id, module.creditsCost, []);
   }
 
+  async redeemModuleCredits(userId: string, moduleId: string): Promise<UnlockDecisionDto> {
+    const normalizedUserId = await this.assertKnownUser(userId);
+    const module = await this.getModuleOrThrow(moduleId);
+
+    const existingUnlock = await this.findExistingModuleUnlock(normalizedUserId, module.id);
+    if (existingUnlock) {
+      return this.buildDecision(module.id, module.creditsCost, []);
+    }
+
+    const rules = await this.getActiveModuleRules(module.id);
+    const nonCreditRules = rules.filter((rule) => rule.ruleType !== UnlockRuleType.credits);
+    const creditRules = rules.filter((rule) => rule.ruleType === UnlockRuleType.credits);
+
+    const nonCreditReasons = await this.evaluateRules(normalizedUserId, module, nonCreditRules);
+    if (nonCreditReasons.length > 0) {
+      throw this.buildUnlockBlockedError(nonCreditReasons);
+    }
+
+    if (creditRules.length === 0 || module.creditsCost <= 0) {
+      await this.prisma.userUnlock.upsert({
+        where: {
+          userId_scopeType_scopeId: {
+            userId: normalizedUserId,
+            scopeType: UnlockScopeType.module,
+            scopeId: module.id
+          }
+        },
+        update: {},
+        create: {
+          userId: normalizedUserId,
+          scopeType: UnlockScopeType.module,
+          scopeId: module.id,
+          reason: 'rules_satisfied'
+        }
+      });
+
+      return this.buildDecision(module.id, module.creditsCost, []);
+    }
+
+    const idempotencyKey = `unlock_redeem:${normalizedUserId}:${module.id}`;
+    const result = await this.prisma.$transaction(async (tx) => {
+      const txExistingUnlock = await tx.userUnlock.findUnique({
+        where: {
+          userId_scopeType_scopeId: {
+            userId: normalizedUserId,
+            scopeType: UnlockScopeType.module,
+            scopeId: module.id
+          }
+        },
+        select: { id: true }
+      });
+      if (txExistingUnlock) {
+        return { alreadyUnlocked: true };
+      }
+
+      const balance = await this.getUserCreditsBalance(normalizedUserId, tx);
+      if (balance < module.creditsCost) {
+        throw this.buildInsufficientCreditsError(module.creditsCost, balance);
+      }
+
+      await this.creditsService.applyCreditEvent(
+        {
+          userId: normalizedUserId,
+          eventType: 'spend',
+          amount: -module.creditsCost,
+          idempotencyKey,
+          reason: `unlock_redeem:${module.id}`
+        },
+        tx
+      );
+
+      await tx.userUnlock.upsert({
+        where: {
+          userId_scopeType_scopeId: {
+            userId: normalizedUserId,
+            scopeType: UnlockScopeType.module,
+            scopeId: module.id
+          }
+        },
+        update: {},
+        create: {
+          userId: normalizedUserId,
+          scopeType: UnlockScopeType.module,
+          scopeId: module.id,
+          reason: 'credits_redeemed'
+        }
+      });
+
+      return { alreadyUnlocked: false };
+    });
+
+    if (result.alreadyUnlocked) {
+      return this.buildDecision(module.id, module.creditsCost, []);
+    }
+
+    return this.buildDecision(module.id, module.creditsCost, []);
+  }
+
   private async getModuleStatusForKnownUserAndModule(
     userId: string,
     module: { id: string; creditsCost: number }
@@ -74,7 +177,7 @@ export class UnlocksService {
     }
 
     const rules = await this.getActiveModuleRules(module.id);
-    const reasons = await this.evaluateRules(userId, rules);
+    const reasons = await this.evaluateRules(userId, module, rules);
     return this.buildDecision(module.id, module.creditsCost, reasons);
   }
 
@@ -151,7 +254,11 @@ export class UnlocksService {
     });
   }
 
-  private async evaluateRules(userId: string, rules: ModuleRule[]): Promise<string[]> {
+  private async evaluateRules(
+    userId: string,
+    module: { id: string; creditsCost: number },
+    rules: ModuleRule[]
+  ): Promise<string[]> {
     const reasons: string[] = [];
 
     for (const rule of rules) {
@@ -163,6 +270,12 @@ export class UnlocksService {
 
       if (rule.ruleType === UnlockRuleType.quiz_pass) {
         const unmetReasons = await this.evaluateQuizPassRule(userId, rule);
+        reasons.push(...unmetReasons);
+        continue;
+      }
+
+      if (rule.ruleType === UnlockRuleType.credits) {
+        const unmetReasons = await this.evaluateCreditsRule(userId, module);
         reasons.push(...unmetReasons);
         continue;
       }
@@ -229,6 +342,53 @@ export class UnlocksService {
     }
 
     return reasons;
+  }
+
+  private async evaluateCreditsRule(
+    userId: string,
+    module: { id: string; creditsCost: number }
+  ): Promise<string[]> {
+    if (module.creditsCost <= 0) {
+      return [];
+    }
+
+    const balance = await this.getUserCreditsBalance(userId);
+    if (balance < module.creditsCost) {
+      return [`Redeem credits to unlock module: ${module.id}`];
+    }
+
+    return [`Redeem credits to unlock module: ${module.id}`];
+  }
+
+  private async getUserCreditsBalance(userId: string, tx?: Prisma.TransactionClient): Promise<number> {
+    const client = tx ?? this.prisma;
+    const wallet = await client.userCredit.findUnique({
+      where: { userId },
+      select: { balance: true }
+    });
+
+    return wallet?.balance ?? 0;
+  }
+
+  private buildUnlockBlockedError(reasons: string[]): ConflictException {
+    const payload: UnlockBlockedErrorDto = {
+      code: 'unlock_blocked',
+      message: 'Module unlock prerequisites are not met',
+      reasons
+    };
+
+    return new ConflictException(payload);
+  }
+
+  private buildInsufficientCreditsError(required: number, balance: number): ConflictException {
+    const payload: InsufficientCreditsErrorDto = {
+      code: 'insufficient_credits',
+      message: 'Insufficient credits',
+      required,
+      balance
+    };
+
+    return new ConflictException(payload);
   }
 
   private validateSectionIdsRuleConfig(

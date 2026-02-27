@@ -64,12 +64,17 @@ describe('CreditsService', () => {
 
     const service = new CreditsService(prisma as never);
 
-    await service.applyCreditEvent({
-      userId: 'u1',
-      eventType: CreditEventType.grant,
-      amount: 25,
-      idempotencyKey: 'grant:u1:1',
-      reason: 'test_grant'
+    await expect(
+      service.applyCreditEvent({
+        userId: 'u1',
+        eventType: CreditEventType.grant,
+        amount: 25,
+        idempotencyKey: 'grant:u1:1',
+        reason: 'test_grant'
+      })
+    ).resolves.toEqual({
+      balance: 35,
+      applied: true
     });
 
     expect(tx.creditEvent.create).toHaveBeenCalledWith({
@@ -91,6 +96,44 @@ describe('CreditsService', () => {
     });
   });
 
+  it('applyCreditEvent supports external transaction client', async () => {
+    const tx = {
+      creditEvent: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        create: jest.fn().mockResolvedValue({ id: 'ce-1' })
+      },
+      userCredit: {
+        findUnique: jest.fn().mockResolvedValue({ balance: 40 }),
+        upsert: jest.fn().mockResolvedValue({ userId: 'u1', balance: 30 })
+      }
+    };
+    const prisma = {
+      user: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'u1' })
+      },
+      $transaction: jest.fn()
+    };
+
+    const service = new CreditsService(prisma as never);
+
+    await expect(
+      service.applyCreditEvent(
+        {
+          userId: 'u1',
+          eventType: CreditEventType.spend,
+          amount: -10,
+          idempotencyKey: 'spend:u1:tx'
+        },
+        tx as never
+      )
+    ).resolves.toEqual({
+      balance: 30,
+      applied: true
+    });
+
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
   it('applyCreditEvent is idempotent by idempotency key', async () => {
     const tx = {
       creditEvent: {
@@ -98,7 +141,7 @@ describe('CreditsService', () => {
         create: jest.fn()
       },
       userCredit: {
-        findUnique: jest.fn(),
+        findUnique: jest.fn().mockResolvedValue({ balance: 10 }),
         upsert: jest.fn()
       }
     };
@@ -111,11 +154,16 @@ describe('CreditsService', () => {
 
     const service = new CreditsService(prisma as never);
 
-    await service.applyCreditEvent({
-      userId: 'u1',
-      eventType: CreditEventType.grant,
-      amount: 25,
-      idempotencyKey: 'grant:u1:1'
+    await expect(
+      service.applyCreditEvent({
+        userId: 'u1',
+        eventType: CreditEventType.grant,
+        amount: 25,
+        idempotencyKey: 'grant:u1:1'
+      })
+    ).resolves.toEqual({
+      balance: 10,
+      applied: false
     });
 
     expect(tx.creditEvent.create).not.toHaveBeenCalled();

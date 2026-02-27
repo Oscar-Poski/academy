@@ -1,4 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { CreditEventType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { CreditsWalletDto } from './dto';
@@ -9,6 +10,11 @@ export type ApplyCreditEventInput = {
   amount: number;
   idempotencyKey: string;
   reason?: string | null;
+};
+
+export type ApplyCreditEventResult = {
+  balance: number;
+  applied: boolean;
 };
 
 @Injectable()
@@ -32,22 +38,31 @@ export class CreditsService {
     };
   }
 
-  async applyCreditEvent(input: ApplyCreditEventInput): Promise<void> {
+  async applyCreditEvent(
+    input: ApplyCreditEventInput,
+    tx?: Prisma.TransactionClient
+  ): Promise<ApplyCreditEventResult> {
     const userId = await this.assertKnownUser(input.userId);
     const idempotencyKey = this.normalizeRequiredString(input.idempotencyKey, 'idempotencyKey');
     const amount = this.normalizeAmount(input.amount);
-
-    await this.prisma.$transaction(async (tx) => {
-      const existingEvent = await tx.creditEvent.findUnique({
+    const applyWithClient = async (client: Prisma.TransactionClient): Promise<ApplyCreditEventResult> => {
+      const existingEvent = await client.creditEvent.findUnique({
         where: { idempotencyKey },
         select: { id: true }
       });
 
       if (existingEvent) {
-        return;
+        const existingBalance = await client.userCredit.findUnique({
+          where: { userId },
+          select: { balance: true }
+        });
+        return {
+          balance: existingBalance?.balance ?? 0,
+          applied: false
+        };
       }
 
-      const current = await tx.userCredit.findUnique({
+      const current = await client.userCredit.findUnique({
         where: { userId },
         select: { balance: true }
       });
@@ -57,7 +72,7 @@ export class CreditsService {
         throw new BadRequestException('Insufficient credits');
       }
 
-      await tx.creditEvent.create({
+      await client.creditEvent.create({
         data: {
           userId,
           eventType: input.eventType,
@@ -67,7 +82,7 @@ export class CreditsService {
         }
       });
 
-      await tx.userCredit.upsert({
+      await client.userCredit.upsert({
         where: { userId },
         update: { balance: nextBalance },
         create: {
@@ -75,7 +90,18 @@ export class CreditsService {
           balance: nextBalance
         }
       });
-    });
+
+      return {
+        balance: nextBalance,
+        applied: true
+      };
+    };
+
+    if (tx) {
+      return applyWithClient(tx);
+    }
+
+    return this.prisma.$transaction(async (innerTx) => applyWithClient(innerTx));
   }
 
   private async assertKnownUser(userId: string): Promise<string> {

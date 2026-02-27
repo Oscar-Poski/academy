@@ -26,4 +26,14 @@ export class UnlocksController {
   ): Promise<UnlockDecisionDto> {
     return this.unlocksService.evaluateModuleUnlock(request.user!.sub, moduleId);
   }
+
+  @Post('modules/:moduleId/redeem-credits')
+  @HttpCode(200)
+  @UseGuards(BearerAuthGuard)
+  redeemModuleCredits(
+    @Param('moduleId') moduleId: string,
+    @Req() request: AuthenticatedRequest
+  ): Promise<UnlockDecisionDto> {
+    return this.unlocksService.redeemModuleCredits(request.user!.sub, moduleId);
+  }
 }

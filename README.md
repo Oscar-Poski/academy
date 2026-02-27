@@ -351,6 +351,16 @@ PR-21 adds unlock evaluation and persistence:
 - extends both status/evaluate rule evaluation to support `quiz_pass` rules
 - `GET /v1/unlocks/modules/:moduleId/status` now also honors persisted module unlock grants
 
+PR-37 adds credits redemption in unlock flow:
+
+- `POST /v1/unlocks/modules/:moduleId/redeem-credits` (requires bearer auth)
+- status/evaluate now support `credits` rules with deterministic unmet reason strings
+- status/evaluate do not auto-spend credits; spending is explicit via `redeem-credits`
+- strict redeem behavior:
+  - non-credit rule failures return `409` with `code: "unlock_blocked"`
+  - insufficient wallet balance returns `409` with `code: "insufficient_credits"`
+  - replay is idempotent (no double-spend, no duplicate unlock grants)
+
 PR-22 adds user-aware lock metadata to content APIs (additive only):
 
 - `GET /v1/paths/:pathId` and `GET /v1/modules/:moduleId` now accept optional bearer auth context
@@ -630,6 +640,12 @@ curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/unloc
 
 # Try to evaluate + persist unlock (idempotent)
 curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/evaluate" | jq
+
+# Redeem credits for a credit-gated module (PR-37)
+curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/redeem-credits" | jq
+
+# Verify credits wallet after redeem
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/credits/me" | jq
 
 # Complete prerequisite section, then evaluate again
 curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
