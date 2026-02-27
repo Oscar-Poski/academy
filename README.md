@@ -87,7 +87,7 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
-## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11, PR-23, PR-31)
+## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11, PR-23, PR-31, PR-34)
 
 Web routes now consume the read-only content API:
 
@@ -126,6 +126,13 @@ Locked-state web rendering (PR-23):
 - path/module/player navigation now renders locked badges and reason messaging from content lock metadata
 - locked modules/sections/next navigation are non-clickable in the web UI
 - if lock metadata is missing (anonymous/unknown user context), UI falls back to the existing clickable behavior
+
+Interactive quiz UI (PR-34):
+- `/learn/:sectionId` now renders a section-level quiz panel when quiz delivery exists for the section
+- the web app reads quiz questions from `GET /v1/quizzes/sections/:sectionId`
+- submit uses `POST /v1/quizzes/sections/:sectionId/attempts` through web BFF route `POST /api/quizzes/sections/:sectionId/attempts`
+- learner sees pass/fail, score summary, per-question correctness feedback, and a retry CTA
+- if no quiz is available for a section, the quiz panel is hidden
 
 Get seeded IDs from the API:
 
@@ -510,8 +517,10 @@ pnpm build
 - Quiz core schema foundation in `apps/api` (`questions`, `quiz_attempts`, `quiz_attempt_answers`, `QuestionType`)
 - Seeded quiz questions for published `request-response-cycle` section version
 - Quiz attempts submit endpoint in `apps/api` (`POST /v1/quizzes/sections/:sectionId/attempts`) with MCQ + short-answer scoring and persisted attempt/answer rows
+- Quiz delivery endpoint in `apps/api` (`GET /v1/quizzes/sections/:sectionId`) with safe question/options read model (no answer keys)
 - Quiz latest-attempt endpoint in `apps/api` (`GET /v1/quizzes/sections/:sectionId/attempts/latest`)
 - Quiz result summary endpoint in `apps/api` (`GET /v1/quizzes/sections/:sectionId/result`)
+- Interactive quiz panel in `apps/web` on `/learn/:sectionId` with submit/result/retry flow
 - Unlock core schema foundation in `apps/api` (`unlock_rules`, `user_unlocks`, `UnlockScopeType`, `UnlockRuleType`)
 - Seeded module-scope prerequisite unlock rule for `http-basics-module`
 - Unlock status endpoint in `apps/api` (`GET /v1/unlocks/modules/:moduleId/status`) with read-only prerequisite evaluation

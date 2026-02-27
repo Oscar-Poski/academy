@@ -1,5 +1,6 @@
 import type { PathTree, SectionLessonBlock, SectionNavigation } from '@/src/lib/content-types';
 import type { SectionProgress } from '@/src/lib/progress-types';
+import type { QuizDelivery } from '@/src/lib/quiz-types';
 import { PlayerContent } from './PlayerContent';
 import { PlayerSidebar } from './PlayerSidebar';
 
@@ -11,6 +12,7 @@ type PlayerLayoutProps = {
   lessonBlocks: SectionLessonBlock[];
   navigation: SectionNavigation;
   sectionProgress?: SectionProgress | null;
+  quizDelivery?: QuizDelivery | null;
 };
 
 export function PlayerLayout({
@@ -20,7 +22,8 @@ export function PlayerLayout({
   sectionTitle,
   lessonBlocks,
   navigation,
-  sectionProgress
+  sectionProgress,
+  quizDelivery
 }: PlayerLayoutProps) {
   const moduleTitle =
     pathTree.modules.find((module) => module.id === currentModuleId)?.title ?? 'Module';
@@ -41,6 +44,7 @@ export function PlayerLayout({
           lessonBlocks={lessonBlocks}
           navigation={navigation}
           sectionProgress={sectionProgress}
+          quizDelivery={quizDelivery}
         />
       </div>
     </div>

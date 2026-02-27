@@ -3,7 +3,6 @@ import { CalloutBlock } from './blocks/CalloutBlock';
 import { ChecklistBlock } from './blocks/ChecklistBlock';
 import { CodeBlock } from './blocks/CodeBlock';
 import { MarkdownBlock } from './blocks/MarkdownBlock';
-import { QuizPlaceholderBlock } from './blocks/QuizPlaceholderBlock';
 
 type LessonBlockRendererProps = {
   block: SectionLessonBlock;
@@ -20,7 +19,7 @@ export function LessonBlockRenderer({ block }: LessonBlockRendererProps) {
     case 'checklist':
       return <ChecklistBlock contentJson={block.contentJson} />;
     case 'quiz':
-      return <QuizPlaceholderBlock contentJson={block.contentJson} />;
+      return null;
     default:
       return (
         <div className="block blockUnknown">

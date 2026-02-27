@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import type { SectionLessonBlock, SectionNavigation } from '@/src/lib/content-types';
 import type { SectionProgress, SectionProgressStatus } from '@/src/lib/progress-types';
+import type { QuizDelivery } from '@/src/lib/quiz-types';
 import { LessonBlockRenderer } from './LessonBlockRenderer';
 import { PlayerCompleteButton } from './PlayerCompleteButton';
 import { PlayerNavButton } from './PlayerNavButton';
+import { QuizPanel } from './quiz/QuizPanel';
 
 type Breadcrumb = {
   pathId: string;
@@ -19,6 +21,7 @@ type PlayerContentProps = {
   lessonBlocks: SectionLessonBlock[];
   navigation: SectionNavigation;
   sectionProgress?: SectionProgress | null;
+  quizDelivery?: QuizDelivery | null;
 };
 
 function getStatusLabel(status: SectionProgressStatus): string {
@@ -50,8 +53,12 @@ export function PlayerContent({
   breadcrumb,
   lessonBlocks,
   navigation,
-  sectionProgress
+  sectionProgress,
+  quizDelivery
 }: PlayerContentProps) {
+  const renderableLessonBlocks = lessonBlocks.filter((block) => block.blockType !== 'quiz');
+  const hasQuizBlockOnly =
+    lessonBlocks.length > 0 && renderableLessonBlocks.length === 0 && lessonBlocks.some((b) => b.blockType === 'quiz');
   const lastBlockOrderToPersist =
     lessonBlocks.length > 0 ? Math.max(...lessonBlocks.map((block) => block.blockOrder)) : 0;
   const prevLockReason = navigation.prevSectionLock?.reasons[0] ?? null;
@@ -82,16 +89,18 @@ export function PlayerContent({
       </header>
 
       <div className="playerBlocks">
-        {lessonBlocks.length === 0 ? (
+        {renderableLessonBlocks.length === 0 && !hasQuizBlockOnly ? (
           <div className="playerCard playerEmptyState">No lesson blocks available for this section yet.</div>
         ) : (
-          lessonBlocks.map((block) => (
+          renderableLessonBlocks.map((block) => (
             <div key={block.id} className="playerBlockItem">
               <LessonBlockRenderer block={block} />
             </div>
           ))
         )}
       </div>
+
+      {quizDelivery ? <QuizPanel sectionId={currentSectionId} quizDelivery={quizDelivery} /> : null}
 
       <footer className="playerFooter playerCard">
         <PlayerNavButton
