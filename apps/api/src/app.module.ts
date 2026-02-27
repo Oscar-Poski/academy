@@ -5,10 +5,19 @@ import { AdminModule } from './modules/admin/admin.module';
 import { ContentModule } from './modules/content/content.module';
 import { ProgressModule } from './modules/progress/progress.module';
 import { QuizModule } from './modules/quiz/quiz.module';
+import { UnlocksModule } from './modules/unlocks/unlocks.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule, ContentModule, ProgressModule, AnalyticsModule, AdminModule, QuizModule],
+  imports: [
+    PrismaModule,
+    ContentModule,
+    ProgressModule,
+    AnalyticsModule,
+    AdminModule,
+    QuizModule,
+    UnlocksModule
+  ],
   controllers: [HealthController]
 })
 export class AppModule {}

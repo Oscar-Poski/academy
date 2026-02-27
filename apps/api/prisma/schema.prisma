@@ -32,6 +32,19 @@ enum QuestionType {
   short_answer
 }
 
+enum UnlockScopeType {
+  path
+  module
+  section
+}
+
+enum UnlockRuleType {
+  prereq_sections
+  quiz_pass
+  credits
+  min_level
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -41,6 +54,7 @@ model User {
 
   sectionProgress UserSectionProgress[]
   quizAttempts    QuizAttempt[]
+  unlocks         UserUnlock[]
 
   @@map("users")
 }
@@ -241,4 +255,37 @@ model AnalyticsEvent {
   @@index([sectionId, occurredAt])
   @@index([moduleId, occurredAt])
   @@map("analytics_events")
+}
+
+model UnlockRule {
+  id             String          @id @default(cuid())
+  scopeType      UnlockScopeType @map("scope_type")
+  scopeId        String          @map("scope_id")
+  ruleType       UnlockRuleType  @map("rule_type")
+  ruleConfigJson Json            @map("rule_config_json")
+  isActive       Boolean         @default(true) @map("is_active")
+  priority       Int             @default(0)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  @@index([scopeType, scopeId, isActive])
+  @@index([ruleType])
+  @@index([priority])
+  @@map("unlock_rules")
+}
+
+model UserUnlock {
+  id         String          @id @default(cuid())
+  userId     String          @map("user_id")
+  scopeType  UnlockScopeType @map("scope_type")
+  scopeId    String          @map("scope_id")
+  reason     String?
+  unlockedAt DateTime        @default(now()) @map("unlocked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scopeType, scopeId])
+  @@index([scopeType, scopeId])
+  @@index([userId, unlockedAt])
+  @@map("user_unlocks")
 }

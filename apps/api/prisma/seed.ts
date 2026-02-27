@@ -1,4 +1,11 @@
-import { LessonBlockType, PrismaClient, QuestionType, SectionVersionStatus } from '@prisma/client';
+import {
+  LessonBlockType,
+  PrismaClient,
+  QuestionType,
+  SectionVersionStatus,
+  UnlockRuleType,
+  UnlockScopeType
+} from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -85,6 +92,33 @@ async function replaceSeedQuestionsForVersion(params: {
       points: question.points ?? 1,
       sortOrder: question.sortOrder
     }))
+  });
+}
+
+async function replaceSeedUnlockRulesForModule(params: {
+  moduleId: string;
+  prerequisiteSectionIds: string[];
+}) {
+  await prisma.unlockRule.deleteMany({
+    where: {
+      scopeType: UnlockScopeType.module,
+      scopeId: params.moduleId
+    }
+  });
+
+  await prisma.unlockRule.createMany({
+    data: [
+      {
+        scopeType: UnlockScopeType.module,
+        scopeId: params.moduleId,
+        ruleType: UnlockRuleType.prereq_sections,
+        ruleConfigJson: {
+          section_ids: params.prerequisiteSectionIds
+        },
+        isActive: true,
+        priority: 10
+      }
+    ]
   });
 }
 
@@ -293,8 +327,13 @@ async function main() {
     });
   }
 
+  await replaceSeedUnlockRulesForModule({
+    moduleId: module.id,
+    prerequisiteSectionIds: [sectionOne.id]
+  });
+
   console.log(
-    'Seed complete: user, path, module, sections, section versions, lesson blocks, and quiz questions'
+    'Seed complete: user, path, module, sections, section versions, lesson blocks, quiz questions, and unlock rules'
   );
 }
 
