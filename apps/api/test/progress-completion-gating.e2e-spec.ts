@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Progress Completion Gating API (e2e)', () => {
   let app: INestApplication;
@@ -175,7 +176,7 @@ describe('Progress Completion Gating API (e2e)', () => {
   it('blocks completion when quiz is required and no attempts exist', async () => {
     const response = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/complete`)
-      .set('x-user-id', userIds.noAttempt)
+      .set('Authorization', bearerToken(userIds.noAttempt))
       .expect(409);
 
     expect(response.body.code).toBe('completion_blocked');
@@ -188,7 +189,7 @@ describe('Progress Completion Gating API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/complete`)
-      .set('x-user-id', userIds.failedAttempt)
+      .set('Authorization', bearerToken(userIds.failedAttempt))
       .expect(409);
 
     expect(response.body.code).toBe('completion_blocked');
@@ -201,7 +202,7 @@ describe('Progress Completion Gating API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/complete`)
-      .set('x-user-id', userIds.passedAttempt)
+      .set('Authorization', bearerToken(userIds.passedAttempt))
       .expect(201);
 
     expect(response.body.status).toBe('completed');
@@ -213,12 +214,12 @@ describe('Progress Completion Gating API (e2e)', () => {
 
     const first = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/complete`)
-      .set('x-user-id', userIds.idempotent)
+      .set('Authorization', bearerToken(userIds.idempotent))
       .expect(201);
 
     const second = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/complete`)
-      .set('x-user-id', userIds.idempotent)
+      .set('Authorization', bearerToken(userIds.idempotent))
       .expect(201);
 
     expect(first.body.status).toBe('completed');
@@ -245,7 +246,7 @@ describe('Progress Completion Gating API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/complete`)
-      .set('x-user-id', userIds.unlockBlocked)
+      .set('Authorization', bearerToken(userIds.unlockBlocked))
       .expect(409);
 
     expect(response.body.code).toBe('completion_blocked');
@@ -258,7 +259,7 @@ describe('Progress Completion Gating API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/complete`)
-      .set('x-user-id', userIds.passedAttempt)
+      .set('Authorization', bearerToken(userIds.passedAttempt))
       .expect(201);
 
     expect(response.body.status).toBe('completed');
@@ -286,7 +287,7 @@ describe('Progress Completion Gating API (e2e)', () => {
   ): Promise<void> {
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userId)
+      .set('Authorization', bearerToken(userId))
       .send({ answers })
       .expect(201);
   }

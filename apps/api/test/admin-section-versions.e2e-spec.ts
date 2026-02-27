@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { hash } from 'bcryptjs';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 type VersionFixture = {
   userIds: string[];
@@ -183,7 +184,7 @@ describe('Admin Section Versions API (e2e)', () => {
 
     const start = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${fixture.section.id}/start`)
-      .set('x-user-id', pinnedUser.id)
+      .set('Authorization', bearerToken(pinnedUser.id))
       .expect(201);
 
     expect(start.body.sectionVersionId).toBe(fixture.v1.id);
@@ -195,7 +196,7 @@ describe('Admin Section Versions API (e2e)', () => {
 
     const pinnedResponse = await request(app.getHttpServer())
       .get(`/v1/sections/${fixture.section.id}`)
-      .set('x-user-id', pinnedUser.id)
+      .set('Authorization', bearerToken(pinnedUser.id))
       .expect(200);
     expect(pinnedResponse.body.sectionVersionId).toBe(fixture.v1.id);
     expect(pinnedResponse.body.lessonBlocks[0].contentJson.markdown).toContain('v1 block');

@@ -1,7 +1,6 @@
-import { Controller, Get, Headers, HttpCode, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
-import { OptionalBearerAuthGuard } from '../auth/optional-bearer-auth.guard';
-import { resolveUserIdFromRequest } from '../auth/resolve-user-id';
+import { Controller, Get, HttpCode, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
 import type { AuthenticatedRequest } from '../auth/auth.types';
+import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import type { UnlockDecisionDto } from './dto';
 import { UnlocksService } from './unlocks.service';
 
@@ -10,23 +9,21 @@ export class UnlocksController {
   constructor(@Inject(UnlocksService) private readonly unlocksService: UnlocksService) {}
 
   @Get('modules/:moduleId/status')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   getModuleStatus(
     @Param('moduleId') moduleId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<UnlockDecisionDto> {
-    return this.unlocksService.getModuleStatus(resolveUserIdFromRequest(request, userId) ?? '', moduleId);
+    return this.unlocksService.getModuleStatus(request.user!.sub, moduleId);
   }
 
   @Post('modules/:moduleId/evaluate')
   @HttpCode(200)
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   evaluateModuleUnlock(
     @Param('moduleId') moduleId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<UnlockDecisionDto> {
-    return this.unlocksService.evaluateModuleUnlock(resolveUserIdFromRequest(request, userId) ?? '', moduleId);
+    return this.unlocksService.evaluateModuleUnlock(request.user!.sub, moduleId);
   }
 }

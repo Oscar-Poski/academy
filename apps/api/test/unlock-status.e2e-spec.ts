@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaClient, QuestionType } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Unlock Status API (e2e)', () => {
   let app: INestApplication;
@@ -151,7 +152,7 @@ describe('Unlock Status API (e2e)', () => {
   it('returns locked before prerequisite completion', async () => {
     const response = await request(app.getHttpServer())
       .get(`/v1/unlocks/modules/${seededModuleId}/status`)
-      .set('x-user-id', userIds.locked)
+      .set('Authorization', bearerToken(userIds.locked))
       .expect(200);
 
     expect(response.body.moduleId).toBe(seededModuleId);
@@ -167,12 +168,12 @@ describe('Unlock Status API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post(`/v1/progress/sections/${prerequisiteSectionId}/complete`)
-      .set('x-user-id', userIds.unlocked)
+      .set('Authorization', bearerToken(userIds.unlocked))
       .expect(201);
 
     const response = await request(app.getHttpServer())
       .get(`/v1/unlocks/modules/${seededModuleId}/status`)
-      .set('x-user-id', userIds.unlocked)
+      .set('Authorization', bearerToken(userIds.unlocked))
       .expect(200);
 
     expect(response.body.moduleId).toBe(seededModuleId);
@@ -180,21 +181,21 @@ describe('Unlock Status API (e2e)', () => {
     expect(response.body.reasons).toEqual([]);
   });
 
-  it('rejects missing or unknown user header', async () => {
+  it('rejects missing bearer token and unknown bearer subject', async () => {
     await request(app.getHttpServer())
       .get(`/v1/unlocks/modules/${seededModuleId}/status`)
-      .expect(400);
+      .expect(401);
 
     await request(app.getHttpServer())
       .get(`/v1/unlocks/modules/${seededModuleId}/status`)
-      .set('x-user-id', 'unknown-unlock-status-user')
+      .set('Authorization', bearerToken('unknown-unlock-status-user'))
       .expect(400);
   });
 
   it('returns 404 for unknown module', async () => {
     await request(app.getHttpServer())
       .get('/v1/unlocks/modules/nonexistent-module-id/status')
-      .set('x-user-id', userIds.fresh)
+      .set('Authorization', bearerToken(userIds.fresh))
       .expect(404);
   });
 
@@ -214,7 +215,7 @@ describe('Unlock Status API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .get(`/v1/unlocks/modules/${tempModule.id}/status`)
-      .set('x-user-id', userIds.fresh)
+      .set('Authorization', bearerToken(userIds.fresh))
       .expect(200);
 
     expect(response.body.moduleId).toBe(tempModule.id);
@@ -234,7 +235,7 @@ describe('Unlock Status API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .get(`/v1/unlocks/modules/${seededModuleId}/status`)
-      .set('x-user-id', userIds.locked)
+      .set('Authorization', bearerToken(userIds.locked))
       .expect(200);
 
     expect(response.body.moduleId).toBe(seededModuleId);
@@ -265,7 +266,7 @@ async function submitPassingQuizAttempt(
 
   await request(app.getHttpServer())
     .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-    .set('x-user-id', userId)
+    .set('Authorization', bearerToken(userId))
     .send({ answers })
     .expect(201);
 }

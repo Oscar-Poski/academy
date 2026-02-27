@@ -186,29 +186,17 @@ describe('Auth user-context bridge (e2e)', () => {
     expect(headerUserAttempts).toBe(0);
   });
 
-  it('keeps legacy x-user-id fallback behavior when bearer is absent', async () => {
+  it('rejects x-user-id-only requests when bearer is absent', async () => {
     await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/start`)
       .set('x-user-id', users.header.id)
-      .expect(201);
-
-    const progress = await prisma.userSectionProgress.findUnique({
-      where: {
-        userId_sectionId: {
-          userId: users.header.id,
-          sectionId
-        }
-      },
-      select: { userId: true }
-    });
-
-    expect(progress?.userId).toBe(users.header.id);
+      .expect(401);
   });
 
-  it('preserves existing 400 behavior when both bearer and x-user-id are missing', async () => {
+  it('returns 401 when both bearer and x-user-id are missing', async () => {
     await request(app.getHttpServer())
       .post(`/v1/progress/sections/${sectionId}/start`)
-      .expect(400);
+      .expect(401);
   });
 
   async function login(email: string, password: string): Promise<string> {

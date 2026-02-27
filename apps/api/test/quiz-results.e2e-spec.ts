@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Quiz Result Endpoints (e2e)', () => {
   let app: INestApplication;
@@ -122,13 +123,13 @@ describe('Quiz Result Endpoints (e2e)', () => {
 
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.latest)
+      .set('Authorization', bearerToken(userIds.latest))
       .send({ answers: allCorrect })
       .expect(201);
 
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.latest)
+      .set('Authorization', bearerToken(userIds.latest))
       .send({
         answers: [
           {
@@ -141,7 +142,7 @@ describe('Quiz Result Endpoints (e2e)', () => {
 
     const latest = await request(app.getHttpServer())
       .get(`/v1/quizzes/sections/${sectionId}/attempts/latest`)
-      .set('x-user-id', userIds.latest)
+      .set('Authorization', bearerToken(userIds.latest))
       .expect(200);
 
     expect(latest.body.attemptNo).toBe(2);
@@ -153,14 +154,14 @@ describe('Quiz Result Endpoints (e2e)', () => {
   it('GET latest returns 404 when user has no attempts for section', async () => {
     await request(app.getHttpServer())
       .get(`/v1/quizzes/sections/${sectionId}/attempts/latest`)
-      .set('x-user-id', userIds.fresh)
+      .set('Authorization', bearerToken(userIds.fresh))
       .expect(404);
   });
 
   it('GET result returns no-attempt shape for fresh user', async () => {
     const result = await request(app.getHttpServer())
       .get(`/v1/quizzes/sections/${sectionId}/result`)
-      .set('x-user-id', userIds.fresh)
+      .set('Authorization', bearerToken(userIds.fresh))
       .expect(200);
 
     expect(result.body.sectionId).toBe(sectionId);
@@ -171,7 +172,7 @@ describe('Quiz Result Endpoints (e2e)', () => {
   it('GET result returns latest attempt summary when attempts exist', async () => {
     const create = await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.latest)
+      .set('Authorization', bearerToken(userIds.latest))
       .send({
         answers: mcqQuestions.map((question) => ({
           question_id: question.id,
@@ -182,7 +183,7 @@ describe('Quiz Result Endpoints (e2e)', () => {
 
     const result = await request(app.getHttpServer())
       .get(`/v1/quizzes/sections/${sectionId}/result`)
-      .set('x-user-id', userIds.latest)
+      .set('Authorization', bearerToken(userIds.latest))
       .expect(200);
 
     expect(result.body.sectionId).toBe(sectionId);
@@ -195,35 +196,35 @@ describe('Quiz Result Endpoints (e2e)', () => {
     expect(result.body.latestAttempt.passed).toBe(create.body.passed);
   });
 
-  it('GET latest/result reject missing or unknown x-user-id', async () => {
+  it('GET latest/result reject missing bearer and unknown bearer subject', async () => {
     await request(app.getHttpServer())
       .get(`/v1/quizzes/sections/${sectionId}/attempts/latest`)
+      .expect(401);
+
+    await request(app.getHttpServer())
+      .get(`/v1/quizzes/sections/${sectionId}/result`)
+      .expect(401);
+
+    await request(app.getHttpServer())
+      .get(`/v1/quizzes/sections/${sectionId}/attempts/latest`)
+      .set('Authorization', bearerToken('unknown-user-id-not-created'))
       .expect(400);
 
     await request(app.getHttpServer())
       .get(`/v1/quizzes/sections/${sectionId}/result`)
-      .expect(400);
-
-    await request(app.getHttpServer())
-      .get(`/v1/quizzes/sections/${sectionId}/attempts/latest`)
-      .set('x-user-id', 'unknown-user-id-not-created')
-      .expect(400);
-
-    await request(app.getHttpServer())
-      .get(`/v1/quizzes/sections/${sectionId}/result`)
-      .set('x-user-id', 'unknown-user-id-not-created')
+      .set('Authorization', bearerToken('unknown-user-id-not-created'))
       .expect(400);
   });
 
   it('GET latest/result return 404 for invalid section', async () => {
     await request(app.getHttpServer())
       .get('/v1/quizzes/sections/nonexistent-section-id/attempts/latest')
-      .set('x-user-id', userIds.fresh)
+      .set('Authorization', bearerToken(userIds.fresh))
       .expect(404);
 
     await request(app.getHttpServer())
       .get('/v1/quizzes/sections/nonexistent-section-id/result')
-      .set('x-user-id', userIds.fresh)
+      .set('Authorization', bearerToken(userIds.fresh))
       .expect(404);
   });
 });

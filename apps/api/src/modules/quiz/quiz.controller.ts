@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Headers, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
-import { OptionalBearerAuthGuard } from '../auth/optional-bearer-auth.guard';
-import { resolveUserIdFromRequest } from '../auth/resolve-user-id';
+import { Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
 import type { AuthenticatedRequest } from '../auth/auth.types';
+import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import type {
   QuizAttemptResultDto,
   QuizLatestAttemptDto,
@@ -15,33 +14,30 @@ export class QuizController {
   constructor(@Inject(QuizService) private readonly quizService: QuizService) {}
 
   @Post('sections/:sectionId/attempts')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   submitAttempt(
     @Param('sectionId') sectionId: string,
-    @Headers('x-user-id') userId: string,
     @Body() body: QuizSubmissionDto,
     @Req() request: AuthenticatedRequest
   ): Promise<QuizAttemptResultDto> {
-    return this.quizService.submitAttempt(resolveUserIdFromRequest(request, userId) ?? '', sectionId, body);
+    return this.quizService.submitAttempt(request.user!.sub, sectionId, body);
   }
 
   @Get('sections/:sectionId/attempts/latest')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   getLatestAttempt(
     @Param('sectionId') sectionId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<QuizLatestAttemptDto> {
-    return this.quizService.getLatestAttempt(resolveUserIdFromRequest(request, userId) ?? '', sectionId);
+    return this.quizService.getLatestAttempt(request.user!.sub, sectionId);
   }
 
   @Get('sections/:sectionId/result')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   getResult(
     @Param('sectionId') sectionId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<QuizResultDto> {
-    return this.quizService.getResult(resolveUserIdFromRequest(request, userId) ?? '', sectionId);
+    return this.quizService.getResult(request.user!.sub, sectionId);
   }
 }

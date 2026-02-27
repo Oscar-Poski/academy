@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Progress API (e2e)', () => {
   let app: INestApplication;
@@ -178,7 +179,7 @@ describe('Progress API (e2e)', () => {
 
     const start = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/start`)
-      .set('x-user-id', userIds.happy)
+      .set('Authorization', bearerToken(userIds.happy))
       .expect(201);
 
     expect(start.body.status).toBe('in_progress');
@@ -186,7 +187,7 @@ describe('Progress API (e2e)', () => {
 
     const position = await request(app.getHttpServer())
       .patch(`/v1/progress/sections/${seededSectionId}/position`)
-      .set('x-user-id', userIds.happy)
+      .set('Authorization', bearerToken(userIds.happy))
       .send({
         last_block_order: 2,
         time_spent_delta: 30,
@@ -201,7 +202,7 @@ describe('Progress API (e2e)', () => {
 
     const complete = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/complete`)
-      .set('x-user-id', userIds.happy)
+      .set('Authorization', bearerToken(userIds.happy))
       .expect(201);
 
     expect(complete.body.status).toBe('completed');
@@ -215,12 +216,12 @@ describe('Progress API (e2e)', () => {
 
     const first = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/complete`)
-      .set('x-user-id', userIds.complete)
+      .set('Authorization', bearerToken(userIds.complete))
       .expect(201);
 
     const second = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/complete`)
-      .set('x-user-id', userIds.complete)
+      .set('Authorization', bearerToken(userIds.complete))
       .expect(201);
 
     expect(first.body.status).toBe('completed');
@@ -233,12 +234,12 @@ describe('Progress API (e2e)', () => {
   it('start twice returns same pinned section_version_id', async () => {
     const first = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/start`)
-      .set('x-user-id', userIds.pinning)
+      .set('Authorization', bearerToken(userIds.pinning))
       .expect(201);
 
     const second = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/start`)
-      .set('x-user-id', userIds.pinning)
+      .set('Authorization', bearerToken(userIds.pinning))
       .expect(201);
 
     expect(first.body.sectionVersionId).toBe(second.body.sectionVersionId);
@@ -252,17 +253,17 @@ describe('Progress API (e2e)', () => {
   it('get section progress returns 404 before start and row after start', async () => {
     await request(app.getHttpServer())
       .get(`/v1/progress/sections/${seededSectionId}`)
-      .set('x-user-id', userIds.happy)
+      .set('Authorization', bearerToken(userIds.happy))
       .expect(404);
 
     const start = await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/start`)
-      .set('x-user-id', userIds.happy)
+      .set('Authorization', bearerToken(userIds.happy))
       .expect(201);
 
     const fetched = await request(app.getHttpServer())
       .get(`/v1/progress/sections/${seededSectionId}`)
-      .set('x-user-id', userIds.happy)
+      .set('Authorization', bearerToken(userIds.happy))
       .expect(200);
 
     expect(fetched.body.id).toEqual(expect.any(String));
@@ -275,7 +276,7 @@ describe('Progress API (e2e)', () => {
   it('continue returns resume when in_progress exists and fallback otherwise', async () => {
     const fallback = await request(app.getHttpServer())
       .get('/v1/progress/continue')
-      .set('x-user-id', userIds.fallback)
+      .set('Authorization', bearerToken(userIds.fallback))
       .expect(200);
 
     expect(fallback.body.source).toBe('fallback');
@@ -283,18 +284,18 @@ describe('Progress API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post(`/v1/progress/sections/${seededSectionId}/start`)
-      .set('x-user-id', userIds.resume)
+      .set('Authorization', bearerToken(userIds.resume))
       .expect(201);
 
     await request(app.getHttpServer())
       .patch(`/v1/progress/sections/${seededSectionId}/position`)
-      .set('x-user-id', userIds.resume)
+      .set('Authorization', bearerToken(userIds.resume))
       .send({ last_block_order: 1, time_spent_delta: 5, completion_pct: 10 })
       .expect(200);
 
     const resume = await request(app.getHttpServer())
       .get('/v1/progress/continue')
-      .set('x-user-id', userIds.resume)
+      .set('Authorization', bearerToken(userIds.resume))
       .expect(200);
 
     expect(resume.body.source).toBe('resume');
@@ -327,7 +328,7 @@ async function submitPassingQuizAttempt(
 
   await request(app.getHttpServer())
     .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-    .set('x-user-id', userId)
+    .set('Authorization', bearerToken(userId))
     .send({ answers })
     .expect(201);
 }

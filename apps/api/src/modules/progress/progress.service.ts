@@ -81,7 +81,6 @@ export class ProgressService {
       });
     });
 
-    // TODO(auth): Replace x-user-id temporary user resolution with JWT-authenticated user context.
     // TODO(content-versioning): Content fetch is still published-only in PR-4; user-pinned section_version_id
     // should be used by a version-aware content endpoint in a future PR.
     return this.toSectionProgressDto(progress);
@@ -463,7 +462,7 @@ export class ProgressService {
 
   private async assertKnownUser(userId: string): Promise<void> {
     if (!userId || userId.trim().length === 0) {
-      throw new BadRequestException('Missing x-user-id');
+      throw new BadRequestException('Missing user id');
     }
 
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { id: true } });

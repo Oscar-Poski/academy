@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Gamification API (e2e)', () => {
   let app: INestApplication;
@@ -203,7 +204,7 @@ describe('Gamification API (e2e)', () => {
   it('returns zero XP and level 1 for a fresh known user', async () => {
     const response = await request(app.getHttpServer())
       .get('/v1/gamification/me')
-      .set('x-user-id', userIds.fresh)
+      .set('Authorization', bearerToken(userIds.fresh))
       .expect(200);
 
     expect(response.body).toEqual({
@@ -216,12 +217,12 @@ describe('Gamification API (e2e)', () => {
   it('awards section completion XP exactly once', async () => {
     await request(app.getHttpServer())
       .post(`/v1/progress/sections/${tempSectionId}/complete`)
-      .set('x-user-id', userIds.complete)
+      .set('Authorization', bearerToken(userIds.complete))
       .expect(201);
 
     await request(app.getHttpServer())
       .post(`/v1/progress/sections/${tempSectionId}/complete`)
-      .set('x-user-id', userIds.complete)
+      .set('Authorization', bearerToken(userIds.complete))
       .expect(201);
 
     const events = await prisma.xpEvent.findMany({
@@ -234,7 +235,7 @@ describe('Gamification API (e2e)', () => {
 
     const summary = await request(app.getHttpServer())
       .get('/v1/gamification/me')
-      .set('x-user-id', userIds.complete)
+      .set('Authorization', bearerToken(userIds.complete))
       .expect(200);
 
     expect(summary.body.totalXp).toBe(50);
@@ -256,7 +257,7 @@ describe('Gamification API (e2e)', () => {
 
     const summary = await request(app.getHttpServer())
       .get('/v1/gamification/me')
-      .set('x-user-id', userIds.quiz)
+      .set('Authorization', bearerToken(userIds.quiz))
       .expect(200);
 
     expect(summary.body.totalXp).toBe(100);
@@ -266,14 +267,14 @@ describe('Gamification API (e2e)', () => {
   it('accumulates section + quiz XP and updates level', async () => {
     await request(app.getHttpServer())
       .post(`/v1/progress/sections/${tempSectionId}/complete`)
-      .set('x-user-id', userIds.combined)
+      .set('Authorization', bearerToken(userIds.combined))
       .expect(201);
 
     await submitQuizAttempt(userIds.combined, buildAllCorrectAnswers());
 
     const summary = await request(app.getHttpServer())
       .get('/v1/gamification/me')
-      .set('x-user-id', userIds.combined)
+      .set('Authorization', bearerToken(userIds.combined))
       .expect(200);
 
     expect(summary.body.totalXp).toBe(150);
@@ -285,12 +286,12 @@ describe('Gamification API (e2e)', () => {
     expect(allEvents).toHaveLength(2);
   });
 
-  it('validates x-user-id header', async () => {
-    await request(app.getHttpServer()).get('/v1/gamification/me').expect(400);
+  it('validates bearer auth', async () => {
+    await request(app.getHttpServer()).get('/v1/gamification/me').expect(401);
 
     await request(app.getHttpServer())
       .get('/v1/gamification/me')
-      .set('x-user-id', 'unknown-gamification-user')
+      .set('Authorization', bearerToken('unknown-gamification-user'))
       .expect(400);
   });
 
@@ -340,7 +341,7 @@ describe('Gamification API (e2e)', () => {
   ): Promise<void> {
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${quizSectionId}/attempts`)
-      .set('x-user-id', userId)
+      .set('Authorization', bearerToken(userId))
       .send({ answers })
       .expect(201);
   }

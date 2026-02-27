@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Headers, Inject, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
-import { OptionalBearerAuthGuard } from '../auth/optional-bearer-auth.guard';
-import { resolveUserIdFromRequest } from '../auth/resolve-user-id';
+import { Body, Controller, Get, Inject, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import type { AuthenticatedRequest } from '../auth/auth.types';
+import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import type {
   ContinueLearningDto,
   ModuleProgressDto,
@@ -16,76 +15,63 @@ export class ProgressController {
   constructor(@Inject(ProgressService) private readonly progressService: ProgressService) {}
 
   @Post('sections/:sectionId/start')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   startSection(
     @Param('sectionId') sectionId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<SectionProgressDto> {
-    return this.progressService.startSection(resolveUserIdFromRequest(request, userId) ?? '', sectionId);
+    return this.progressService.startSection(request.user!.sub, sectionId);
   }
 
   @Patch('sections/:sectionId/position')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   updatePosition(
     @Param('sectionId') sectionId: string,
-    @Headers('x-user-id') userId: string,
     @Body() body: UpdateSectionPositionDto,
     @Req() request: AuthenticatedRequest
   ): Promise<SectionProgressDto> {
-    return this.progressService.updateSectionPosition(
-      resolveUserIdFromRequest(request, userId) ?? '',
-      sectionId,
-      body
-    );
+    return this.progressService.updateSectionPosition(request.user!.sub, sectionId, body);
   }
 
   @Post('sections/:sectionId/complete')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   completeSection(
     @Param('sectionId') sectionId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<SectionProgressDto> {
-    return this.progressService.completeSection(resolveUserIdFromRequest(request, userId) ?? '', sectionId);
+    return this.progressService.completeSection(request.user!.sub, sectionId);
   }
 
   @Get('sections/:sectionId')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   getSectionProgress(
     @Param('sectionId') sectionId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<SectionProgressDto> {
-    return this.progressService.getSectionProgress(resolveUserIdFromRequest(request, userId) ?? '', sectionId);
+    return this.progressService.getSectionProgress(request.user!.sub, sectionId);
   }
 
   @Get('modules/:moduleId')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   getModuleProgress(
     @Param('moduleId') moduleId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<ModuleProgressDto> {
-    return this.progressService.getModuleProgress(resolveUserIdFromRequest(request, userId) ?? '', moduleId);
+    return this.progressService.getModuleProgress(request.user!.sub, moduleId);
   }
 
   @Get('paths/:pathId')
-  @UseGuards(OptionalBearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   getPathProgress(
     @Param('pathId') pathId: string,
-    @Headers('x-user-id') userId: string,
     @Req() request: AuthenticatedRequest
   ): Promise<PathProgressDto> {
-    return this.progressService.getPathProgress(resolveUserIdFromRequest(request, userId) ?? '', pathId);
+    return this.progressService.getPathProgress(request.user!.sub, pathId);
   }
 
   @Get('continue')
-  @UseGuards(OptionalBearerAuthGuard)
-  getContinue(
-    @Headers('x-user-id') userId: string,
-    @Req() request: AuthenticatedRequest
-  ): Promise<ContinueLearningDto> {
-    return this.progressService.getContinue(resolveUserIdFromRequest(request, userId) ?? '');
+  @UseGuards(BearerAuthGuard)
+  getContinue(@Req() request: AuthenticatedRequest): Promise<ContinueLearningDto> {
+    return this.progressService.getContinue(request.user!.sub);
   }
 }

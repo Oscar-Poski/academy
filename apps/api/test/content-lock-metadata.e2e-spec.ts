@@ -4,6 +4,7 @@ import { hash } from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Content API lock metadata (e2e)', () => {
   let app: INestApplication;
@@ -168,7 +169,7 @@ describe('Content API lock metadata (e2e)', () => {
   it('returns locked metadata for known user without prerequisites complete', async () => {
     const pathResponse = await request(app.getHttpServer())
       .get(`/v1/paths/${pathId}`)
-      .set('x-user-id', userIds.locked)
+      .set('Authorization', bearerToken(userIds.locked))
       .expect(200);
 
     const moduleInPath = pathResponse.body.modules.find((item: { id: string }) => item.id === moduleId);
@@ -184,7 +185,7 @@ describe('Content API lock metadata (e2e)', () => {
 
     const moduleResponse = await request(app.getHttpServer())
       .get(`/v1/modules/${moduleId}`)
-      .set('x-user-id', userIds.locked)
+      .set('Authorization', bearerToken(userIds.locked))
       .expect(200);
     expect(moduleResponse.body.lock).toBeTruthy();
     expect(moduleResponse.body.lock.isLocked).toBe(true);
@@ -196,7 +197,7 @@ describe('Content API lock metadata (e2e)', () => {
 
     const sectionResponse = await request(app.getHttpServer())
       .get(`/v1/sections/${sectionId}`)
-      .set('x-user-id', userIds.locked)
+      .set('Authorization', bearerToken(userIds.locked))
       .expect(200);
     if (sectionResponse.body.navigation.nextSectionId) {
       expect(sectionResponse.body.navigation.nextSectionLock).toBeTruthy();
@@ -220,7 +221,7 @@ describe('Content API lock metadata (e2e)', () => {
 
     const pathResponse = await request(app.getHttpServer())
       .get(`/v1/paths/${pathId}`)
-      .set('x-user-id', userIds.unlocked)
+      .set('Authorization', bearerToken(userIds.unlocked))
       .expect(200);
 
     const moduleInPath = pathResponse.body.modules.find((item: { id: string }) => item.id === moduleId);
@@ -234,7 +235,7 @@ describe('Content API lock metadata (e2e)', () => {
 
     const moduleResponse = await request(app.getHttpServer())
       .get(`/v1/modules/${moduleId}`)
-      .set('x-user-id', userIds.unlocked)
+      .set('Authorization', bearerToken(userIds.unlocked))
       .expect(200);
     const sectionSortOrders = moduleResponse.body.sections.map((item: { sortOrder: number }) => item.sortOrder);
     expect(sectionSortOrders).toEqual([...sectionSortOrders].sort((a: number, b: number) => a - b));
@@ -243,7 +244,7 @@ describe('Content API lock metadata (e2e)', () => {
 
     const sectionResponse = await request(app.getHttpServer())
       .get(`/v1/sections/${sectionId}`)
-      .set('x-user-id', userIds.unlocked)
+      .set('Authorization', bearerToken(userIds.unlocked))
       .expect(200);
     const blockOrders = sectionResponse.body.lessonBlocks.map((item: { blockOrder: number }) => item.blockOrder);
     expect(blockOrders).toEqual([...blockOrders].sort((a: number, b: number) => a - b));

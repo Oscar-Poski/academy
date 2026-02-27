@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { LessonBlockType, PrismaClient, SectionVersionStatus } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Content API version-aware section retrieval (e2e)', () => {
   let app: INestApplication;
@@ -93,7 +94,7 @@ describe('Content API version-aware section retrieval (e2e)', () => {
     try {
       const start = await request(app.getHttpServer())
         .post(`/v1/progress/sections/${testSection.id}/start`)
-        .set('x-user-id', testUser.id)
+        .set('Authorization', bearerToken(testUser.id))
         .expect(201);
 
       expect(start.body.sectionVersionId).toBe(v1.id);
@@ -112,7 +113,7 @@ describe('Content API version-aware section retrieval (e2e)', () => {
 
       const pinnedResponse = await request(app.getHttpServer())
         .get(`/v1/sections/${testSection.id}`)
-        .set('x-user-id', testUser.id)
+        .set('Authorization', bearerToken(testUser.id))
         .expect(200);
       expect(pinnedResponse.body.sectionVersionId).toBe(v1.id);
       expect(pinnedResponse.body.lessonBlocks[0].contentJson.markdown).toBe('v1 block');
@@ -125,7 +126,7 @@ describe('Content API version-aware section retrieval (e2e)', () => {
 
       const noProgressResponse = await request(app.getHttpServer())
         .get(`/v1/sections/${testSection.id}`)
-        .set('x-user-id', noProgressUser.id)
+        .set('Authorization', bearerToken(noProgressUser.id))
         .expect(200);
       expect(noProgressResponse.body.sectionVersionId).toBe(v2.id);
     } finally {

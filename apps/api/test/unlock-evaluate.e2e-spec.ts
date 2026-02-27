@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Unlock Evaluate API (e2e)', () => {
   let app: INestApplication;
@@ -170,7 +171,7 @@ describe('Unlock Evaluate API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/unlocks/modules/${moduleId}/evaluate`)
-      .set('x-user-id', userIds.unmet)
+      .set('Authorization', bearerToken(userIds.unmet))
       .expect(200);
 
     expect(response.body.moduleId).toBe(moduleId);
@@ -193,7 +194,7 @@ describe('Unlock Evaluate API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/unlocks/modules/${moduleId}/evaluate`)
-      .set('x-user-id', userIds.failed)
+      .set('Authorization', bearerToken(userIds.failed))
       .expect(200);
 
     expect(response.body.isUnlocked).toBe(false);
@@ -215,7 +216,7 @@ describe('Unlock Evaluate API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/unlocks/modules/${moduleId}/evaluate`)
-      .set('x-user-id', userIds.passed)
+      .set('Authorization', bearerToken(userIds.passed))
       .expect(200);
 
     expect(response.body.moduleId).toBe(moduleId);
@@ -238,12 +239,12 @@ describe('Unlock Evaluate API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post(`/v1/unlocks/modules/${moduleId}/evaluate`)
-      .set('x-user-id', userIds.passed)
+      .set('Authorization', bearerToken(userIds.passed))
       .expect(200);
 
     const second = await request(app.getHttpServer())
       .post(`/v1/unlocks/modules/${moduleId}/evaluate`)
-      .set('x-user-id', userIds.passed)
+      .set('Authorization', bearerToken(userIds.passed))
       .expect(200);
 
     expect(second.body.isUnlocked).toBe(true);
@@ -259,19 +260,19 @@ describe('Unlock Evaluate API (e2e)', () => {
     expect(unlockRows).toHaveLength(1);
   });
 
-  it('rejects missing or unknown x-user-id', async () => {
-    await request(app.getHttpServer()).post(`/v1/unlocks/modules/${moduleId}/evaluate`).expect(400);
+  it('rejects missing bearer token and unknown bearer subject', async () => {
+    await request(app.getHttpServer()).post(`/v1/unlocks/modules/${moduleId}/evaluate`).expect(401);
 
     await request(app.getHttpServer())
       .post(`/v1/unlocks/modules/${moduleId}/evaluate`)
-      .set('x-user-id', 'unknown-user-id-not-created')
+      .set('Authorization', bearerToken('unknown-user-id-not-created'))
       .expect(400);
   });
 
   it('returns 404 for unknown module', async () => {
     await request(app.getHttpServer())
       .post('/v1/unlocks/modules/nonexistent-module-id/evaluate')
-      .set('x-user-id', userIds.missing)
+      .set('Authorization', bearerToken(userIds.missing))
       .expect(404);
   });
 
@@ -298,7 +299,7 @@ describe('Unlock Evaluate API (e2e)', () => {
   ): Promise<void> {
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userId)
+      .set('Authorization', bearerToken(userId))
       .send({ answers })
       .expect(201);
   }

@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { bearerToken } from './bearer-token';
 
 describe('Quiz Attempts API (e2e)', () => {
   let app: INestApplication;
@@ -169,7 +170,7 @@ describe('Quiz Attempts API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.happy)
+      .set('Authorization', bearerToken(userIds.happy))
       .send({ answers })
       .expect(201);
 
@@ -214,7 +215,7 @@ describe('Quiz Attempts API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.mixed)
+      .set('Authorization', bearerToken(userIds.mixed))
       .send({ answers })
       .expect(201);
 
@@ -241,7 +242,7 @@ describe('Quiz Attempts API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.unanswered)
+      .set('Authorization', bearerToken(userIds.unanswered))
       .send({ answers })
       .expect(201);
 
@@ -257,7 +258,7 @@ describe('Quiz Attempts API (e2e)', () => {
   it('grades short-answer exact_ci correctly and returns short-answer feedback shape', async () => {
     const response = await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.unanswered)
+      .set('Authorization', bearerToken(userIds.unanswered))
       .send({
         answers: [
           {
@@ -300,7 +301,7 @@ describe('Quiz Attempts API (e2e)', () => {
   it('treats omitted short-answer as incorrect with answerText null', async () => {
     const response = await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.mixed)
+      .set('Authorization', bearerToken(userIds.mixed))
       .send({
         answers: [
           {
@@ -329,7 +330,7 @@ describe('Quiz Attempts API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.duplicate)
+      .set('Authorization', bearerToken(userIds.duplicate))
       .send({
         answers: [
           { question_id: questionId, selected_option: 'GET' },
@@ -342,7 +343,7 @@ describe('Quiz Attempts API (e2e)', () => {
   it('rejects unknown question_id in payload', async () => {
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.unknownQuestion)
+      .set('Authorization', bearerToken(userIds.unknownQuestion))
       .send({
         answers: [{ question_id: 'unknown-question-id', selected_option: 'GET' }]
       })
@@ -365,13 +366,13 @@ describe('Quiz Attempts API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.increment)
+      .set('Authorization', bearerToken(userIds.increment))
       .send({ answers })
       .expect(201);
 
     const second = await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', userIds.increment)
+      .set('Authorization', bearerToken(userIds.increment))
       .send({ answers })
       .expect(201);
 
@@ -385,15 +386,15 @@ describe('Quiz Attempts API (e2e)', () => {
     expect(attempts.map((attempt) => attempt.attemptNo)).toEqual([1, 2]);
   });
 
-  it('rejects missing or unknown x-user-id', async () => {
+  it('rejects missing bearer token and unknown bearer subject', async () => {
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
       .send({ answers: [] })
-      .expect(400);
+      .expect(401);
 
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
-      .set('x-user-id', 'unknown-user-id')
+      .set('Authorization', bearerToken('unknown-user-id'))
       .send({ answers: [] })
       .expect(400);
   });

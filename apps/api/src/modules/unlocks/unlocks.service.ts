@@ -90,7 +90,7 @@ export class UnlocksService {
 
   private async assertKnownUser(userId: string): Promise<string> {
     if (typeof userId !== 'string' || userId.trim().length === 0) {
-      throw new BadRequestException('x-user-id header is required');
+      throw new BadRequestException('user id is required');
     }
 
     const normalizedUserId = userId.trim();

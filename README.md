@@ -96,7 +96,7 @@ Web routes now consume the read-only content API:
 - `/learn/:sectionId`
 
 Version-aware section retrieval (PR-5):
-- `GET /v1/sections/:sectionId` optionally accepts `x-user-id`
+- `GET /v1/sections/:sectionId` optionally accepts bearer auth context
 - If the user has progress pinned to an older section version, the API returns that version instead of the current published version
 
 Web progress indicators (PR-6):
@@ -147,7 +147,7 @@ Open in browser:
 
 ## Progress Tracking (PR-4, PR-24)
 
-Progress endpoints are available in `apps/api` (temporary user strategy using `x-user-id` header):
+Progress endpoints in `apps/api` are bearer-authenticated:
 
 - `POST /v1/progress/sections/:sectionId/start`
 - `GET /v1/progress/sections/:sectionId`
@@ -165,7 +165,7 @@ PR-24 completion gating:
 - self-prerequisite unlock reasons for the current section are ignored in completion checks to avoid deadlock
 - blocked completion returns `409` with `code: "completion_blocked"` and gating reasons
 
-## Auth API (PR-30)
+## Auth API (PR-32)
 
 Auth MVP endpoints are now available in `apps/api`:
 
@@ -180,12 +180,9 @@ PR-28 behavior:
 - logout revokes the current refresh token
 - `auth/me` returns `{ id, email, name, role }` for the authenticated principal
 - refresh/logout transport uses JSON body (no cookie flow yet)
-- bridge mode for learner APIs: bearer auth is accepted and takes precedence over `x-user-id` when both are present
-- `x-user-id` remains temporarily supported as fallback (removal planned in PR-32)
 
 PR-30 admin RBAC enforcement:
 - all `/v1/admin/*` endpoints are now bearer-only and require `role=admin`
-- `x-user-id` is not accepted on admin endpoints
 - denied admin access (missing token, invalid token, non-admin role) returns:
   - HTTP `403`
   - `{ "code": "forbidden", "message": "Admin access required" }`
@@ -199,6 +196,11 @@ PR-31 web auth plumbing:
   - `GET /api/auth/me`
 - learner routes (`/`, `/learn/:sectionId`) require authenticated web session and redirect to `/login` when missing
 - content browsing routes (`/paths/:pathId`, `/modules/:moduleId`) remain anonymous-safe
+
+PR-32 identity finalization:
+- protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
+- legacy `x-user-id` is ignored across the API and no longer resolves identity
+- public content routes remain anonymous-safe and can optionally enrich lock metadata from a valid bearer token
 
 Example:
 
@@ -263,7 +265,7 @@ Example PR-17 quiz submit command:
 ```bash
 curl -s -X POST "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/attempts" \
   -H "Content-Type: application/json" \
-  -H "x-user-id: $USER_ID" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
   -d '{
     "answers": [
       {"question_id":"<MCQ_Q1_ID>","selected_option":"GET"},
@@ -282,8 +284,8 @@ PR-18 expands quiz execution and read APIs:
 Example PR-18 quiz read commands:
 
 ```bash
-curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/attempts/latest" | jq
-curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/result" | jq
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/attempts/latest" | jq
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/result" | jq
 ```
 
 ## Unlock Foundation (PR-19, PR-20, PR-21, PR-22, PR-23)
@@ -300,21 +302,21 @@ Unlock backend foundation is now present in `apps/api`:
 
 PR-20 adds the first unlock status endpoint:
 
-- `GET /v1/unlocks/modules/:moduleId/status` (requires `x-user-id`)
+- `GET /v1/unlocks/modules/:moduleId/status` (requires bearer auth)
 - evaluates active module-scope unlock rules (read-only; no writes to `user_unlocks`)
 - initially shipped with `prereq_sections` rule evaluation and deterministic unmet reasons
 - includes `requiresCredits` and `creditsCost` as informational metadata
 
 PR-21 adds unlock evaluation and persistence:
 
-- `POST /v1/unlocks/modules/:moduleId/evaluate` (requires `x-user-id`)
+- `POST /v1/unlocks/modules/:moduleId/evaluate` (requires bearer auth)
 - persists module unlocks in `user_unlocks` when rules are satisfied (idempotent on retries)
 - extends both status/evaluate rule evaluation to support `quiz_pass` rules
 - `GET /v1/unlocks/modules/:moduleId/status` now also honors persisted module unlock grants
 
 PR-22 adds user-aware lock metadata to content APIs (additive only):
 
-- `GET /v1/paths/:pathId` and `GET /v1/modules/:moduleId` now accept optional `x-user-id`
+- `GET /v1/paths/:pathId` and `GET /v1/modules/:moduleId` now accept optional bearer auth context
 - for known users, response payloads include lock metadata for modules and sections
 - `GET /v1/sections/:sectionId` now includes additive navigation lock metadata for known users
 - anonymous/unknown-user callers keep legacy payload shape (lock metadata omitted)
@@ -323,7 +325,7 @@ PR-22 adds user-aware lock metadata to content APIs (additive only):
 
 Gamification v1 is now available in `apps/api`:
 
-- `GET /v1/gamification/me` (requires `x-user-id`) returns `{ userId, totalXp, level }`
+- `GET /v1/gamification/me` (requires bearer auth) returns `{ userId, totalXp, level }`
 - XP is awarded exactly once per user+section rule for:
   - first section completion (`section_complete`)
   - first quiz pass (`quiz_pass`)
@@ -459,7 +461,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-28)
+## Current Scope (PR-32)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -472,7 +474,7 @@ pnpm build
 - Auth schema foundation in `apps/api` (`users.role`, `users.password_hash`, `auth_refresh_tokens`, `UserRole`)
 - Auth API MVP in `apps/api` (`POST /v1/auth/login`, `GET /v1/auth/me`) with bearer-token principal resolution
 - Auth refresh/logout lifecycle in `apps/api` (`POST /v1/auth/refresh`, `POST /v1/auth/logout`) with one-time refresh rotation
-- Guarded user-context bridge: progress/quiz/unlocks/gamification/content endpoints now accept bearer principal first with temporary `x-user-id` fallback
+- Bearer-only identity on protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`)
 - NestJS health endpoint with DB check (`GET /health -> {"status":"ok","db":"ok"}`)
 - Next.js homepage showing basic API health status
 - Read-only Content API endpoints in `apps/api`:
@@ -484,9 +486,9 @@ pnpm build
 - path page (`/paths/:pathId`)
 - module page (`/modules/:moduleId`)
 - learn/player page (`/learn/:sectionId`)
-- Authoritative progress tracking in `apps/api` (temporary `x-user-id` bridge while auth endpoints are pending)
+- Authoritative progress tracking in `apps/api` with bearer-authenticated identity
 - Continue learning API + homepage continue card in `apps/web`
-- Version-aware section retrieval in `apps/api` using optional `x-user-id` and progress-pinned `sectionVersionId`
+- Version-aware section retrieval in `apps/api` using optional bearer context and progress-pinned `sectionVersionId`
 - Web path/module progress indicators (read-only wiring to existing progress endpoints)
 - Read-only section progress endpoint (`GET /v1/progress/sections/:sectionId`) in `apps/api`
 - Progress completion endpoint now enforces quiz/unlock gating and returns structured `409 completion_blocked` when unmet
@@ -567,13 +569,13 @@ SECTION_ID=$(curl -s http://localhost:3001/v1/modules/$MODULE_ID | jq -r '.secti
 ```
 
 ```bash
-curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/start" | jq
-curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID" | jq
-curl -s -X PATCH -H "x-user-id: $USER_ID" -H "Content-Type: application/json" -d '{"last_block_order":2,"time_spent_delta":15,"completion_pct":50}' "http://localhost:3001/v1/progress/sections/$SECTION_ID/position" | jq
-curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
-curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/modules/$MODULE_ID" | jq
-curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/paths/$PATH_ID" | jq
-curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/continue" | jq
+curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/progress/sections/$SECTION_ID/start" | jq
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/progress/sections/$SECTION_ID" | jq
+curl -s -X PATCH -H "Authorization: Bearer $ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"last_block_order":2,"time_spent_delta":15,"completion_pct":50}' "http://localhost:3001/v1/progress/sections/$SECTION_ID/position" | jq
+curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/progress/modules/$MODULE_ID" | jq
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/progress/paths/$PATH_ID" | jq
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/progress/continue" | jq
 ```
 
 ## Useful Unlock Curl Commands
@@ -585,20 +587,20 @@ SECTION_ID=$(curl -s http://localhost:3001/v1/modules/$MODULE_ID | jq -r '.secti
 
 ```bash
 # Check current unlock status
-curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/status" | jq
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/status" | jq
 
 # Try to evaluate + persist unlock (idempotent)
-curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/evaluate" | jq
+curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/evaluate" | jq
 
 # Complete prerequisite section, then evaluate again
-curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
-curl -s -X POST -H "x-user-id: $USER_ID" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/evaluate" | jq
+curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/progress/sections/$SECTION_ID/complete" | jq
+curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/unlocks/modules/$MODULE_ID/evaluate" | jq
 ```
 
 ## Useful Gamification Curl Commands
 
 ```bash
-curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/gamification/me" | jq
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/gamification/me" | jq
 ```
 
 ## Useful Web Commands

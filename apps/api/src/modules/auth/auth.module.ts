@@ -19,6 +19,6 @@ import { RolesGuard } from './roles.guard';
     AdminBearerAuthGuard,
     RolesGuard
   ],
-  exports: [AuthTokenService, OptionalBearerAuthGuard, AdminBearerAuthGuard, RolesGuard]
+  exports: [AuthTokenService, BearerAuthGuard, OptionalBearerAuthGuard, AdminBearerAuthGuard, RolesGuard]
 })
 export class AuthModule {}
