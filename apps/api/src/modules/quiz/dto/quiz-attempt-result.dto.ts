@@ -10,10 +10,14 @@ export interface QuizAttemptResultDto {
   submittedAt: string;
   feedback: Array<{
     questionId: string;
+    questionType: 'mcq' | 'short_answer';
     isCorrect: boolean;
     awardedPoints: number;
-    expectedOption: string;
+    expectedOption: string | null;
+    acceptedAnswers: string[] | null;
+    expectedPattern: string | null;
     selectedOption: string | null;
+    answerText: string | null;
     explanation: string | null;
   }>;
 }

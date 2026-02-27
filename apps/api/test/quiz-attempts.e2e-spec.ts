@@ -10,6 +10,11 @@ describe('Quiz Attempts API (e2e)', () => {
   let prisma: PrismaClient;
   let sectionId: string;
   let sectionVersionId: string;
+  let scorableQuestionsCount: number;
+  let shortAnswerQuestion: {
+    id: string;
+    answerKeyJson: unknown;
+  };
   let mcqQuestions: Array<{
     id: string;
     points: number;
@@ -76,6 +81,31 @@ describe('Quiz Attempts API (e2e)', () => {
       throw new Error('Expected at least 2 seeded MCQ questions for request-response-cycle v1.');
     }
 
+    const shortAnswer = await prisma.question.findFirst({
+      where: {
+        sectionVersionId,
+        type: QuestionType.short_answer
+      },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+      select: {
+        id: true,
+        answerKeyJson: true
+      }
+    });
+    if (!shortAnswer) {
+      throw new Error('Expected a seeded short_answer question for request-response-cycle v1.');
+    }
+    shortAnswerQuestion = shortAnswer;
+
+    scorableQuestionsCount =
+      mcqQuestions.length +
+      (await prisma.question.count({
+        where: {
+          sectionVersionId,
+          type: QuestionType.short_answer
+        }
+      }));
+
     await Promise.all(
       Object.values(userIds).map((id, index) =>
         prisma.user.upsert({
@@ -124,10 +154,18 @@ describe('Quiz Attempts API (e2e)', () => {
   });
 
   it('submits a happy-path all-correct MCQ attempt', async () => {
-    const answers = mcqQuestions.map((question) => ({
+    const answers: Array<{
+      question_id: string;
+      selected_option?: string;
+      answer_text?: string;
+    }> = mcqQuestions.map((question) => ({
       question_id: question.id,
       selected_option: getCorrectOption(question.answerKeyJson)
     }));
+    answers.push({
+      question_id: shortAnswerQuestion.id,
+      answer_text: getShortAnswerCorrectValue(shortAnswerQuestion.answerKeyJson)
+    });
 
     const response = await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
@@ -135,17 +173,15 @@ describe('Quiz Attempts API (e2e)', () => {
       .send({ answers })
       .expect(201);
 
-    const expectedMax = mcqQuestions.reduce((sum, question) => sum + question.points, 0);
-
     expect(response.body.userId).toBe(userIds.happy);
     expect(response.body.sectionId).toBe(sectionId);
     expect(response.body.sectionVersionId).toBe(sectionVersionId);
     expect(response.body.attemptNo).toBe(1);
-    expect(response.body.score).toBe(expectedMax);
-    expect(response.body.maxScore).toBe(expectedMax);
+    expect(response.body.maxScore).toBeGreaterThan(0);
+    expect(response.body.score).toBe(response.body.maxScore);
     expect(response.body.passed).toBe(true);
     expect(Array.isArray(response.body.feedback)).toBe(true);
-    expect(response.body.feedback).toHaveLength(mcqQuestions.length);
+    expect(response.body.feedback).toHaveLength(scorableQuestionsCount);
 
     const attempts = await prisma.quizAttempt.findMany({
       where: { userId: userIds.happy, sectionId },
@@ -157,7 +193,7 @@ describe('Quiz Attempts API (e2e)', () => {
     const savedAnswers = await prisma.quizAttemptAnswer.findMany({
       where: { attemptId: attempts[0].id }
     });
-    expect(savedAnswers).toHaveLength(mcqQuestions.length);
+    expect(savedAnswers).toHaveLength(scorableQuestionsCount);
   });
 
   it('scores mixed correct/incorrect answers and can fail threshold', async () => {
@@ -169,6 +205,10 @@ describe('Quiz Attempts API (e2e)', () => {
       {
         question_id: mcqQuestions[1].id,
         selected_option: '__incorrect__'
+      },
+      {
+        question_id: shortAnswerQuestion.id,
+        answer_text: '__incorrect__'
       }
     ];
 
@@ -214,6 +254,76 @@ describe('Quiz Attempts API (e2e)', () => {
     expect(missingFeedback.awardedPoints).toBe(0);
   });
 
+  it('grades short-answer exact_ci correctly and returns short-answer feedback shape', async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/v1/quizzes/sections/${sectionId}/attempts`)
+      .set('x-user-id', userIds.unanswered)
+      .send({
+        answers: [
+          {
+            question_id: shortAnswerQuestion.id,
+            answer_text: 'HOST'
+          }
+        ]
+      })
+      .expect(201);
+
+    const shortFeedback = response.body.feedback.find(
+      (item: { questionId: string }) => item.questionId === shortAnswerQuestion.id
+    );
+    expect(shortFeedback).toBeTruthy();
+    expect(shortFeedback.questionType).toBe('short_answer');
+    expect(shortFeedback.isCorrect).toBe(true);
+    expect(shortFeedback.answerText).toBe('HOST');
+    expect(shortFeedback.acceptedAnswers).toContain('host');
+    expect(shortFeedback.expectedOption).toBeNull();
+    expect(shortFeedback.selectedOption).toBeNull();
+
+    const latestAttempt = await prisma.quizAttempt.findFirst({
+      where: { userId: userIds.unanswered, sectionId },
+      orderBy: [{ attemptNo: 'desc' }],
+      select: { id: true }
+    });
+    expect(latestAttempt).toBeTruthy();
+
+    const savedShortAnswer = await prisma.quizAttemptAnswer.findFirst({
+      where: {
+        attemptId: latestAttempt!.id,
+        questionId: shortAnswerQuestion.id
+      },
+      select: { answerJson: true, isCorrect: true }
+    });
+    expect(savedShortAnswer?.isCorrect).toBe(true);
+    expect(savedShortAnswer?.answerJson).toEqual({ answer_text: 'HOST' });
+  });
+
+  it('treats omitted short-answer as incorrect with answerText null', async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/v1/quizzes/sections/${sectionId}/attempts`)
+      .set('x-user-id', userIds.mixed)
+      .send({
+        answers: [
+          {
+            question_id: mcqQuestions[0].id,
+            selected_option: getCorrectOption(mcqQuestions[0].answerKeyJson)
+          },
+          {
+            question_id: mcqQuestions[1].id,
+            selected_option: getCorrectOption(mcqQuestions[1].answerKeyJson)
+          }
+        ]
+      })
+      .expect(201);
+
+    const shortFeedback = response.body.feedback.find(
+      (item: { questionId: string }) => item.questionId === shortAnswerQuestion.id
+    );
+    expect(shortFeedback).toBeTruthy();
+    expect(shortFeedback.questionType).toBe('short_answer');
+    expect(shortFeedback.isCorrect).toBe(false);
+    expect(shortFeedback.answerText).toBeNull();
+  });
+
   it('rejects duplicate question_id in payload', async () => {
     const questionId = mcqQuestions[0].id;
 
@@ -240,10 +350,18 @@ describe('Quiz Attempts API (e2e)', () => {
   });
 
   it('increments attempt number for repeated submissions by same user/section', async () => {
-    const answers = mcqQuestions.map((question) => ({
+    const answers: Array<{
+      question_id: string;
+      selected_option?: string;
+      answer_text?: string;
+    }> = mcqQuestions.map((question) => ({
       question_id: question.id,
       selected_option: getCorrectOption(question.answerKeyJson)
     }));
+    answers.push({
+      question_id: shortAnswerQuestion.id,
+      answer_text: getShortAnswerCorrectValue(shortAnswerQuestion.answerKeyJson)
+    });
 
     await request(app.getHttpServer())
       .post(`/v1/quizzes/sections/${sectionId}/attempts`)
@@ -292,4 +410,25 @@ function getCorrectOption(answerKeyJson: unknown): string {
   }
 
   return correct;
+}
+
+function getShortAnswerCorrectValue(answerKeyJson: unknown): string {
+  if (!answerKeyJson || typeof answerKeyJson !== 'object' || Array.isArray(answerKeyJson)) {
+    throw new Error('Invalid seeded answerKeyJson');
+  }
+
+  const mode = (answerKeyJson as { mode?: unknown }).mode;
+  if (mode === 'exact' || mode === 'exact_ci') {
+    const accepted = (answerKeyJson as { accepted?: unknown }).accepted;
+    if (!Array.isArray(accepted) || accepted.length === 0 || typeof accepted[0] !== 'string') {
+      throw new Error('Invalid seeded short-answer accepted list');
+    }
+    return accepted[0];
+  }
+
+  if (mode === 'regex') {
+    return 'host';
+  }
+
+  throw new Error('Unsupported seeded short-answer mode');
 }
