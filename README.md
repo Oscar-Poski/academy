@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-19 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-20 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -211,7 +211,7 @@ curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SEC
 curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/result" | jq
 ```
 
-## Unlock Foundation (PR-19)
+## Unlock Foundation (PR-19, PR-20)
 
 Unlock backend foundation is now present in `apps/api`:
 
@@ -221,9 +221,14 @@ Unlock backend foundation is now present in `apps/api`:
   - `unlock_rules`
   - `user_unlocks`
 - seed now inserts a deterministic active module-scope prereq rule for `http-basics-module`
-- `UnlocksModule` scaffold is registered in `AppModule` (no public unlock endpoints yet)
+- `UnlocksModule` is registered in `AppModule`
 
-PR-19 intentionally does not add unlock status/evaluate endpoints yet; those are planned for PR-20/PR-21.
+PR-20 adds the first unlock status endpoint:
+
+- `GET /v1/unlocks/modules/:moduleId/status` (requires `x-user-id`)
+- evaluates active module-scope unlock rules (read-only; no writes to `user_unlocks`)
+- currently supports `prereq_sections` rule evaluation and returns deterministic unmet reasons
+- includes `requiresCredits` and `creditsCost` as informational metadata
 
 ## Content Importer & Admin Versioning (PR-12, PR-13, PR-14, PR-15)
 
@@ -359,7 +364,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-19)
+## Current Scope (PR-20)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -404,11 +409,11 @@ pnpm build
 - Quiz result summary endpoint in `apps/api` (`GET /v1/quizzes/sections/:sectionId/result`)
 - Unlock core schema foundation in `apps/api` (`unlock_rules`, `user_unlocks`, `UnlockScopeType`, `UnlockRuleType`)
 - Seeded module-scope prerequisite unlock rule for `http-basics-module`
-- `UnlocksModule` scaffold in `apps/api` (registered, no unlock routes exposed yet)
+- Unlock status endpoint in `apps/api` (`GET /v1/unlocks/modules/:moduleId/status`) with read-only prerequisite evaluation
 - API e2e tests for health, content, and progress routes (requires `DATABASE_URL_TEST`)
-- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, and unlock-seed coverage
+- API e2e tests now include analytics ingest, admin content import, admin section version/publish, quiz-seed, quiz-attempts, quiz-results, unlock-seed, and unlock-status coverage
 
-No auth/unlock-evaluation endpoints/XP/credits/gamification yet.
+No auth/unlock-persistence endpoints/XP/credits/gamification yet.
 
 ## Useful API Commands
 
