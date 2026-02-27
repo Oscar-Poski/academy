@@ -9,8 +9,8 @@ import {
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const SEEDED_STUDENT_PASSWORD_HASH = '$2b$10$rI7AKMGo2fEWYkXlBf9fWOf5z0fGHQllXifWfM6M0ehAFri0W2Dxq';
-const SEEDED_ADMIN_PASSWORD_HASH = '$2b$10$8eaRbSEeV4fCO8xjW8fkE.gU3P7m.7hRd2.EUk7QjVbup73QFdKVK';
+const SEEDED_STUDENT_PASSWORD_HASH = '$2a$10$123456789012345678901u/8q7ONk4wGPE2B1kv5TRgbDOtXWxwbC'; // password123
+const SEEDED_ADMIN_PASSWORD_HASH = '$2a$10$abcdefghijklmnopqrstuuEZ4tpXm4W5SeJkDbuNdfJ.CF0.Wc2V2'; // admin123
 
 async function upsertSectionVersionWithPublishedBlocks(params: {
   sectionId: string;

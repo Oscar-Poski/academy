@@ -62,9 +62,9 @@ pnpm --filter @academy/api db:seed
 PR-26 auth schema foundation:
 - database now includes `users.role`, `users.password_hash`, and `auth_refresh_tokens`
 - seeded local users:
-  - learner: `student@academy.local`
-  - admin: `admin@academy.local`
-- auth HTTP endpoints are not available yet (planned starting PR-27)
+  - learner: `student@academy.local` / `password123`
+  - admin: `admin@academy.local` / `admin123`
+- auth HTTP endpoints (`/v1/auth/login`, `/v1/auth/me`) are available in PR-27
 
 ## Run
 
@@ -164,6 +164,29 @@ PR-24 completion gating:
 - already-completed sections remain idempotent (returns completed state without re-gating)
 - self-prerequisite unlock reasons for the current section are ignored in completion checks to avoid deadlock
 - blocked completion returns `409` with `code: "completion_blocked"` and gating reasons
+
+## Auth API (PR-27)
+
+Auth MVP endpoints are now available in `apps/api`:
+
+- `POST /v1/auth/login` with `{ email, password }`
+- `GET /v1/auth/me` with `Authorization: Bearer <access_token>`
+
+PR-27 behavior:
+- login returns `{ access_token, token_type, expires_in }`
+- `auth/me` returns `{ id, email, name, role }` for the authenticated principal
+- refresh/logout lifecycle is not included yet (planned for PR-28)
+
+Example:
+
+```bash
+LOGIN_RESPONSE=$(curl -s -X POST "http://localhost:3001/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"student@academy.local","password":"password123"}')
+
+ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.access_token')
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/auth/me" | jq
+```
 
 ## Analytics Ingest (PR-10, PR-11)
 
@@ -399,18 +422,20 @@ pnpm build
 
 `apps/web` progress/continue behavior (PR-4) also expects:
 
-- `NEXT_PUBLIC_TEMP_USER_ID` = existing `users.id` (temporary bridge; auth schema exists, but auth endpoints are not live yet)
+- `NEXT_PUBLIC_TEMP_USER_ID` = existing `users.id` (temporary bridge while web auth migration is pending)
 - `NEXT_PUBLIC_API_BASE_URL` (optional; defaults to `http://localhost:3001` in the web API clients)
 
 `apps/api` expects:
 
 - `DATABASE_URL` for local/dev runtime
 - `DATABASE_URL_TEST` for tests (required; tests fail fast if missing)
+- `JWT_SECRET` for access token signing/verification
+- `JWT_EXPIRES_IN` access token TTL in seconds (defaults to `900` when unset/invalid)
 - Compose defaults:
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-26)
+## Current Scope (PR-27)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -421,6 +446,7 @@ pnpm build
 - Initial Postgres schema includes `section_versions`
 - Initial Postgres schema includes `lesson_blocks`
 - Auth schema foundation in `apps/api` (`users.role`, `users.password_hash`, `auth_refresh_tokens`, `UserRole`)
+- Auth API MVP in `apps/api` (`POST /v1/auth/login`, `GET /v1/auth/me`) with bearer-token principal resolution
 - NestJS health endpoint with DB check (`GET /health -> {"status":"ok","db":"ok"}`)
 - Next.js homepage showing basic API health status
 - Read-only Content API endpoints in `apps/api`:

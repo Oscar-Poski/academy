@@ -3,3 +3,4 @@ if (!process.env.DATABASE_URL_TEST) {
 }
 
 process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;
+process.env.JWT_SECRET = process.env.JWT_SECRET?.trim() || 'academy-test-jwt-secret';
