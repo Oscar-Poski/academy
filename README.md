@@ -1,6 +1,6 @@
 # Academy
 
-PR-0 through PR-23 scaffold for an HTB-style learning platform monorepo.
+PR-0 through PR-24 scaffold for an HTB-style learning platform monorepo.
 
 ## Stack
 
@@ -138,7 +138,7 @@ Open in browser:
 - `http://localhost:3000/modules/$MODULE_ID`
 - `http://localhost:3000/learn/$SECTION_ID`
 
-## Progress Tracking (PR-4)
+## Progress Tracking (PR-4, PR-24)
 
 Progress endpoints are available in `apps/api` (temporary user strategy using `x-user-id` header):
 
@@ -149,6 +149,14 @@ Progress endpoints are available in `apps/api` (temporary user strategy using `x
 - `GET /v1/progress/modules/:moduleId`
 - `GET /v1/progress/paths/:pathId`
 - `GET /v1/progress/continue`
+
+PR-24 completion gating:
+- `POST /v1/progress/sections/:sectionId/complete` now enforces backend gating
+- quiz sections require latest quiz attempt to be passing before completion
+- unlock-aware checks are applied server-side during completion
+- already-completed sections remain idempotent (returns completed state without re-gating)
+- self-prerequisite unlock reasons for the current section are ignored in completion checks to avoid deadlock
+- blocked completion returns `409` with `code: "completion_blocked"` and gating reasons
 
 ## Analytics Ingest (PR-10, PR-11)
 
@@ -216,7 +224,7 @@ curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SEC
 curl -s -H "x-user-id: $USER_ID" "http://localhost:3001/v1/quizzes/sections/$SECTION_ID/result" | jq
 ```
 
-## Unlock Foundation (PR-19, PR-20, PR-21, PR-22)
+## Unlock Foundation (PR-19, PR-20, PR-21, PR-22, PR-23)
 
 Unlock backend foundation is now present in `apps/api`:
 
@@ -383,7 +391,7 @@ pnpm build
   - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/academy_dev?schema=public`
   - `DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5433/academy_test?schema=public`
 
-## Current Scope (PR-23)
+## Current Scope (PR-24)
 
 - Monorepo scaffolding and tooling
 - Prisma setup in `apps/api` with migrations and seed
@@ -409,6 +417,7 @@ pnpm build
 - Version-aware section retrieval in `apps/api` using optional `x-user-id` and progress-pinned `sectionVersionId`
 - Web path/module progress indicators (read-only wiring to existing progress endpoints)
 - Read-only section progress endpoint (`GET /v1/progress/sections/:sectionId`) in `apps/api`
+- Progress completion endpoint now enforces quiz/unlock gating and returns structured `409 completion_blocked` when unmet
 - Player header progress chip on `/learn/:sectionId` in `apps/web`
 - Player footer `Mark Complete` CTA on `/learn/:sectionId` in `apps/web` (uses existing complete endpoint)
 - Player footer prev/next navigation performs best-effort position save (`PATCH /v1/progress/sections/:sectionId/position`) before route change

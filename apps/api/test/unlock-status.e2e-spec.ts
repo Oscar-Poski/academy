@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, QuestionType } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 
@@ -10,6 +10,7 @@ describe('Unlock Status API (e2e)', () => {
   let seededModuleId: string;
   let prerequisiteSectionId: string;
   let seededPathId: string;
+  let seededQuestions: Array<{ id: string; type: QuestionType; answerKeyJson: unknown }> = [];
 
   const userIds = {
     locked: 'unlock-status-locked-user',
@@ -48,6 +49,32 @@ describe('Unlock Status API (e2e)', () => {
     }
     prerequisiteSectionId = section.id;
 
+    const sectionVersion = await prisma.sectionVersion.findUnique({
+      where: {
+        sectionId_versionNumber: {
+          sectionId: section.id,
+          versionNumber: 1
+        }
+      },
+      select: { id: true }
+    });
+    if (!sectionVersion) {
+      throw new Error('Seeded section version not found for unlock status tests.');
+    }
+
+    seededQuestions = await prisma.question.findMany({
+      where: { sectionVersionId: sectionVersion.id },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+      select: {
+        id: true,
+        type: true,
+        answerKeyJson: true
+      }
+    });
+    if (seededQuestions.length === 0) {
+      throw new Error('Expected seeded quiz questions for unlock status tests.');
+    }
+
     await Promise.all(
       Object.values(userIds).map((id, index) =>
         prisma.user.upsert({
@@ -64,6 +91,18 @@ describe('Unlock Status API (e2e)', () => {
   });
 
   beforeEach(async () => {
+    await prisma.quizAttemptAnswer.deleteMany({
+      where: {
+        attempt: {
+          userId: { in: Object.values(userIds) }
+        }
+      }
+    });
+    await prisma.quizAttempt.deleteMany({
+      where: {
+        userId: { in: Object.values(userIds) }
+      }
+    });
     await prisma.userUnlock.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
@@ -87,6 +126,18 @@ describe('Unlock Status API (e2e)', () => {
   });
 
   afterAll(async () => {
+    await prisma.quizAttemptAnswer.deleteMany({
+      where: {
+        attempt: {
+          userId: { in: Object.values(userIds) }
+        }
+      }
+    });
+    await prisma.quizAttempt.deleteMany({
+      where: {
+        userId: { in: Object.values(userIds) }
+      }
+    });
     await prisma.userUnlock.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
@@ -112,6 +163,8 @@ describe('Unlock Status API (e2e)', () => {
   });
 
   it('returns unlocked after prerequisite completion', async () => {
+    await submitPassingQuizAttempt(app, userIds.unlocked, prerequisiteSectionId, seededQuestions);
+
     await request(app.getHttpServer())
       .post(`/v1/progress/sections/${prerequisiteSectionId}/complete`)
       .set('x-user-id', userIds.unlocked)
@@ -189,3 +242,79 @@ describe('Unlock Status API (e2e)', () => {
     expect(response.body.reasons).toEqual([]);
   });
 });
+
+async function submitPassingQuizAttempt(
+  app: INestApplication,
+  userId: string,
+  sectionId: string,
+  questions: Array<{ id: string; type: QuestionType; answerKeyJson: unknown }>
+): Promise<void> {
+  const answers = questions.map((question) => {
+    if (question.type === QuestionType.mcq) {
+      return {
+        question_id: question.id,
+        selected_option: getCorrectOption(question.answerKeyJson)
+      };
+    }
+
+    return {
+      question_id: question.id,
+      answer_text: getCorrectShortAnswer(question.answerKeyJson)
+    };
+  });
+
+  await request(app.getHttpServer())
+    .post(`/v1/quizzes/sections/${sectionId}/attempts`)
+    .set('x-user-id', userId)
+    .send({ answers })
+    .expect(201);
+}
+
+function getCorrectOption(answerKeyJson: unknown): string {
+  if (!answerKeyJson || typeof answerKeyJson !== 'object' || Array.isArray(answerKeyJson)) {
+    throw new Error('Invalid seeded answer key JSON for MCQ');
+  }
+
+  const value = (answerKeyJson as { correct_option?: unknown }).correct_option;
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error('Invalid seeded correct_option');
+  }
+
+  return value;
+}
+
+function getCorrectShortAnswer(answerKeyJson: unknown): string {
+  if (!answerKeyJson || typeof answerKeyJson !== 'object' || Array.isArray(answerKeyJson)) {
+    throw new Error('Invalid seeded answer key JSON for short answer');
+  }
+
+  const mode = (answerKeyJson as { mode?: unknown }).mode;
+  if (mode === 'exact' || mode === 'exact_ci') {
+    const accepted = (answerKeyJson as { accepted?: unknown }).accepted;
+    if (!Array.isArray(accepted) || accepted.length === 0) {
+      throw new Error('Invalid seeded accepted answers');
+    }
+    const first = accepted.find((value) => typeof value === 'string' && value.trim().length > 0);
+    if (typeof first !== 'string') {
+      throw new Error('Invalid seeded accepted answer value');
+    }
+    return first;
+  }
+
+  if (mode === 'regex') {
+    const pattern = (answerKeyJson as { pattern?: unknown }).pattern;
+    const flags = (answerKeyJson as { flags?: unknown }).flags;
+    if (typeof pattern !== 'string') {
+      throw new Error('Invalid seeded regex pattern');
+    }
+    const compiled = new RegExp(pattern, typeof flags === 'string' ? flags : '');
+    const candidates = ['host', 'answer', 'test', 'academy'];
+    const match = candidates.find((candidate) => compiled.test(candidate));
+    if (!match) {
+      throw new Error('Unable to derive matching value for seeded regex question');
+    }
+    return match;
+  }
+
+  throw new Error('Unsupported seeded short-answer mode');
+}

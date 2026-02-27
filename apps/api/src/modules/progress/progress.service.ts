@@ -1,12 +1,15 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
 import { ProgressStatus, SectionVersionStatus, UserSectionProgress } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UnlocksService } from '../unlocks/unlocks.service';
 import type {
+  CompleteSectionGatingErrorDto,
   ContinueLearningDto,
   ModuleProgressDto,
   PathProgressDto,
@@ -16,7 +19,10 @@ import type {
 
 @Injectable()
 export class ProgressService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(UnlocksService) private readonly unlocksService: UnlocksService
+  ) {}
 
   async startSection(userId: string, sectionId: string): Promise<SectionProgressDto> {
     await this.assertKnownUser(userId);
@@ -118,6 +124,15 @@ export class ProgressService {
   async completeSection(userId: string, sectionId: string): Promise<SectionProgressDto> {
     await this.assertKnownUser(userId);
 
+    const existing = await this.prisma.userSectionProgress.findUnique({
+      where: { userId_sectionId: { userId, sectionId } }
+    });
+    if (existing && existing.status === ProgressStatus.completed) {
+      return this.toSectionProgressDto(existing);
+    }
+
+    await this.assertCanCompleteSection(userId, sectionId);
+
     const ensured = await this.startSection(userId, sectionId);
     if (ensured.status === 'completed') {
       return ensured;
@@ -135,6 +150,78 @@ export class ProgressService {
     });
 
     return this.toSectionProgressDto(updated);
+  }
+
+  private async assertCanCompleteSection(userId: string, sectionId: string): Promise<void> {
+    const section = await this.prisma.section.findUnique({
+      where: { id: sectionId },
+      select: {
+        id: true,
+        moduleId: true,
+        hasQuiz: true
+      }
+    });
+    if (!section) {
+      throw new NotFoundException(`Section ${sectionId} not found`);
+    }
+
+    const reasons: string[] = [];
+    let requiresQuizPass = false;
+    let requiresUnlock = false;
+
+    if (section.hasQuiz) {
+      const latestQuizPassed = await this.getLatestQuizPassState(userId, section.id);
+      if (!latestQuizPassed) {
+        requiresQuizPass = true;
+        reasons.push('Pass quiz before completing this section.');
+      }
+    }
+
+    const unlockDecision = await this.unlocksService.getModuleStatusForKnownUser(userId, section.moduleId);
+    if (!unlockDecision.isUnlocked) {
+      const selfPrereqReason = `Complete prerequisite section: ${section.id}`;
+      const blockingUnlockReasons = unlockDecision.reasons.filter((reason) => reason !== selfPrereqReason);
+      if (blockingUnlockReasons.length > 0) {
+        requiresUnlock = true;
+        reasons.push(...blockingUnlockReasons);
+      }
+    }
+
+    if (reasons.length > 0) {
+      throw this.buildCompletionBlockedError(Array.from(new Set(reasons)), {
+        requiresQuizPass,
+        requiresUnlock
+      });
+    }
+  }
+
+  private async getLatestQuizPassState(userId: string, sectionId: string): Promise<boolean> {
+    const latest = await this.prisma.quizAttempt.findFirst({
+      where: {
+        userId,
+        sectionId
+      },
+      orderBy: [{ submittedAt: 'desc' }, { attemptNo: 'desc' }, { id: 'asc' }],
+      select: {
+        passed: true
+      }
+    });
+
+    return latest?.passed === true;
+  }
+
+  private buildCompletionBlockedError(
+    reasons: string[],
+    flags: { requiresQuizPass: boolean; requiresUnlock: boolean }
+  ): ConflictException {
+    const body: CompleteSectionGatingErrorDto = {
+      code: 'completion_blocked',
+      reasons,
+      requiresQuizPass: flags.requiresQuizPass,
+      requiresUnlock: flags.requiresUnlock
+    };
+
+    return new ConflictException(body);
   }
 
   async getSectionProgress(userId: string, sectionId: string): Promise<SectionProgressDto> {
