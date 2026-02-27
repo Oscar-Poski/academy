@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ContentApiError, getPath } from '@/src/lib/api-clients/content.client';
-import { getPathProgress } from '@/src/lib/api-clients/progress.client';
+import { getPathProgress } from '@/src/lib/api-clients/progress.server';
 
 type PathPageProps = {
   params: {

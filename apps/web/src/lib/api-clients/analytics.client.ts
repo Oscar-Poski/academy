@@ -1,14 +1,10 @@
 import type { PostAnalyticsEventRequest, PostAnalyticsEventResponse } from '@/src/lib/analytics-types';
-
-const ANALYTICS_API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL && process.env.NEXT_PUBLIC_API_BASE_URL.trim().length > 0
-    ? process.env.NEXT_PUBLIC_API_BASE_URL
-    : 'http://localhost:3001';
+import { getApiBaseUrl } from '@/src/lib/auth/constants';
 
 export async function postAnalyticsEvent(
   body: PostAnalyticsEventRequest
 ): Promise<PostAnalyticsEventResponse> {
-  const response = await fetch(`${ANALYTICS_API_BASE_URL}/v1/analytics/events`, {
+  const response = await fetch(`${getApiBaseUrl()}/v1/analytics/events`, {
     method: 'POST',
     cache: 'no-store',
     headers: {

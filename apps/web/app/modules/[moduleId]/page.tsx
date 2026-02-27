@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ContentApiError, getModule } from '@/src/lib/api-clients/content.client';
-import { getModuleProgress } from '@/src/lib/api-clients/progress.client';
+import { getModuleProgress } from '@/src/lib/api-clients/progress.server';
 import type { ModuleSectionProgressItem, SectionProgressStatus } from '@/src/lib/progress-types';
 
 type ModulePageProps = {

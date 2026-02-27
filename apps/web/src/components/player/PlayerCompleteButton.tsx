@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.client';
-import { completeSectionProgress } from '@/src/lib/api-clients/progress.client';
+import { completeSectionProgress } from '@/src/lib/api-clients/progress.browser';
 import type { SectionProgress } from '@/src/lib/progress-types';
 
 type PlayerCompleteButtonProps = {

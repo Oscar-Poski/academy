@@ -1,7 +1,4 @@
-const API_BASE_URL =
-  process.env.API_BASE_URL && process.env.API_BASE_URL.trim().length > 0
-    ? process.env.API_BASE_URL
-    : 'http://localhost:3001';
+import { getApiBaseUrl } from '@/src/lib/auth/constants';
 
 export type HealthResponse = {
   status: string;
@@ -9,7 +6,7 @@ export type HealthResponse = {
 
 export async function getApiHealth(): Promise<HealthResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/health`, { cache: 'no-store' });
+    const response = await fetch(`${getApiBaseUrl()}/health`, { cache: 'no-store' });
 
     if (!response.ok) {
       return { status: 'unreachable' };

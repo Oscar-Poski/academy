@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { PlayerLayout } from '@/src/components/player/PlayerLayout';
 import { ContentApiError, getModule, getPath, getSection } from '@/src/lib/api-clients/content.client';
 import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.client';
-import { startSectionProgress } from '@/src/lib/api-clients/progress.client';
+import { startSectionProgress } from '@/src/lib/api-clients/progress.server';
 
 type LearnPageProps = {
   params: {
@@ -16,8 +16,6 @@ export default async function LearnPage({ params }: LearnPageProps) {
 
     // API currently returns moduleId in section payload, but not pathId.
     // Path fetch must wait until module payload resolves.
-    // TODO(content-versioning): Replace temporary x-user-id strategy with authenticated user context (JWT/session)
-    // once auth lands, while keeping version-aware section retrieval behavior.
     const [module, sectionProgress] = await Promise.all([
       getModule(section.moduleId, { includeUserContext: true }),
       startSectionProgress(section.id).catch(() => null)

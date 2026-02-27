@@ -87,7 +87,7 @@ pnpm --filter @academy/web dev
 pnpm --filter @academy/api dev
 ```
 
-## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11, PR-23)
+## Course Player (PR-3, PR-5, PR-6, PR-7, PR-8, PR-9, PR-11, PR-23, PR-31)
 
 Web routes now consume the read-only content API:
 
@@ -102,7 +102,7 @@ Version-aware section retrieval (PR-5):
 Web progress indicators (PR-6):
 - `/paths/:pathId` now shows path-level progress summary and per-module progress chips
 - `/modules/:moduleId` now shows module-level summary and per-section status badges (`Not Started`, `In Progress`, `Completed`)
-- If progress is unavailable (API down or `NEXT_PUBLIC_TEMP_USER_ID` missing), pages still render and show a non-fatal notice
+- If progress is unavailable (API down or unauthenticated session), pages still render and show a non-fatal notice
 
 Player progress chip (PR-7):
 - `/learn/:sectionId` now shows a player-header progress chip (status + completion %) when section progress is available
@@ -115,7 +115,7 @@ Player completion CTA (PR-8):
 
 Footer navigation checkpoint save (PR-9):
 - Clicking `Previous Section` / `Next Section` in the player footer now performs a best-effort progress position save before navigating
-- The UI still navigates even if the position update fails (API unavailable or temp user missing)
+- The UI still navigates even if the position update fails (API unavailable or unauthenticated session)
 
 Player analytics emission (PR-11):
 - `/learn/:sectionId` emits a best-effort `section_start` analytics event on page load after progress start succeeds
@@ -189,6 +189,16 @@ PR-30 admin RBAC enforcement:
 - denied admin access (missing token, invalid token, non-admin role) returns:
   - HTTP `403`
   - `{ "code": "forbidden", "message": "Admin access required" }`
+
+PR-31 web auth plumbing:
+- web app now uses HTTP-only cookie session tokens (`academy_access_token`, `academy_refresh_token`)
+- new web auth routes:
+  - `GET /login`
+  - `POST /api/auth/login`
+  - `POST /api/auth/logout`
+  - `GET /api/auth/me`
+- learner routes (`/`, `/learn/:sectionId`) require authenticated web session and redirect to `/login` when missing
+- content browsing routes (`/paths/:pathId`, `/modules/:moduleId`) remain anonymous-safe
 
 Example:
 
@@ -409,18 +419,11 @@ Notes:
 - add `--strict` to return exit code `1` when parser errors are present
 - `--apply` aborts without DB writes when parse errors are present
 
-Get a real seeded `users.id` (used for `x-user-id` and the web continue card):
+Set web API origin env before starting the web app:
 
 ```bash
-USER_ID=$(docker exec academy-postgres-dev psql -U postgres -d academy_dev -tAc "select id from users where email='student@academy.local' limit 1;")
-echo "$USER_ID"
-```
-
-Set the web temp user env before starting the web app:
-
-```bash
-export NEXT_PUBLIC_TEMP_USER_ID="$USER_ID"
 export NEXT_PUBLIC_API_BASE_URL="http://localhost:3001"
+export API_BASE_URL="http://localhost:3001"
 ```
 
 Important: restart `pnpm --filter @academy/web dev` after changing `NEXT_PUBLIC_*` env vars.  
@@ -437,15 +440,12 @@ pnpm build
 
 ## Environment Notes
 
-`apps/web` reads `API_BASE_URL` for API calls.
+`apps/web` reads `API_BASE_URL` and `NEXT_PUBLIC_API_BASE_URL` for API calls.
 
 - If unset or blank, it falls back to `http://localhost:3001`.
 - If set, it should be a full origin (example: `http://localhost:3001`).
-
-`apps/web` progress/continue behavior (PR-4) also expects:
-
-- `NEXT_PUBLIC_TEMP_USER_ID` = existing `users.id` (temporary bridge while web auth migration is pending)
-- `NEXT_PUBLIC_API_BASE_URL` (optional; defaults to `http://localhost:3001` in the web API clients)
+- `NEXT_PUBLIC_API_BASE_URL` is used by browser requests.
+- `API_BASE_URL` is used by server-side requests and route handlers.
 
 `apps/api` expects:
 

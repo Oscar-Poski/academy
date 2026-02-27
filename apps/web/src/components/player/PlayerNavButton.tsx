@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { updateSectionPosition } from '@/src/lib/api-clients/progress.client';
+import { updateSectionPosition } from '@/src/lib/api-clients/progress.browser';
 
 type PlayerNavButtonProps = {
   direction: 'prev' | 'next';

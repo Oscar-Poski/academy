@@ -1,6 +1,6 @@
 import { APP_NAME } from '@academy/shared';
 import { getApiHealth } from '@/src/lib/api';
-import { getContinueLearning } from '@/src/lib/api-clients/progress.client';
+import { getContinueLearning } from '@/src/lib/api-clients/progress.server';
 import Link from 'next/link';
 
 export default async function HomePage() {
@@ -27,9 +27,7 @@ export default async function HomePage() {
             </Link>
           </div>
         ) : (
-          <p className="homeContinueMuted">
-            Continue learning is unavailable until the API is running and NEXT_PUBLIC_TEMP_USER_ID is set.
-          </p>
+          <p className="homeContinueMuted">Continue learning is temporarily unavailable.</p>
         )}
       </section>
     </main>
