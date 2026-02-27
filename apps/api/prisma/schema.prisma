@@ -45,6 +45,12 @@ enum UnlockRuleType {
   min_level
 }
 
+enum CreditEventType {
+  grant
+  spend
+  adjust
+}
+
 enum XpEventType {
   section_complete
   quiz_pass
@@ -76,6 +82,8 @@ model User {
   sectionProgress UserSectionProgress[]
   quizAttempts    QuizAttempt[]
   unlocks         UserUnlock[]
+  creditEvents    CreditEvent[]
+  userCredit      UserCredit?
   xpEvents        XpEvent[]
   userLevel       UserLevel?
   refreshTokens   AuthRefreshToken[]
@@ -328,6 +336,32 @@ model UserUnlock {
   @@index([scopeType, scopeId])
   @@index([userId, unlockedAt])
   @@map("user_unlocks")
+}
+
+model CreditEvent {
+  id             String          @id @default(cuid())
+  userId         String          @map("user_id")
+  eventType      CreditEventType @map("event_type")
+  amount         Int
+  reason         String?
+  idempotencyKey String          @unique @map("idempotency_key")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([eventType, createdAt])
+  @@map("credit_events")
+}
+
+model UserCredit {
+  userId    String   @id @map("user_id")
+  balance   Int      @default(0)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_credits")
 }
 
 model XpEvent {

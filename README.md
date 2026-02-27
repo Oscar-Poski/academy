@@ -183,6 +183,22 @@ PR-35 web handling for completion gating:
 - web BFF route `POST /api/progress/sections/:sectionId/complete` preserves backend `409 completion_blocked` payloads
 - web no longer collapses blocked completion into generic/silent failure
 
+## Credits API (PR-36)
+
+Credits wallet foundation is now available in `apps/api`:
+
+- `GET /v1/credits/me` (requires bearer auth)
+- response shape:
+  - `{ userId, balance, updatedAt }`
+- wallet balance is authoritative from `user_credits`
+- redemption/spend HTTP endpoints are not available yet (planned for PR-37)
+
+Example:
+
+```bash
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/credits/me" | jq
+```
+
 ## Auth API (PR-32)
 
 Auth MVP endpoints are now available in `apps/api`:

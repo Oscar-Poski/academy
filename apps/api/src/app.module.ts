@@ -4,6 +4,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ContentModule } from './modules/content/content.module';
+import { CreditsModule } from './modules/credits/credits.module';
 import { GamificationModule } from './modules/gamification/gamification.module';
 import { ProgressModule } from './modules/progress/progress.module';
 import { QuizModule } from './modules/quiz/quiz.module';
@@ -14,6 +15,7 @@ import { PrismaModule } from './prisma/prisma.module';
   imports: [
     PrismaModule,
     AuthModule,
+    CreditsModule,
     ContentModule,
     ProgressModule,
     AnalyticsModule,

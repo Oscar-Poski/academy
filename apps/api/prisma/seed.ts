@@ -141,7 +141,7 @@ async function main() {
     }
   });
 
-  await prisma.user.upsert({
+  const admin = await prisma.user.upsert({
     where: { email: 'admin@academy.local' },
     update: {
       name: 'Academy Admin',
@@ -153,6 +153,28 @@ async function main() {
       name: 'Academy Admin',
       role: UserRole.admin,
       passwordHash: SEEDED_ADMIN_PASSWORD_HASH
+    }
+  });
+
+  await prisma.userCredit.upsert({
+    where: { userId: user.id },
+    update: {
+      balance: 0
+    },
+    create: {
+      userId: user.id,
+      balance: 0
+    }
+  });
+
+  await prisma.userCredit.upsert({
+    where: { userId: admin.id },
+    update: {
+      balance: 0
+    },
+    create: {
+      userId: admin.id,
+      balance: 0
     }
   });
 
