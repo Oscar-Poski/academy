@@ -361,6 +361,15 @@ PR-37 adds credits redemption in unlock flow:
   - insufficient wallet balance returns `409` with `code: "insufficient_credits"`
   - replay is idempotent (no double-spend, no duplicate unlock grants)
 
+PR-38 adds `min_level` unlock rule enforcement:
+
+- status/evaluate/redeem now evaluate `min_level` rules from `unlock_rules.rule_config_json`
+- config shape: `{ "min_level": <integer >= 1> }`
+- missing `user_levels` row is treated as level `1`
+- unmet level reason format:
+  - `Reach level <requiredLevel> to unlock module: <moduleId>`
+- malformed `min_level` config is treated as server-side rule misconfiguration (`500`)
+
 PR-22 adds user-aware lock metadata to content APIs (additive only):
 
 - `GET /v1/paths/:pathId` and `GET /v1/modules/:moduleId` now accept optional bearer auth context

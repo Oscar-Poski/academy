@@ -91,6 +91,9 @@ describe('Unlock Redeem Credits API (e2e)', () => {
     await prisma.userSectionProgress.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
+    await prisma.userLevel.deleteMany({
+      where: { userId: { in: Object.values(userIds) } }
+    });
     await prisma.unlockRule.deleteMany({
       where: { id: { in: createdRuleIds.splice(0) } }
     });
@@ -109,6 +112,9 @@ describe('Unlock Redeem Credits API (e2e)', () => {
       where: { userId: { in: Object.values(userIds) } }
     });
     await prisma.userSectionProgress.deleteMany({
+      where: { userId: { in: Object.values(userIds) } }
+    });
+    await prisma.userLevel.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
     await prisma.unlockRule.deleteMany({
@@ -273,6 +279,57 @@ describe('Unlock Redeem Credits API (e2e)', () => {
     expect(unlockRows).toHaveLength(1);
   });
 
+  it('redeem is blocked by min_level before spending, then succeeds after level increase', async () => {
+    await createMinLevelRule(2);
+    await prisma.userCredit.upsert({
+      where: { userId: userIds.enough },
+      update: { balance: 120 },
+      create: {
+        userId: userIds.enough,
+        balance: 120
+      }
+    });
+
+    const blocked = await request(app.getHttpServer())
+      .post(`/v1/unlocks/modules/${moduleId}/redeem-credits`)
+      .set('Authorization', bearerToken(userIds.enough))
+      .expect(409);
+
+    expect(blocked.body.code).toBe('unlock_blocked');
+    expect(blocked.body.reasons).toContain(`Reach level 2 to unlock module: ${moduleId}`);
+
+    let creditEvents = await prisma.creditEvent.findMany({
+      where: { userId: userIds.enough }
+    });
+    expect(creditEvents).toHaveLength(0);
+
+    await prisma.userLevel.upsert({
+      where: { userId: userIds.enough },
+      update: {
+        totalXp: 100,
+        level: 2
+      },
+      create: {
+        userId: userIds.enough,
+        totalXp: 100,
+        level: 2
+      }
+    });
+
+    const success = await request(app.getHttpServer())
+      .post(`/v1/unlocks/modules/${moduleId}/redeem-credits`)
+      .set('Authorization', bearerToken(userIds.enough))
+      .expect(200);
+
+    expect(success.body.isUnlocked).toBe(true);
+    expect(success.body.reasons).toEqual([]);
+
+    creditEvents = await prisma.creditEvent.findMany({
+      where: { userId: userIds.enough }
+    });
+    expect(creditEvents).toHaveLength(1);
+  });
+
   it('returns unlocked on status and evaluate after successful redeem', async () => {
     await prisma.userCredit.upsert({
       where: { userId: userIds.enough },
@@ -333,6 +390,23 @@ describe('Unlock Redeem Credits API (e2e)', () => {
         },
         isActive: true,
         priority: 30
+      },
+      select: { id: true }
+    });
+    createdRuleIds.push(rule.id);
+  }
+
+  async function createMinLevelRule(minLevel: number): Promise<void> {
+    const rule = await prisma.unlockRule.create({
+      data: {
+        scopeType: 'module',
+        scopeId: moduleId,
+        ruleType: 'min_level',
+        ruleConfigJson: {
+          min_level: minLevel
+        },
+        isActive: true,
+        priority: 35
       },
       select: { id: true }
     });

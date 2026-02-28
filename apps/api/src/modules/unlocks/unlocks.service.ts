@@ -280,6 +280,12 @@ export class UnlocksService {
         continue;
       }
 
+      if (rule.ruleType === UnlockRuleType.min_level) {
+        const unmetReasons = await this.evaluateMinLevelRule(userId, module, rule);
+        reasons.push(...unmetReasons);
+        continue;
+      }
+
       reasons.push(`Unsupported unlock rule in PR-21: ${rule.ruleType}`);
     }
 
@@ -360,6 +366,30 @@ export class UnlocksService {
     return [`Redeem credits to unlock module: ${module.id}`];
   }
 
+  private async evaluateMinLevelRule(
+    userId: string,
+    module: { id: string },
+    rule: ModuleRule
+  ): Promise<string[]> {
+    const requiredLevel = this.validateMinLevelRuleConfig(rule.ruleConfigJson, rule.id);
+    const userLevel = await this.getUserLevel(userId);
+
+    if (userLevel < requiredLevel) {
+      return [`Reach level ${requiredLevel} to unlock module: ${module.id}`];
+    }
+
+    return [];
+  }
+
+  private async getUserLevel(userId: string): Promise<number> {
+    const row = await this.prisma.userLevel.findUnique({
+      where: { userId },
+      select: { level: true }
+    });
+
+    return row?.level ?? 1;
+  }
+
   private async getUserCreditsBalance(userId: string, tx?: Prisma.TransactionClient): Promise<number> {
     const client = tx ?? this.prisma;
     const wallet = await client.userCredit.findUnique({
@@ -414,5 +444,18 @@ export class UnlocksService {
     }
 
     return Array.from(new Set(normalized));
+  }
+
+  private validateMinLevelRuleConfig(ruleConfigJson: unknown, ruleId: string): number {
+    if (!ruleConfigJson || typeof ruleConfigJson !== 'object' || Array.isArray(ruleConfigJson)) {
+      throw new InternalServerErrorException(`Malformed ${UnlockRuleType.min_level} rule config for rule ${ruleId}`);
+    }
+
+    const raw = (ruleConfigJson as { min_level?: unknown }).min_level;
+    if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 1) {
+      throw new InternalServerErrorException(`Malformed ${UnlockRuleType.min_level} rule config for rule ${ruleId}`);
+    }
+
+    return raw;
   }
 }

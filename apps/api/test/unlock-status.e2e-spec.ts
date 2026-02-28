@@ -110,6 +110,9 @@ describe('Unlock Status API (e2e)', () => {
     await prisma.userSectionProgress.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
+    await prisma.userLevel.deleteMany({
+      where: { userId: { in: Object.values(userIds) } }
+    });
   });
 
   afterEach(async () => {
@@ -143,6 +146,9 @@ describe('Unlock Status API (e2e)', () => {
       where: { userId: { in: Object.values(userIds) } }
     });
     await prisma.userSectionProgress.deleteMany({
+      where: { userId: { in: Object.values(userIds) } }
+    });
+    await prisma.userLevel.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
     await app.close();
@@ -241,6 +247,61 @@ describe('Unlock Status API (e2e)', () => {
     expect(response.body.moduleId).toBe(seededModuleId);
     expect(response.body.isUnlocked).toBe(true);
     expect(response.body.reasons).toEqual([]);
+  });
+
+  it('supports min_level rule: level 1 locked, level 2 unlocked', async () => {
+    const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const tempModule = await prisma.module.create({
+      data: {
+        pathId: seededPathId,
+        slug: `unlock-status-min-level-${unique}`,
+        title: `Unlock Status Min Level ${unique}`,
+        description: 'Temporary module for min_level unlock status e2e test',
+        sortOrder: 9990,
+        status: 'published'
+      }
+    });
+    createdTempModuleIds.push(tempModule.id);
+
+    await prisma.unlockRule.create({
+      data: {
+        scopeType: 'module',
+        scopeId: tempModule.id,
+        ruleType: 'min_level',
+        ruleConfigJson: { min_level: 2 },
+        isActive: true,
+        priority: 25
+      }
+    });
+
+    const locked = await request(app.getHttpServer())
+      .get(`/v1/unlocks/modules/${tempModule.id}/status`)
+      .set('Authorization', bearerToken(userIds.fresh))
+      .expect(200);
+
+    expect(locked.body.isUnlocked).toBe(false);
+    expect(locked.body.reasons).toContain(`Reach level 2 to unlock module: ${tempModule.id}`);
+
+    await prisma.userLevel.upsert({
+      where: { userId: userIds.fresh },
+      update: {
+        totalXp: 100,
+        level: 2
+      },
+      create: {
+        userId: userIds.fresh,
+        totalXp: 100,
+        level: 2
+      }
+    });
+
+    const unlocked = await request(app.getHttpServer())
+      .get(`/v1/unlocks/modules/${tempModule.id}/status`)
+      .set('Authorization', bearerToken(userIds.fresh))
+      .expect(200);
+
+    expect(unlocked.body.isUnlocked).toBe(true);
+    expect(unlocked.body.reasons).toEqual([]);
   });
 });
 

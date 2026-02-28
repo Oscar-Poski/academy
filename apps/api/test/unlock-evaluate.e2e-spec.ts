@@ -129,6 +129,9 @@ describe('Unlock Evaluate API (e2e)', () => {
     await prisma.userSectionProgress.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
+    await prisma.userLevel.deleteMany({
+      where: { userId: { in: Object.values(userIds) } }
+    });
     await prisma.unlockRule.deleteMany({
       where: { id: { in: createdRuleIds.splice(0) } }
     });
@@ -151,6 +154,9 @@ describe('Unlock Evaluate API (e2e)', () => {
       }
     });
     await prisma.userSectionProgress.deleteMany({
+      where: { userId: { in: Object.values(userIds) } }
+    });
+    await prisma.userLevel.deleteMany({
       where: { userId: { in: Object.values(userIds) } }
     });
     await prisma.unlockRule.deleteMany({
@@ -274,6 +280,61 @@ describe('Unlock Evaluate API (e2e)', () => {
       .post('/v1/unlocks/modules/nonexistent-module-id/evaluate')
       .set('Authorization', bearerToken(userIds.missing))
       .expect(404);
+  });
+
+  it('supports min_level rule in evaluate flow', async () => {
+    const minLevelRule = await prisma.unlockRule.create({
+      data: {
+        scopeType: 'module',
+        scopeId: moduleId,
+        ruleType: 'min_level',
+        ruleConfigJson: {
+          min_level: 2
+        },
+        isActive: true,
+        priority: 12
+      },
+      select: { id: true }
+    });
+    createdRuleIds.push(minLevelRule.id);
+
+    const locked = await request(app.getHttpServer())
+      .post(`/v1/unlocks/modules/${moduleId}/evaluate`)
+      .set('Authorization', bearerToken(userIds.unmet))
+      .expect(200);
+
+    expect(locked.body.isUnlocked).toBe(false);
+    expect(locked.body.reasons).toContain(`Reach level 2 to unlock module: ${moduleId}`);
+
+    await prisma.userLevel.upsert({
+      where: { userId: userIds.unmet },
+      update: {
+        totalXp: 100,
+        level: 2
+      },
+      create: {
+        userId: userIds.unmet,
+        totalXp: 100,
+        level: 2
+      }
+    });
+
+    const unlocked = await request(app.getHttpServer())
+      .post(`/v1/unlocks/modules/${moduleId}/evaluate`)
+      .set('Authorization', bearerToken(userIds.unmet))
+      .expect(200);
+
+    expect(unlocked.body.isUnlocked).toBe(true);
+    expect(unlocked.body.reasons).toEqual([]);
+
+    const unlockRows = await prisma.userUnlock.findMany({
+      where: {
+        userId: userIds.unmet,
+        scopeType: 'module',
+        scopeId: moduleId
+      }
+    });
+    expect(unlockRows).toHaveLength(1);
   });
 
   async function createQuizPassRule(): Promise<void> {
