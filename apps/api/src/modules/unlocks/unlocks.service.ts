@@ -9,6 +9,7 @@ import {
 import { Prisma, ProgressStatus, UnlockRuleType, UnlockScopeType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreditsService } from '../credits/credits.service';
+import { ObservabilityService } from '../observability/observability.service';
 import type { InsufficientCreditsErrorDto, UnlockBlockedErrorDto, UnlockDecisionDto } from './dto';
 
 type ModuleRule = {
@@ -21,7 +22,8 @@ type ModuleRule = {
 export class UnlocksService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
-    @Inject(CreditsService) private readonly creditsService: CreditsService
+    @Inject(CreditsService) private readonly creditsService: CreditsService,
+    @Inject(ObservabilityService) private readonly observability: ObservabilityService
   ) {}
 
   async getModuleStatus(userId: string, moduleId: string): Promise<UnlockDecisionDto> {
@@ -401,6 +403,7 @@ export class UnlocksService {
   }
 
   private buildUnlockBlockedError(reasons: string[]): ConflictException {
+    this.observability.increment('unlock_blocked_total');
     const payload: UnlockBlockedErrorDto = {
       code: 'unlock_blocked',
       message: 'Module unlock prerequisites are not met',
@@ -411,6 +414,7 @@ export class UnlocksService {
   }
 
   private buildInsufficientCreditsError(required: number, balance: number): ConflictException {
+    this.observability.increment('unlock_insufficient_credits_total');
     const payload: InsufficientCreditsErrorDto = {
       code: 'insufficient_credits',
       message: 'Insufficient credits',

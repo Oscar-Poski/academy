@@ -2,6 +2,14 @@ import { UnlockRuleType, UnlockScopeType } from '@prisma/client';
 import { UnlocksService } from './unlocks.service';
 
 describe('UnlocksService', () => {
+  const observability = {
+    increment: jest.fn()
+  };
+
+  beforeEach(() => {
+    observability.increment.mockReset();
+  });
+
   it('returns deterministic credits reason for credits rules', async () => {
     const prisma = {
       user: {
@@ -30,7 +38,7 @@ describe('UnlocksService', () => {
       applyCreditEvent: jest.fn()
     };
 
-    const service = new UnlocksService(prisma as never, creditsService as never);
+    const service = new UnlocksService(prisma as never, creditsService as never, observability as never);
 
     const result = await service.getModuleStatus('u1', 'm1');
     expect(result.isUnlocked).toBe(false);
@@ -63,7 +71,11 @@ describe('UnlocksService', () => {
       }
     };
 
-    const service = new UnlocksService(prisma as never, { applyCreditEvent: jest.fn() } as never);
+    const service = new UnlocksService(
+      prisma as never,
+      { applyCreditEvent: jest.fn() } as never,
+      observability as never
+    );
 
     await expect(service.getModuleStatus('u1', 'm1')).resolves.toEqual({
       moduleId: 'm1',
@@ -100,7 +112,11 @@ describe('UnlocksService', () => {
       }
     };
 
-    const service = new UnlocksService(prisma as never, { applyCreditEvent: jest.fn() } as never);
+    const service = new UnlocksService(
+      prisma as never,
+      { applyCreditEvent: jest.fn() } as never,
+      observability as never
+    );
 
     await expect(service.evaluateModuleUnlock('u1', 'm1')).resolves.toEqual({
       moduleId: 'm1',
@@ -136,7 +152,11 @@ describe('UnlocksService', () => {
       }
     };
 
-    const service = new UnlocksService(prisma as never, { applyCreditEvent: jest.fn() } as never);
+    const service = new UnlocksService(
+      prisma as never,
+      { applyCreditEvent: jest.fn() } as never,
+      observability as never
+    );
 
     const status = await service.getModuleStatus('u1', 'm1');
     expect(status.isUnlocked).toBe(false);
@@ -165,7 +185,11 @@ describe('UnlocksService', () => {
       }
     };
 
-    const service = new UnlocksService(prisma as never, { applyCreditEvent: jest.fn() } as never);
+    const service = new UnlocksService(
+      prisma as never,
+      { applyCreditEvent: jest.fn() } as never,
+      observability as never
+    );
 
     await expect(service.getModuleStatus('u1', 'm1')).rejects.toMatchObject({
       response: {
@@ -209,7 +233,7 @@ describe('UnlocksService', () => {
       applyCreditEvent: jest.fn()
     };
 
-    const service = new UnlocksService(prisma as never, creditsService as never);
+    const service = new UnlocksService(prisma as never, creditsService as never, observability as never);
 
     await expect(service.redeemModuleCredits('u1', 'm1')).rejects.toMatchObject({
       response: {
@@ -256,7 +280,7 @@ describe('UnlocksService', () => {
       applyCreditEvent: jest.fn()
     };
 
-    const service = new UnlocksService(prisma as never, creditsService as never);
+    const service = new UnlocksService(prisma as never, creditsService as never, observability as never);
 
     await expect(service.redeemModuleCredits('u1', 'm1')).rejects.toMatchObject({
       response: {
@@ -307,7 +331,7 @@ describe('UnlocksService', () => {
       })
     };
 
-    const service = new UnlocksService(prisma as never, creditsService as never);
+    const service = new UnlocksService(prisma as never, creditsService as never, observability as never);
 
     await expect(service.redeemModuleCredits('u1', 'm1')).resolves.toEqual({
       moduleId: 'm1',
@@ -360,7 +384,7 @@ describe('UnlocksService', () => {
       applyCreditEvent: jest.fn()
     };
 
-    const service = new UnlocksService(prisma as never, creditsService as never);
+    const service = new UnlocksService(prisma as never, creditsService as never, observability as never);
 
     await expect(service.redeemModuleCredits('u1', 'm1')).resolves.toEqual({
       moduleId: 'm1',
@@ -405,7 +429,7 @@ describe('UnlocksService', () => {
       applyCreditEvent: jest.fn()
     };
 
-    const service = new UnlocksService(prisma as never, creditsService as never);
+    const service = new UnlocksService(prisma as never, creditsService as never, observability as never);
 
     await expect(service.redeemModuleCredits('u1', 'm1')).rejects.toMatchObject({
       response: {

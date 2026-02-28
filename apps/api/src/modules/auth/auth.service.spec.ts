@@ -3,6 +3,14 @@ import { AuthService } from './auth.service';
 import type { AuthTokenService } from './auth-token.service';
 
 describe('AuthService', () => {
+  const observability = {
+    increment: jest.fn()
+  };
+
+  beforeEach(() => {
+    observability.increment.mockReset();
+  });
+
   it('authenticates valid password, persists refresh token, and returns token payload', async () => {
     const passwordHash = await hash('password123', 10);
 
@@ -31,7 +39,7 @@ describe('AuthService', () => {
       })
     } as unknown as AuthTokenService;
 
-    const service = new AuthService(prisma as never, authTokenService);
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
 
     const result = await service.login({
       email: ' USER@EXAMPLE.COM ',
@@ -87,7 +95,7 @@ describe('AuthService', () => {
       createRefreshToken: jest.fn()
     } as unknown as AuthTokenService;
 
-    const service = new AuthService(prisma as never, authTokenService);
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
 
     await expect(
       service.login({
@@ -122,7 +130,7 @@ describe('AuthService', () => {
       createRefreshToken: jest.fn()
     } as unknown as AuthTokenService;
 
-    const service = new AuthService(prisma as never, authTokenService);
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
 
     await expect(
       service.login({
@@ -173,7 +181,7 @@ describe('AuthService', () => {
       createRefreshToken: jest.fn().mockResolvedValue({ refreshToken: 'new-refresh', expiresIn: 604800 })
     } as unknown as AuthTokenService;
 
-    const service = new AuthService(prisma as never, authTokenService);
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
 
     const refreshed = await service.refresh({ refresh_token: 'old-refresh-token' });
     expect(refreshed.refresh_token).toBe('new-refresh');
@@ -203,7 +211,7 @@ describe('AuthService', () => {
       verifyRefreshToken: jest.fn().mockResolvedValue({ sub: 'u1', jti: 'jti-1' })
     } as unknown as AuthTokenService;
 
-    const service = new AuthService(prisma as never, authTokenService);
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
 
     await expect(service.logout({ refresh_token: 'refresh-token' })).resolves.toEqual({ success: true });
     expect(prisma.authRefreshToken.update).toHaveBeenCalledTimes(1);

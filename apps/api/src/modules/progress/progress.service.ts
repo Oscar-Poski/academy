@@ -8,6 +8,7 @@ import {
 import { ProgressStatus, SectionVersionStatus, UserSectionProgress } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { GamificationService } from '../gamification/gamification.service';
+import { ObservabilityService } from '../observability/observability.service';
 import { UnlocksService } from '../unlocks/unlocks.service';
 import type {
   CompleteSectionGatingErrorDto,
@@ -23,7 +24,8 @@ export class ProgressService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(GamificationService) private readonly gamificationService: GamificationService,
-    @Inject(UnlocksService) private readonly unlocksService: UnlocksService
+    @Inject(UnlocksService) private readonly unlocksService: UnlocksService,
+    @Inject(ObservabilityService) private readonly observability: ObservabilityService
   ) {}
 
   async startSection(userId: string, sectionId: string): Promise<SectionProgressDto> {
@@ -221,6 +223,7 @@ export class ProgressService {
     reasons: string[],
     flags: { requiresQuizPass: boolean; requiresUnlock: boolean }
   ): ConflictException {
+    this.observability.increment('completion_blocked_total');
     const body: CompleteSectionGatingErrorDto = {
       code: 'completion_blocked',
       reasons,

@@ -20,10 +20,14 @@ import type {
   SectionVersionSummaryDto
 } from './dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ObservabilityService } from '../observability/observability.service';
 
 @Injectable()
 export class AdminService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(ObservabilityService) private readonly observability: ObservabilityService
+  ) {}
 
   async importContent(body: ImportContentRequestDto): Promise<ImportContentResponseDto> {
     const bundlePath = this.validateBundlePath(body?.bundle_path);
@@ -248,6 +252,7 @@ export class AdminService {
     versionId: string,
     reason: PublishConflictReason
   ): ConflictException {
+    this.observability.increment('admin_publish_conflict_total');
     const payload: AdminPublishConflictErrorDto = {
       code: 'publish_conflict',
       message: 'Section version cannot be published',

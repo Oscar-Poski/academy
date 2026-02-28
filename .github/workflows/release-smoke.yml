@@ -1,0 +1,47 @@
+name: release-smoke
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  api-release-smoke:
+    runs-on: ubuntu-latest
+    services:
+      postgres-test:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: academy_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d academy_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run release smoke checks
+        env:
+          DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5433/academy_test?schema=public
+          JWT_SECRET: academy-ci-jwt-secret
+          JWT_REFRESH_SECRET: academy-ci-refresh-jwt-secret
+        run: pnpm release:smoke

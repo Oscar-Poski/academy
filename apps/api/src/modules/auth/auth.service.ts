@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto';
 import { compare } from 'bcryptjs';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ObservabilityService } from '../observability/observability.service';
+import type { RefreshPrincipal } from './auth.types';
 import type {
   AuthMeDto,
   LoginRequestDto,
@@ -17,7 +19,8 @@ import { AuthTokenService } from './auth-token.service';
 export class AuthService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
-    @Inject(AuthTokenService) private readonly authTokenService: AuthTokenService
+    @Inject(AuthTokenService) private readonly authTokenService: AuthTokenService,
+    @Inject(ObservabilityService) private readonly observability: ObservabilityService
   ) {}
 
   async login(input: LoginRequestDto): Promise<LoginResponseDto> {
@@ -52,7 +55,12 @@ export class AuthService {
 
   async refresh(input: RefreshRequestDto): Promise<LoginResponseDto> {
     const rawRefreshToken = this.normalizeRequiredString(input?.refresh_token, 'refresh_token');
-    const refreshPrincipal = await this.authTokenService.verifyRefreshToken(rawRefreshToken);
+    let refreshPrincipal: RefreshPrincipal;
+    try {
+      refreshPrincipal = await this.authTokenService.verifyRefreshToken(rawRefreshToken);
+    } catch {
+      this.throwInvalidRefreshToken();
+    }
     const tokenHash = this.hashToken(rawRefreshToken);
     const now = new Date();
 
@@ -103,7 +111,12 @@ export class AuthService {
 
   async logout(input: LogoutRequestDto): Promise<LogoutResponseDto> {
     const rawRefreshToken = this.normalizeRequiredString(input?.refresh_token, 'refresh_token');
-    const refreshPrincipal = await this.authTokenService.verifyRefreshToken(rawRefreshToken);
+    let refreshPrincipal: RefreshPrincipal;
+    try {
+      refreshPrincipal = await this.authTokenService.verifyRefreshToken(rawRefreshToken);
+    } catch {
+      this.throwInvalidRefreshToken();
+    }
     const tokenHash = this.hashToken(rawRefreshToken);
     const now = new Date();
 
@@ -209,6 +222,8 @@ export class AuthService {
   }
 
   private throwInvalidCredentials(): never {
+    this.observability.increment('auth_invalid_credentials_total');
+    this.observability.increment('auth_failures_total');
     throw new UnauthorizedException({
       code: 'invalid_credentials',
       message: 'Invalid email or password'
@@ -216,6 +231,8 @@ export class AuthService {
   }
 
   private throwInvalidRefreshToken(): never {
+    this.observability.increment('auth_invalid_refresh_token_total');
+    this.observability.increment('auth_failures_total');
     throw new UnauthorizedException({
       code: 'unauthorized',
       message: 'Invalid refresh token'

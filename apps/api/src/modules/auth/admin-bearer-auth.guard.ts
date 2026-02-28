@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ObservabilityService } from '../observability/observability.service';
 import { AuthTokenService } from './auth-token.service';
 import type { AuthenticatedRequest } from './auth.types';
 
@@ -7,7 +8,8 @@ import type { AuthenticatedRequest } from './auth.types';
 export class AdminBearerAuthGuard implements CanActivate {
   constructor(
     @Inject(AuthTokenService) private readonly authTokenService: AuthTokenService,
-    @Inject(PrismaService) private readonly prisma: PrismaService
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(ObservabilityService) private readonly observability: ObservabilityService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -57,6 +59,8 @@ export class AdminBearerAuthGuard implements CanActivate {
   }
 
   private throwForbidden(): never {
+    this.observability.increment('auth_forbidden_total');
+    this.observability.increment('auth_failures_total');
     throw new ForbiddenException({
       code: 'forbidden',
       message: 'Admin access required'

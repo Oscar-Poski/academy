@@ -288,6 +288,54 @@ PR-40 funnel analytics quality:
   - `payload_json.completed` (boolean)
 - idempotency behavior remains unchanged for repeated `idempotency_key` submissions
 
+## Observability & Release Hardening (PR-41)
+
+API now includes baseline observability primitives:
+
+- `x-request-id` response header is returned on all API responses
+- structured JSON request logs are emitted for completed requests
+- `GET /metrics` returns in-memory counters and uptime snapshot
+- metrics are process-local (reset on API restart)
+- `/metrics` is intentionally internal-facing and currently unauthenticated
+
+Current metrics include:
+- auth failures:
+  - `auth_failures_total`
+  - `auth_invalid_credentials_total`
+  - `auth_invalid_bearer_total`
+  - `auth_invalid_refresh_token_total`
+  - `auth_forbidden_total`
+- gating/admin conflicts:
+  - `completion_blocked_total`
+  - `unlock_blocked_total`
+  - `unlock_insufficient_credits_total`
+  - `admin_publish_conflict_total`
+- request totals:
+  - `requests_total`
+  - `requests_4xx_total`
+  - `requests_5xx_total`
+
+Example:
+
+```bash
+curl -s http://localhost:3001/metrics | jq
+```
+
+```bash
+curl -i -s http://localhost:3001/health | head -n 10
+```
+
+Expected header snippet includes:
+
+```text
+x-request-id: <uuid>
+```
+
+Release hardening assets:
+- checklist: `/Users/poski/academy/plans/RELEASE_CHECKLIST_PR41.md`
+- smoke script: `pnpm release:smoke`
+- CI workflow: `/Users/poski/academy/.github/workflows/release-smoke.yml`
+
 ## Quiz Foundation (PR-16, PR-17, PR-18)
 
 Quiz backend foundation is now present in `apps/api`:
