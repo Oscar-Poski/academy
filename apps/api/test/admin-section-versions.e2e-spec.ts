@@ -1,5 +1,12 @@
 import { INestApplication } from '@nestjs/common';
-import { LessonBlockType, PrismaClient, SectionVersionStatus, UserRole } from '@prisma/client';
+import {
+  LessonBlockType,
+  Prisma,
+  PrismaClient,
+  QuestionType,
+  SectionVersionStatus,
+  UserRole
+} from '@prisma/client';
 import { Test } from '@nestjs/testing';
 import { hash } from 'bcryptjs';
 import request from 'supertest';
@@ -211,10 +218,55 @@ describe('Admin Section Versions API (e2e)', () => {
   it('POST publish rejects non-draft target with 409', async () => {
     const fixture = await createSectionWithVersions();
 
-    await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .post(`/v1/admin/sections/${fixture.section.id}/publish/${fixture.v1.id}`)
       .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(409);
+
+    expect(response.body).toMatchObject({
+      code: 'publish_conflict',
+      message: 'Section version cannot be published',
+      reason: 'target_not_draft',
+      sectionId: fixture.section.id,
+      versionId: fixture.v1.id
+    });
+  });
+
+  it('POST publish rejects draft target with no lesson blocks', async () => {
+    const fixture = await createSectionWithVersions({ includeV2Blocks: false });
+
+    const response = await request(app.getHttpServer())
+      .post(`/v1/admin/sections/${fixture.section.id}/publish/${fixture.v2.id}`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(409);
+
+    expect(response.body).toMatchObject({
+      code: 'publish_conflict',
+      message: 'Section version cannot be published',
+      reason: 'empty_lesson_blocks',
+      sectionId: fixture.section.id,
+      versionId: fixture.v2.id
+    });
+  });
+
+  it('POST publish rejects quiz section target without questions', async () => {
+    const fixture = await createSectionWithVersions({
+      sectionHasQuiz: true,
+      includeV2Questions: false
+    });
+
+    const response = await request(app.getHttpServer())
+      .post(`/v1/admin/sections/${fixture.section.id}/publish/${fixture.v2.id}`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(409);
+
+    expect(response.body).toMatchObject({
+      code: 'publish_conflict',
+      message: 'Section version cannot be published',
+      reason: 'quiz_required_but_missing_questions',
+      sectionId: fixture.section.id,
+      versionId: fixture.v2.id
+    });
   });
 
   it('GET/POST return 404 for invalid section/version combinations', async () => {
@@ -237,7 +289,12 @@ describe('Admin Section Versions API (e2e)', () => {
       .expect(404);
   });
 
-  async function createSectionWithVersions(options?: { includeV3Draft?: boolean }) {
+  async function createSectionWithVersions(options?: {
+    includeV3Draft?: boolean;
+    sectionHasQuiz?: boolean;
+    includeV2Blocks?: boolean;
+    includeV2Questions?: boolean;
+  }) {
     const seededModule = await prisma.module.findUnique({
       where: { slug: 'http-basics-module' }
     });
@@ -250,7 +307,7 @@ describe('Admin Section Versions API (e2e)', () => {
         slug: `admin-version-section-${unique}`,
         title: `Admin Version Section ${unique}`,
         sortOrder: 9000,
-        hasQuiz: false
+        hasQuiz: options?.sectionHasQuiz ?? false
       }
     });
 
@@ -285,37 +342,55 @@ describe('Admin Section Versions API (e2e)', () => {
       });
     }
 
-    const blocks = [
+    const blocks: Prisma.LessonBlockCreateManyInput[] = [
       {
         sectionVersionId: v1.id,
         blockOrder: 1,
         blockType: LessonBlockType.markdown,
-        contentJson: { markdown: `v1 block ${unique}` }
-      },
-      {
-        sectionVersionId: v2.id,
-        blockOrder: 1,
-        blockType: LessonBlockType.markdown,
-        contentJson: { markdown: `v2 block ${unique}` }
-      },
-      {
-        sectionVersionId: v2.id,
-        blockOrder: 2,
-        blockType: LessonBlockType.code,
-        contentJson: { language: 'txt', snippet: `v2 code ${unique}` }
+        contentJson: { markdown: `v1 block ${unique}` } as Prisma.InputJsonValue
       }
     ];
+    if (options?.includeV2Blocks !== false) {
+      blocks.push(
+        {
+          sectionVersionId: v2.id,
+          blockOrder: 1,
+          blockType: LessonBlockType.markdown,
+          contentJson: { markdown: `v2 block ${unique}` } as Prisma.InputJsonValue
+        },
+        {
+          sectionVersionId: v2.id,
+          blockOrder: 2,
+          blockType: LessonBlockType.code,
+          contentJson: { language: 'txt', snippet: `v2 code ${unique}` } as Prisma.InputJsonValue
+        }
+      );
+    }
 
     if (v3) {
       blocks.push({
         sectionVersionId: v3.id,
         blockOrder: 1,
         blockType: LessonBlockType.markdown,
-        contentJson: { markdown: `v3 block ${unique}` }
+        contentJson: { markdown: `v3 block ${unique}` } as Prisma.InputJsonValue
       });
     }
 
     await prisma.lessonBlock.createMany({ data: blocks });
+
+    if ((options?.sectionHasQuiz ?? false) && options?.includeV2Questions !== false) {
+      await prisma.question.create({
+        data: {
+          sectionVersionId: v2.id,
+          type: QuestionType.mcq,
+          prompt: `Question ${unique}`,
+          optionsJson: { options: ['A', 'B', 'C'] },
+          answerKeyJson: { correct_option: 'A' },
+          points: 1,
+          sortOrder: 1
+        }
+      });
+    }
 
     createdFixtures.push({
       userIds: [],

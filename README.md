@@ -451,6 +451,14 @@ PR-15 admin section-version endpoints:
 - `POST /v1/admin/sections/:sectionId/publish/:versionId` publishes a `draft` version and archives prior published version(s) in one transaction
 - publish preserves pinned-user behavior: users pinned to the old version continue receiving it after it becomes `archived`, while public/new users receive the newly published version
 
+PR-39 admin safety rails:
+- publish now runs prechecks before mutation and returns structured `409` payloads for deterministic conflicts:
+  - `{ code: "publish_conflict", message: "Section version cannot be published", reason, sectionId, versionId }`
+  - reasons: `target_not_draft`, `empty_lesson_blocks`, `quiz_required_but_missing_questions`
+- content import responses now include additive `validationSummary`:
+  - `{ errorCount, warningCount, errorsByCode, warningsByCode }`
+- dry-run/apply report parity is guaranteed for parser/validation output on identical bundle input
+
 Example PR-15 admin version commands:
 
 ```bash

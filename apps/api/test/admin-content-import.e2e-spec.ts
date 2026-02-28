@@ -87,6 +87,7 @@ describe('Admin Content Import API (e2e)', () => {
     expect(response.body.applied).toBe(false);
     expect(response.body.abortedReason).toBeNull();
     expect(response.body.parseReport.errorCount).toBe(0);
+    expectValidationSummaryMatchesParseReport(response.body);
 
     const persistedPath = await prisma.path.findUnique({
       where: { slug: bundle.pathSlug }
@@ -109,6 +110,7 @@ describe('Admin Content Import API (e2e)', () => {
     expect(response.body.mode).toBe('apply');
     expect(response.body.applied).toBe(true);
     expect(response.body.abortedReason).toBeNull();
+    expectValidationSummaryMatchesParseReport(response.body);
     expect(response.body.counts.pathsCreated).toBe(1);
     expect(response.body.counts.modulesCreated).toBe(1);
     expect(response.body.counts.sectionsCreated).toBe(1);
@@ -171,6 +173,7 @@ describe('Admin Content Import API (e2e)', () => {
 
     expect(second.body.mode).toBe('apply');
     expect(second.body.applied).toBe(true);
+    expectValidationSummaryMatchesParseReport(second.body);
     expect(second.body.counts.sectionVersionsCreated).toBe(0);
     expect(second.body.counts.sectionVersionsUpdated).toBeGreaterThanOrEqual(1);
 
@@ -226,11 +229,64 @@ describe('Admin Content Import API (e2e)', () => {
     expect(response.body.applied).toBe(false);
     expect(response.body.abortedReason).toBe('parse_errors');
     expect(response.body.parseReport.errorCount).toBeGreaterThan(0);
+    expectValidationSummaryMatchesParseReport(response.body);
 
     const persistedPath = await prisma.path.findUnique({
       where: { slug: bundle.pathSlug }
     });
     expect(persistedPath).toBeNull();
+  });
+
+  it('POST /v1/admin/content/import keeps dryRun/apply validation parity for valid bundles', async () => {
+    const bundle = await createValidBundle();
+
+    const dryRun = await request(app.getHttpServer())
+      .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        bundle_path: bundle.dir,
+        mode: 'dryRun'
+      })
+      .expect(200);
+
+    const apply = await request(app.getHttpServer())
+      .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        bundle_path: bundle.dir,
+        mode: 'apply'
+      })
+      .expect(200);
+
+    expect(dryRun.body.parseReport.messages).toEqual(apply.body.parseReport.messages);
+    expect(dryRun.body.validationSummary).toEqual(apply.body.validationSummary);
+  });
+
+  it('POST /v1/admin/content/import keeps dryRun/apply validation parity for invalid bundles', async () => {
+    const bundle = await createInvalidBundle();
+
+    const dryRun = await request(app.getHttpServer())
+      .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        bundle_path: bundle.dir,
+        mode: 'dryRun'
+      })
+      .expect(200);
+
+    const apply = await request(app.getHttpServer())
+      .post('/v1/admin/content/import')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        bundle_path: bundle.dir,
+        mode: 'apply'
+      })
+      .expect(200);
+
+    expect(dryRun.body.parseReport.messages).toEqual(apply.body.parseReport.messages);
+    expect(dryRun.body.validationSummary).toEqual(apply.body.validationSummary);
+    expect(apply.body.applied).toBe(false);
+    expect(apply.body.abortedReason).toBe('parse_errors');
   });
 
   async function createValidBundle(): Promise<TempBundleRecord> {
@@ -322,5 +378,27 @@ section_title: Invalid Section ${seed}
     }
 
     return response.body.access_token;
+  }
+
+  function expectValidationSummaryMatchesParseReport(body: {
+    parseReport?: { messages?: Array<{ level?: string }>; errorCount?: number; warningCount?: number };
+    validationSummary?: {
+      errorCount?: number;
+      warningCount?: number;
+      errorsByCode?: unknown[];
+      warningsByCode?: unknown[];
+    };
+  }) {
+    expect(body.validationSummary).toBeTruthy();
+    expect(Array.isArray(body.validationSummary?.errorsByCode)).toBe(true);
+    expect(Array.isArray(body.validationSummary?.warningsByCode)).toBe(true);
+    expect(body.validationSummary?.errorCount).toBe(body.parseReport?.errorCount ?? 0);
+    expect(body.validationSummary?.warningCount).toBe(body.parseReport?.warningCount ?? 0);
+
+    const messages = Array.isArray(body.parseReport?.messages) ? body.parseReport.messages : [];
+    const calculatedErrors = messages.filter((message) => message.level === 'error').length;
+    const calculatedWarnings = messages.filter((message) => message.level === 'warning').length;
+    expect(body.validationSummary?.errorCount).toBe(calculatedErrors);
+    expect(body.validationSummary?.warningCount).toBe(calculatedWarnings);
   }
 });

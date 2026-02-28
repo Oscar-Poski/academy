@@ -2,14 +2,20 @@ import {
   applyParsedContentReport,
   createDryRunApplyReport,
   parseContentBundle,
-  type ContentImportApplyReport
+  type ContentImportApplyReport,
+  type ImportValidationMessage
 } from '@academy/content-importer';
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { SectionVersionStatus } from '@prisma/client';
 import path from 'node:path';
 import type {
+  AdminPublishConflictErrorDto,
   ImportContentRequestDto,
+  ImportContentResponseDto,
+  ImportValidationSummaryBucketDto,
+  ImportValidationSummaryDto,
   PublishSectionVersionResponseDto,
+  PublishConflictReason,
   SectionVersionDetailDto,
   SectionVersionSummaryDto
 } from './dto';
@@ -19,7 +25,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class AdminService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async importContent(body: ImportContentRequestDto): Promise<ContentImportApplyReport> {
+  async importContent(body: ImportContentRequestDto): Promise<ImportContentResponseDto> {
     const bundlePath = this.validateBundlePath(body?.bundle_path);
     const mode = this.validateMode(body?.mode);
     this.assertWithinConfiguredImportRoot(bundlePath);
@@ -28,10 +34,10 @@ export class AdminService {
       const parseReport = await parseContentBundle(bundlePath);
 
       if (mode === 'dryRun') {
-        return createDryRunApplyReport(parseReport);
+        return this.withValidationSummary(createDryRunApplyReport(parseReport));
       }
 
-      return applyParsedContentReport(parseReport, { prisma: this.prisma });
+      return this.withValidationSummary(await applyParsedContentReport(parseReport, { prisma: this.prisma }));
     } catch (error) {
       if (this.isPathAccessError(error)) {
         throw new BadRequestException(`bundle_path is not readable: ${bundlePath}`);
@@ -78,10 +84,10 @@ export class AdminService {
     versionId: string
   ): Promise<PublishSectionVersionResponseDto> {
     const targetVersion = await this.getSectionVersionOrThrow(sectionId, versionId);
-
-    if (targetVersion.status !== SectionVersionStatus.draft) {
-      throw new ConflictException('Only draft versions can be published');
-    }
+    await this.assertPublishable(sectionId, versionId, {
+      status: targetVersion.status,
+      lessonBlockCount: targetVersion.lessonBlocks.length
+    });
 
     const publishedAt = new Date();
 
@@ -175,6 +181,82 @@ export class AdminService {
 
     const code = (error as { code?: unknown }).code;
     return code === 'ENOENT' || code === 'ENOTDIR' || code === 'EACCES' || code === 'EPERM';
+  }
+
+  private withValidationSummary(report: ContentImportApplyReport): ImportContentResponseDto {
+    return {
+      ...report,
+      validationSummary: this.buildValidationSummary(report.parseReport.messages)
+    };
+  }
+
+  private buildValidationSummary(messages: ImportValidationMessage[]): ImportValidationSummaryDto {
+    const errorsByCode = new Map<string, number>();
+    const warningsByCode = new Map<string, number>();
+
+    for (const message of messages) {
+      const target = message.level === 'error' ? errorsByCode : warningsByCode;
+      target.set(message.code, (target.get(message.code) ?? 0) + 1);
+    }
+
+    return {
+      errorCount: messages.filter((message) => message.level === 'error').length,
+      warningCount: messages.filter((message) => message.level === 'warning').length,
+      errorsByCode: this.toValidationSummaryBuckets(errorsByCode),
+      warningsByCode: this.toValidationSummaryBuckets(warningsByCode)
+    };
+  }
+
+  private toValidationSummaryBuckets(countsByCode: Map<string, number>): ImportValidationSummaryBucketDto[] {
+    return [...countsByCode.entries()]
+      .map(([code, count]) => ({ code, count }))
+      .sort((a, b) => a.code.localeCompare(b.code));
+  }
+
+  private async assertPublishable(
+    sectionId: string,
+    versionId: string,
+    input: { status: SectionVersionStatus; lessonBlockCount: number }
+  ): Promise<void> {
+    if (input.status !== SectionVersionStatus.draft) {
+      throw this.buildPublishConflict(sectionId, versionId, 'target_not_draft');
+    }
+
+    if (input.lessonBlockCount === 0) {
+      throw this.buildPublishConflict(sectionId, versionId, 'empty_lesson_blocks');
+    }
+
+    const section = await this.prisma.section.findUnique({
+      where: { id: sectionId },
+      select: { hasQuiz: true }
+    });
+
+    if (!section?.hasQuiz) {
+      return;
+    }
+
+    const questionCount = await this.prisma.question.count({
+      where: { sectionVersionId: versionId }
+    });
+    if (questionCount === 0) {
+      throw this.buildPublishConflict(sectionId, versionId, 'quiz_required_but_missing_questions');
+    }
+  }
+
+  private buildPublishConflict(
+    sectionId: string,
+    versionId: string,
+    reason: PublishConflictReason
+  ): ConflictException {
+    const payload: AdminPublishConflictErrorDto = {
+      code: 'publish_conflict',
+      message: 'Section version cannot be published',
+      reason,
+      sectionId,
+      versionId
+    };
+
+    return new ConflictException(payload);
   }
 
   private async assertSectionExists(sectionId: string): Promise<void> {
