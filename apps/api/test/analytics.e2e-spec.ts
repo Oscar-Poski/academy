@@ -57,23 +57,7 @@ describe('Analytics API (e2e)', () => {
   });
 
   it('POST /v1/analytics/events persists a raw event', async () => {
-    const path = await prisma.path.findUnique({ where: { slug: 'web-pentest-path' } });
-    const module = await prisma.module.findUnique({ where: { slug: 'http-basics-module' } });
-    const section = await prisma.section.findUnique({ where: { slug: 'request-response-cycle' } });
-
-    expect(path).toBeTruthy();
-    expect(module).toBeTruthy();
-    expect(section).toBeTruthy();
-
-    const sectionVersion = await prisma.sectionVersion.findFirst({
-      where: {
-        sectionId: section!.id,
-        status: SectionVersionStatus.published
-      },
-      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }, { id: 'asc' }]
-    });
-
-    expect(sectionVersion).toBeTruthy();
+    const ctx = await resolveAnalyticsContext();
 
     const occurredAt = '2026-02-22T18:00:00.000Z';
     const response = await request(app.getHttpServer())
@@ -81,10 +65,11 @@ describe('Analytics API (e2e)', () => {
       .send({
         event_name: 'section_complete',
         occurred_at: occurredAt,
-        path_id: path!.id,
-        module_id: module!.id,
-        section_id: section!.id,
-        section_version_id: sectionVersion!.id,
+        user_id: ctx.userId,
+        path_id: ctx.pathId,
+        module_id: ctx.moduleId,
+        section_id: ctx.sectionId,
+        section_version_id: ctx.sectionVersionId,
         payload_json: { source: 'analytics-e2e', score: 100 }
       })
       .expect(201);
@@ -98,10 +83,11 @@ describe('Analytics API (e2e)', () => {
 
     expect(persisted).toBeTruthy();
     expect(persisted!.eventName).toBe('section_complete');
-    expect(persisted!.pathId).toBe(path!.id);
-    expect(persisted!.moduleId).toBe(module!.id);
-    expect(persisted!.sectionId).toBe(section!.id);
-    expect(persisted!.sectionVersionId).toBe(sectionVersion!.id);
+    expect(persisted!.userId).toBe(ctx.userId);
+    expect(persisted!.pathId).toBe(ctx.pathId);
+    expect(persisted!.moduleId).toBe(ctx.moduleId);
+    expect(persisted!.sectionId).toBe(ctx.sectionId);
+    expect(persisted!.sectionVersionId).toBe(ctx.sectionVersionId);
     expect(persisted!.payloadJson).toEqual({ source: 'analytics-e2e', score: 100 });
     expect(persisted!.occurredAt.toISOString()).toBe(occurredAt);
     expect(persisted!.receivedAt).toBeInstanceOf(Date);
@@ -128,17 +114,110 @@ describe('Analytics API (e2e)', () => {
   });
 
   it('POST /v1/analytics/events rejects invalid payload_json type', async () => {
+    const ctx = await resolveAnalyticsContext();
+
     await request(app.getHttpServer())
       .post('/v1/analytics/events')
       .send({
         event_name: 'section_start',
         occurred_at: '2026-02-22T18:00:00.000Z',
+        user_id: ctx.userId,
+        path_id: ctx.pathId,
+        module_id: ctx.moduleId,
+        section_id: ctx.sectionId,
+        section_version_id: ctx.sectionVersionId,
         payload_json: ['not', 'an', 'object']
       })
       .expect(400);
   });
 
+  it('POST /v1/analytics/events rejects section_start without required ids', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/v1/analytics/events')
+      .send({
+        event_name: 'section_start',
+        occurred_at: '2026-02-22T18:00:00.000Z',
+        payload_json: { source: 'analytics-e2e' }
+      })
+      .expect(400);
+
+    expect(response.body).toMatchObject({
+      code: 'invalid_analytics_payload',
+      message: 'Analytics payload failed validation'
+    });
+    expect(response.body.details).toEqual(
+      expect.arrayContaining([
+        'user_id is required',
+        'path_id is required',
+        'module_id is required',
+        'section_id is required',
+        'section_version_id is required'
+      ])
+    );
+  });
+
+  it('POST /v1/analytics/events rejects player_exit without required lifecycle payload fields', async () => {
+    const ctx = await resolveAnalyticsContext();
+
+    const response = await request(app.getHttpServer())
+      .post('/v1/analytics/events')
+      .send({
+        event_name: 'player_exit',
+        occurred_at: '2026-02-22T18:00:00.000Z',
+        user_id: ctx.userId,
+        path_id: ctx.pathId,
+        module_id: ctx.moduleId,
+        section_id: ctx.sectionId,
+        section_version_id: ctx.sectionVersionId,
+        payload_json: {}
+      })
+      .expect(400);
+
+    expect(response.body).toMatchObject({
+      code: 'invalid_analytics_payload',
+      message: 'Analytics payload failed validation'
+    });
+    expect(response.body.details).toEqual(
+      expect.arrayContaining([
+        'payload_json.source is required',
+        'payload_json.dwell_ms must be a number >= 0',
+        'payload_json.completed must be a boolean'
+      ])
+    );
+  });
+
+  it('POST /v1/analytics/events rejects player_dropoff with invalid dwell_ms', async () => {
+    const ctx = await resolveAnalyticsContext();
+
+    const response = await request(app.getHttpServer())
+      .post('/v1/analytics/events')
+      .send({
+        event_name: 'player_dropoff',
+        occurred_at: '2026-02-22T18:00:00.000Z',
+        user_id: ctx.userId,
+        path_id: ctx.pathId,
+        module_id: ctx.moduleId,
+        section_id: ctx.sectionId,
+        section_version_id: ctx.sectionVersionId,
+        payload_json: {
+          source: 'learn_player',
+          dwell_ms: -1,
+          completed: false
+        }
+      })
+      .expect(400);
+
+    expect(response.body).toMatchObject({
+      code: 'invalid_analytics_payload',
+      message: 'Analytics payload failed validation'
+    });
+    expect(response.body.details).toEqual(
+      expect.arrayContaining(['payload_json.dwell_ms must be a number >= 0'])
+    );
+  });
+
   it('POST /v1/analytics/events deduplicates by idempotency_key', async () => {
+    const ctx = await resolveAnalyticsContext();
     const key = `analytics-dedupe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     createdIdempotencyKeys.push(key);
 
@@ -146,6 +225,11 @@ describe('Analytics API (e2e)', () => {
       event_name: 'section_start',
       occurred_at: '2026-02-22T18:00:00.000Z',
       idempotency_key: key,
+      user_id: ctx.userId,
+      path_id: ctx.pathId,
+      module_id: ctx.moduleId,
+      section_id: ctx.sectionId,
+      section_version_id: ctx.sectionVersionId,
       payload_json: { source: 'dedupe-test' }
     };
 
@@ -162,4 +246,43 @@ describe('Analytics API (e2e)', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].id).toBe(first.body.id);
   });
+
+  async function resolveAnalyticsContext(): Promise<{
+    userId: string;
+    pathId: string;
+    moduleId: string;
+    sectionId: string;
+    sectionVersionId: string;
+  }> {
+    const user = await prisma.user.findUnique({
+      where: { email: 'student@academy.local' },
+      select: { id: true }
+    });
+    const path = await prisma.path.findUnique({ where: { slug: 'web-pentest-path' }, select: { id: true } });
+    const module = await prisma.module.findUnique({ where: { slug: 'http-basics-module' }, select: { id: true } });
+    const section = await prisma.section.findUnique({ where: { slug: 'request-response-cycle' }, select: { id: true } });
+
+    expect(user).toBeTruthy();
+    expect(path).toBeTruthy();
+    expect(module).toBeTruthy();
+    expect(section).toBeTruthy();
+
+    const sectionVersion = await prisma.sectionVersion.findFirst({
+      where: {
+        sectionId: section!.id,
+        status: SectionVersionStatus.published
+      },
+      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }, { id: 'asc' }],
+      select: { id: true }
+    });
+    expect(sectionVersion).toBeTruthy();
+
+    return {
+      userId: user!.id,
+      pathId: path!.id,
+      moduleId: module!.id,
+      sectionId: section!.id,
+      sectionVersionId: sectionVersion!.id
+    };
+  }
 });

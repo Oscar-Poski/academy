@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { PlayerLayout } from '@/src/components/player/PlayerLayout';
 import { ContentApiError, getModule, getPath, getSection } from '@/src/lib/api-clients/content.client';
-import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.client';
+import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.server';
 import { startSectionProgress } from '@/src/lib/api-clients/progress.server';
 import { getQuizDelivery } from '@/src/lib/api-clients/quiz.server';
 

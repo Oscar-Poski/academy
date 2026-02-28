@@ -24,7 +24,7 @@ vi.mock('@/src/lib/api-clients/unlocks.browser', () => ({
   evaluateModuleUnlock: (...args: unknown[]) => evaluateModuleUnlock(...args)
 }));
 
-vi.mock('@/src/lib/api-clients/analytics.client', () => ({
+vi.mock('@/src/lib/api-clients/analytics.browser', () => ({
   postAnalyticsEvent: (...args: unknown[]) => postAnalyticsEvent(...args)
 }));
 

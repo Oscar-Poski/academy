@@ -1,9 +1,13 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import type { SectionLessonBlock, SectionNavigation } from '@/src/lib/content-types';
 import type { SectionProgress, SectionProgressStatus } from '@/src/lib/progress-types';
 import type { QuizDelivery } from '@/src/lib/quiz-types';
 import { LessonBlockRenderer } from './LessonBlockRenderer';
 import { PlayerCompleteButton } from './PlayerCompleteButton';
+import { PlayerLifecycleAnalytics } from './PlayerLifecycleAnalytics';
 import { PlayerNavButton } from './PlayerNavButton';
 import { QuizPanel } from './quiz/QuizPanel';
 
@@ -56,6 +60,7 @@ export function PlayerContent({
   sectionProgress,
   quizDelivery
 }: PlayerContentProps) {
+  const [isCompleted, setIsCompleted] = useState(sectionProgress?.status === 'completed');
   const renderableLessonBlocks = lessonBlocks.filter((block) => block.blockType !== 'quiz');
   const hasQuizBlockOnly =
     lessonBlocks.length > 0 && renderableLessonBlocks.length === 0 && lessonBlocks.some((b) => b.blockType === 'quiz');
@@ -69,6 +74,17 @@ export function PlayerContent({
 
   return (
     <section className="playerContent">
+      {sectionProgress ? (
+        <PlayerLifecycleAnalytics
+          userId={sectionProgress.userId}
+          pathId={breadcrumb.pathId}
+          moduleId={breadcrumb.moduleId}
+          sectionId={currentSectionId}
+          sectionVersionId={sectionProgress.sectionVersionId}
+          sessionKey={sectionProgress.id}
+          isCompleted={isCompleted}
+        />
+      ) : null}
       <header className="playerHeader playerCard">
         <nav className="playerBreadcrumb" aria-label="Breadcrumb">
           <Link href={`/paths/${breadcrumb.pathId}`}>{breadcrumb.pathTitle}</Link>
@@ -120,6 +136,7 @@ export function PlayerContent({
           pathId={breadcrumb.pathId}
           moduleId={breadcrumb.moduleId}
           initialSectionProgress={sectionProgress}
+          onCompleted={() => setIsCompleted(true)}
         />
 
         <PlayerNavButton

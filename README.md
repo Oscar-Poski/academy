@@ -274,6 +274,20 @@ PR-11 additions:
 - optional `idempotency_key` is supported and deduplicates repeated requests
 - `payload_json` must be an object when provided
 
+PR-40 funnel analytics quality:
+- web learner flow now emits lifecycle events from `/learn/:sectionId`:
+  - `player_exit` on player session end
+  - `player_dropoff` when learner leaves before completion
+- event contracts are now enforced with structured validation errors:
+  - `400 { code: "invalid_analytics_payload", message: "Analytics payload failed validation", details: [...] }`
+- required non-empty identifiers for funnel events:
+  - `user_id`, `path_id`, `module_id`, `section_id`, `section_version_id`
+- lifecycle events additionally require:
+  - `payload_json.source` (string)
+  - `payload_json.dwell_ms` (number, `>= 0`)
+  - `payload_json.completed` (boolean)
+- idempotency behavior remains unchanged for repeated `idempotency_key` submissions
+
 ## Quiz Foundation (PR-16, PR-17, PR-18)
 
 Quiz backend foundation is now present in `apps/api`:

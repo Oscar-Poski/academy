@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useState, useTransition } from 'react';
 import { evaluateModuleUnlock } from '@/src/lib/api-clients/unlocks.browser';
-import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.client';
+import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.browser';
 import {
   completeSectionProgress,
   isCompletionBlockedError
@@ -16,6 +16,7 @@ type PlayerCompleteButtonProps = {
   pathId: string;
   moduleId: string;
   initialSectionProgress?: SectionProgress | null;
+  onCompleted?: () => void;
 };
 
 export function PlayerCompleteButton({
@@ -23,7 +24,8 @@ export function PlayerCompleteButton({
   hasQuizPanel,
   pathId,
   moduleId,
-  initialSectionProgress
+  initialSectionProgress,
+  onCompleted
 }: PlayerCompleteButtonProps) {
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
@@ -56,6 +58,7 @@ export function PlayerCompleteButton({
       if (result.status === 'completed') {
         setIsCompleted(true);
         setCompletionBlocked(null);
+        onCompleted?.();
       }
 
       void postAnalyticsEvent({

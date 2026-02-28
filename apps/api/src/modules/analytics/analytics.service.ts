@@ -19,17 +19,32 @@ export class AnalyticsService {
     const occurredAt = this.parseOccurredAt(body?.occurred_at);
     const idempotencyKey = this.normalizeIdempotencyKey(body?.idempotency_key);
     const payloadJson = this.normalizePayloadObject(body?.payload_json);
+    const userId = this.normalizeNullableString(body.user_id);
+    const pathId = this.normalizeNullableString(body.path_id);
+    const moduleId = this.normalizeNullableString(body.module_id);
+    const sectionId = this.normalizeNullableString(body.section_id);
+    const sectionVersionId = this.normalizeNullableString(body.section_version_id);
+
+    this.validateEventContract({
+      eventName,
+      userId,
+      pathId,
+      moduleId,
+      sectionId,
+      sectionVersionId,
+      payloadJson
+    });
 
     try {
       const created = await this.prisma.analyticsEvent.create({
         data: {
           idempotencyKey,
           eventName,
-          userId: this.normalizeNullableString(body.user_id),
-          pathId: this.normalizeNullableString(body.path_id),
-          moduleId: this.normalizeNullableString(body.module_id),
-          sectionId: this.normalizeNullableString(body.section_id),
-          sectionVersionId: this.normalizeNullableString(body.section_version_id),
+          userId,
+          pathId,
+          moduleId,
+          sectionId,
+          sectionVersionId,
           payloadJson,
           occurredAt
         },
@@ -119,5 +134,57 @@ export class AnalyticsService {
     }
 
     return value as Prisma.InputJsonObject;
+  }
+
+  private validateEventContract(input: {
+    eventName: string;
+    userId: string | null;
+    pathId: string | null;
+    moduleId: string | null;
+    sectionId: string | null;
+    sectionVersionId: string | null;
+    payloadJson: Prisma.InputJsonObject;
+  }): void {
+    const details: string[] = [];
+    if (!input.userId) {
+      details.push('user_id is required');
+    }
+    if (!input.pathId) {
+      details.push('path_id is required');
+    }
+    if (!input.moduleId) {
+      details.push('module_id is required');
+    }
+    if (!input.sectionId) {
+      details.push('section_id is required');
+    }
+    if (!input.sectionVersionId) {
+      details.push('section_version_id is required');
+    }
+
+    if (input.eventName === 'player_exit' || input.eventName === 'player_dropoff') {
+      const source = input.payloadJson.source;
+      if (typeof source !== 'string' || source.trim().length === 0) {
+        details.push('payload_json.source is required');
+      }
+
+      const dwellMs = input.payloadJson.dwell_ms;
+      if (typeof dwellMs !== 'number' || !Number.isFinite(dwellMs) || dwellMs < 0) {
+        details.push('payload_json.dwell_ms must be a number >= 0');
+      }
+
+      const completed = input.payloadJson.completed;
+      if (typeof completed !== 'boolean') {
+        details.push('payload_json.completed must be a boolean');
+      }
+    }
+
+    if (details.length > 0) {
+      throw new BadRequestException({
+        code: 'invalid_analytics_payload',
+        message: 'Analytics payload failed validation',
+        details
+      });
+    }
   }
 }
