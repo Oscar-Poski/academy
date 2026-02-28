@@ -1,69 +1,75 @@
 # Academy App Summary (Admin View)
 
-As of February 27, 2026, this app is a learning platform MVP with a Next.js web app (`apps/web`) and NestJS API (`apps/api`) backed by PostgreSQL/Prisma.
+As of February 28, 2026, this repo is a production-oriented learning platform MVP with a Next.js web app (`apps/web`) and NestJS API (`apps/api`) backed by Prisma/PostgreSQL.
 
-## 1) What The App Can Do Today
+## 1) Current Capability Snapshot
 
-- Serve learning content in a Path -> Module -> Section structure.
-- Track learner progress per section/module/path.
-- Enforce section completion gating (quiz pass + unlock rules).
-- Ingest analytics events with idempotency support.
-- Accept quiz attempts and score MCQ + short-answer questions.
-- Evaluate and persist module unlock decisions.
-- Award XP and compute user level from learning actions.
-- Import content bundles and manage section version publishing via admin APIs.
+- Bearer-authenticated learner APIs for progress, quiz, unlocks, gamification, and credits wallet.
+- Full auth token lifecycle: login, access token, refresh rotation, logout invalidation.
+- Admin RBAC enforcement on `/v1/admin/*` (bearer token + `role=admin`).
+- Interactive quiz delivery and submission flow on `/learn/:sectionId`.
+- Completion gating UX with explicit blocked reasons and unblock actions.
+- Unlock engine with `prereq_sections`, `quiz_pass`, `credits`, and `min_level` rules.
+- Explicit credits redemption endpoint for credit-gated unlocks.
+- Analytics ingest with event contract validation + idempotency.
+- Observability foundation: `x-request-id`, structured request logs, `/metrics`, release smoke/checklist.
 
-## 2) Basic Workflows
+## 2) Core Runtime Flows
 
-### Learner workflow (web)
+### Learner flow (web)
 
-1. Home page calls `/health` and `/v1/progress/continue` to show system status + “Continue learning”.
-2. Learner opens `/paths/:pathId` then `/modules/:moduleId` then `/learn/:sectionId`.
-3. Opening a section starts progress (`POST /v1/progress/sections/:sectionId/start`) and emits a best-effort `section_start` analytics event.
-4. Prev/Next navigation performs a best-effort checkpoint save (`PATCH /v1/progress/sections/:sectionId/position`) before route change.
-5. “Mark Complete” calls `POST /v1/progress/sections/:sectionId/complete` and emits best-effort `section_complete` analytics.
-6. Content lock metadata (when user context is known) disables locked module/section navigation and shows reasons.
+1. User signs in at `/login`; web stores access/refresh in HTTP-only cookies (`academy_access_token`, `academy_refresh_token`).
+2. Protected learner routes (`/`, `/learn/:sectionId`) require a valid session; content browsing routes remain public.
+3. Learn page starts progress, supports checkpoint saves, completion, quiz interactions, and lifecycle analytics (`section_start`, `section_complete`, `player_exit`, `player_dropoff`).
+4. Completion failures with `409 completion_blocked` are shown inline with actionable controls (`Go to Quiz`, `Evaluate Unlock`).
 
-### Quiz workflow (API)
+### Auth flow (API)
 
-1. Client submits answers to `POST /v1/quizzes/sections/:sectionId/attempts`.
-2. API resolves correct section version (pinned version if user progress exists; otherwise latest published).
-3. API grades MCQ + short-answer (exact/exact_ci/regex), stores attempt + per-question answers.
-4. If passing, API awards quiz XP idempotently.
-5. Clients can read latest attempt/result via:
-   - `GET /v1/quizzes/sections/:sectionId/attempts/latest`
-   - `GET /v1/quizzes/sections/:sectionId/result`
+1. `POST /v1/auth/login` validates credentials and returns access + refresh tokens.
+2. `POST /v1/auth/refresh` rotates refresh token one-time and issues new token pair.
+3. `POST /v1/auth/logout` revokes the provided refresh token.
+4. `GET /v1/auth/me` resolves current principal from bearer token.
 
-### Unlock workflow (API)
+### Unlock + credits flow (API)
 
-1. Read current module lock state: `GET /v1/unlocks/modules/:moduleId/status`.
-2. Evaluate/persist unlock: `POST /v1/unlocks/modules/:moduleId/evaluate`.
-3. Rules currently evaluated: `prereq_sections`, `quiz_pass` (others are in enum but not implemented in evaluator).
+1. Read lock state: `GET /v1/unlocks/modules/:moduleId/status`.
+2. Evaluate/persist unlock: `POST /v1/unlocks/modules/:moduleId/evaluate` (no auto-credit-spend).
+3. Explicit credit spend path: `POST /v1/unlocks/modules/:moduleId/redeem-credits` (strict, idempotent).
+4. Wallet read: `GET /v1/credits/me`.
 
-### Admin content workflow (API)
+### Admin content flow (API)
 
-1. Dry-run import bundle: `POST /v1/admin/content/import` with `mode: "dryRun"`.
-2. Apply import bundle: same endpoint with `mode: "apply"`.
-3. Review section versions:
+1. Import content bundle via `POST /v1/admin/content/import` (`dryRun`/`apply`).
+2. Review section versions:
    - `GET /v1/admin/sections/:sectionId/versions`
    - `GET /v1/admin/sections/:sectionId/versions/:versionId`
-4. Publish draft version: `POST /v1/admin/sections/:sectionId/publish/:versionId`.
-5. Publishing archives previously published versions and preserves pinned users on older archived versions.
+3. Publish draft version: `POST /v1/admin/sections/:sectionId/publish/:versionId`.
+4. Publish prechecks enforce deterministic `409 publish_conflict` reasons.
 
-## 3) API Functionality Map
+## 3) API Endpoint Map (Current Contracts)
 
-### System
+### System + observability
 
-- `GET /health`: API + DB health check.
+- `GET /health`
+- `GET /metrics` (internal, unauthenticated, in-memory counters)
 
-### Content
+### Auth (`/v1/auth`)
 
-- `GET /v1/paths`: list paths.
-- `GET /v1/paths/:pathId`: path tree (optional user-aware lock metadata via `x-user-id`).
-- `GET /v1/modules/:moduleId`: module detail (optional user-aware lock metadata via `x-user-id`).
-- `GET /v1/sections/:sectionId`: section content + navigation; resolves pinned or latest published section version.
+- `POST /login`
+- `POST /refresh`
+- `POST /logout`
+- `GET /me` (bearer required)
 
-### Progress (`x-user-id` required)
+### Content (public, optional bearer enrichment)
+
+- `GET /v1/paths`
+- `GET /v1/paths/:pathId`
+- `GET /v1/modules/:moduleId`
+- `GET /v1/sections/:sectionId`
+
+`x-user-id` is ignored globally; optional enrichment comes only from valid bearer principal.
+
+### Progress (bearer required)
 
 - `POST /v1/progress/sections/:sectionId/start`
 - `PATCH /v1/progress/sections/:sectionId/position`
@@ -73,79 +79,86 @@ As of February 27, 2026, this app is a learning platform MVP with a Next.js web 
 - `GET /v1/progress/paths/:pathId`
 - `GET /v1/progress/continue`
 
-### Quiz (`x-user-id` required)
+### Quiz (bearer required)
 
+- `GET /v1/quizzes/sections/:sectionId` (delivery; no answer-key leakage)
 - `POST /v1/quizzes/sections/:sectionId/attempts`
 - `GET /v1/quizzes/sections/:sectionId/attempts/latest`
 - `GET /v1/quizzes/sections/:sectionId/result`
 
-### Unlocks (`x-user-id` required)
+### Unlocks (bearer required)
 
 - `GET /v1/unlocks/modules/:moduleId/status`
 - `POST /v1/unlocks/modules/:moduleId/evaluate`
+- `POST /v1/unlocks/modules/:moduleId/redeem-credits`
 
-### Gamification (`x-user-id` required)
+### Credits (bearer required)
+
+- `GET /v1/credits/me`
+
+### Gamification (bearer required)
 
 - `GET /v1/gamification/me`
 
 ### Analytics
 
 - `POST /v1/analytics/events`
-- Allowed `event_name`: `section_start`, `section_complete`, `player_exit`, `player_dropoff`.
+- Allowed events: `section_start`, `section_complete`, `player_exit`, `player_dropoff`
+- Funnel payload contract violations return:
+  - `400 { code: "invalid_analytics_payload", message, details[] }`
 
-### Admin
+### Admin (bearer + admin role required)
 
 - `POST /v1/admin/content/import`
 - `GET /v1/admin/sections/:sectionId/versions`
 - `GET /v1/admin/sections/:sectionId/versions/:versionId`
 - `POST /v1/admin/sections/:sectionId/publish/:versionId`
 
-## 4) Database Tables That Exist
+Denied admin access is standardized to:
+- `403 { code: "forbidden", message: "Admin access required" }`
 
-Prisma models map to these PostgreSQL tables:
+## 4) Data Model Snapshot
 
-- `users`: learner identities.
-- `paths`: top-level learning paths.
-- `modules`: modules under a path.
-- `sections`: sections under a module.
-- `section_versions`: draft/published/archived section versions.
-- `lesson_blocks`: ordered content blocks for a section version.
-- `questions`: quiz questions for a section version.
-- `quiz_attempts`: per-user quiz attempt headers and scores.
-- `quiz_attempt_answers`: per-question answers per attempt.
-- `user_section_progress`: per-user progress/pinning for sections.
-- `analytics_events`: raw analytics ingestion store.
-- `unlock_rules`: configured unlock logic per scope.
-- `user_unlocks`: persisted unlock grants per user/scope.
-- `xp_events`: XP award ledger with idempotency key.
-- `user_levels`: aggregate XP and current level per user.
+Primary PostgreSQL tables in active runtime:
 
-## 5) Regular User vs Admin Capabilities
+- Content/versioning: `paths`, `modules`, `sections`, `section_versions`, `lesson_blocks`
+- User/auth: `users`, `auth_refresh_tokens`
+- Quiz: `questions`, `quiz_attempts`, `quiz_attempt_answers`
+- Progress: `user_section_progress`
+- Unlocks: `unlock_rules`, `user_unlocks`
+- Gamification: `xp_events`, `user_levels`
+- Credits: `user_credits`, `credit_events`
+- Analytics: `analytics_events`
 
-### Regular user (implemented)
+## 5) Identity + Security Model
 
-- Browse paths/modules/sections in web UI.
-- Start, continue, checkpoint, and complete sections.
-- See progress summaries on path/module/player pages.
-- Be blocked by unlock/quiz gating when appropriate.
-- Trigger analytics events via player actions.
-- Use quiz/unlock/gamification endpoints directly via API.
+- Protected learner endpoints are bearer-only.
+- `/v1/admin/*` is bearer-only plus role enforcement (`admin`).
+- Legacy `x-user-id` identity path has been removed from runtime behavior.
+- Web session transport is cookie-backed; API auth transport is bearer JWT.
 
-### Admin (implemented)
+## 6) Admin Safety Rails (PR-39+)
 
-- Import content bundles (dry-run/apply) through admin API.
-- Inspect section versions and preview lesson blocks.
-- Publish draft versions and archive previous published versions.
+- Publish prechecks before mutation:
+  - target must be `draft`
+  - target version must include lesson blocks
+  - quiz-required sections must have at least one question
+- Publish conflicts return structured `publish_conflict` payloads with reason codes.
+- Import response includes additive `validationSummary` for both `dryRun` and `apply`.
+- Dry-run/apply validation reporting parity is expected for identical bundle input.
 
-### Current role/auth reality
+## 7) Observability + Release Hardening (PR-41)
 
-- There is currently no full auth/RBAC layer yet.
-- “Admin” is functionally represented by `/v1/admin/*` endpoints, not enforced roles/permissions.
-- User-scoped endpoints currently depend on `x-user-id` (temporary strategy).
+- Every API response includes `x-request-id` (reused from inbound or generated).
+- Structured JSON request logs are emitted from middleware.
+- `/metrics` exposes uptime + request/auth/gating/admin conflict counters.
+- Release hardening assets:
+  - checklist: `/Users/poski/academy/plans/RELEASE_CHECKLIST_PR41.md`
+  - smoke script: `pnpm release:smoke`
+  - CI workflow: `/Users/poski/academy/.github/workflows/release-smoke.yml`
 
-## 6) Notable Limitations / Gaps
+## 8) Remaining Gaps / Next-Focus Areas
 
-- Web UI has quiz block placeholders; full interactive quiz UI is not implemented yet.
-- Credits/min-level unlock rule types exist in schema enums but are not fully evaluated/redeemed in current unlock logic.
-- No credits wallet or credits-redemption API yet.
-- Production auth/session model is pending (temporary env/header-based user context in place).
+- Metrics are in-memory only (reset on process restart; no persistent backend).
+- Analytics ingest is intentionally unauthenticated in current phase.
+- No external observability backend wiring yet (log shipping, dashboards, alerting).
