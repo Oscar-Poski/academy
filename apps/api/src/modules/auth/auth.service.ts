@@ -58,6 +58,12 @@ export class AuthService {
     const email = this.normalizeRequiredRegistrationField(input?.email).toLowerCase();
     const password = this.normalizeRequiredRegistrationField(input?.password);
     const name = this.normalizeRequiredRegistrationField(input?.name);
+    if (password.length < 8) {
+      throw new BadRequestException({
+        code: 'weak_password',
+        message: 'Password must be at least 8 characters long'
+      });
+    }
     const passwordHash = await hash(password, 10);
 
     try {

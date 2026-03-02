@@ -258,6 +258,21 @@ PR-47 auth journey regression pack:
 - web integration smoke verifies auth cookie session lifecycle and protected-route redirect behavior
 - PR-47 introduces no API/web runtime contract changes
 
+PR-48 minimal auth abuse protections:
+- `POST /v1/auth/login` and `POST /v1/auth/register` now use in-memory per-IP rate limits
+  - default window: `60s`
+  - login limit: `10` requests per window
+  - register limit: `5` requests per window
+- rate-limited responses return:
+  - `429 { code: "rate_limited", message: "Too many auth attempts. Try again later.", retry_after_seconds }`
+- registration now enforces password minimum length `>= 8`
+  - weak password response:
+  - `400 { code: "weak_password", message: "Password must be at least 8 characters long" }`
+- new env knobs in `apps/api/.env.example`:
+  - `AUTH_RATE_LIMIT_WINDOW_SECONDS`
+  - `AUTH_RATE_LIMIT_LOGIN_MAX`
+  - `AUTH_RATE_LIMIT_REGISTER_MAX`
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

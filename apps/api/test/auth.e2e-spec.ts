@@ -5,10 +5,12 @@ import { hash } from 'bcryptjs';
 import { PrismaClient, UserRole } from '@prisma/client';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { AuthRateLimitService } from '../src/modules/auth/auth-rate-limit.service';
 
 describe('Auth API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaClient;
+  let limiter: AuthRateLimitService;
 
   const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const fixtureEmail = `auth-user-${unique}@academy.local`;
@@ -25,6 +27,7 @@ describe('Auth API (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
+    limiter = app.get(AuthRateLimitService);
 
     const passwordHash = await hash(fixturePassword, 10);
     const created = await prisma.user.create({
@@ -61,6 +64,10 @@ describe('Auth API (e2e)', () => {
 
     await app.close();
     await prisma.$disconnect();
+  });
+
+  beforeEach(() => {
+    limiter.resetForTests();
   });
 
   it('POST /v1/auth/login returns access+refresh token metadata for valid credentials', async () => {

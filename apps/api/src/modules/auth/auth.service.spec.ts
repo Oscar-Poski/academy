@@ -187,6 +187,38 @@ describe('AuthService', () => {
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
+  it('rejects register when password is shorter than 8 chars', async () => {
+    const prisma = {
+      user: {
+        create: jest.fn()
+      },
+      authRefreshToken: {
+        create: jest.fn()
+      }
+    };
+
+    const authTokenService = {
+      createAccessToken: jest.fn(),
+      createRefreshToken: jest.fn()
+    } as unknown as AuthTokenService;
+
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
+
+    await expect(
+      service.register({
+        email: 'user@example.com',
+        password: 'short7',
+        name: 'User'
+      })
+    ).rejects.toMatchObject({
+      response: {
+        code: 'weak_password',
+        message: 'Password must be at least 8 characters long'
+      }
+    });
+    expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
   it('rejects wrong password', async () => {
     const passwordHash = await hash('password123', 10);
 

@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { BearerAuthGuard } from './bearer-auth.guard';
+import { AuthRateLimitGuard } from './auth-rate-limit.guard';
 import type {
   AuthMeDto,
   LoginRequestDto,
@@ -18,12 +19,14 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
+  @UseGuards(AuthRateLimitGuard)
   login(@Body() body: LoginRequestDto): Promise<LoginResponseDto> {
     return this.authService.login(body);
   }
 
   @Post('register')
   @HttpCode(201)
+  @UseGuards(AuthRateLimitGuard)
   register(@Body() body: RegisterRequestDto): Promise<LoginResponseDto> {
     return this.authService.register(body);
   }

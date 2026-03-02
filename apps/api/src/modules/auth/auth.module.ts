@@ -7,6 +7,8 @@ import { BearerAuthGuard } from './bearer-auth.guard';
 import { AdminBearerAuthGuard } from './admin-bearer-auth.guard';
 import { OptionalBearerAuthGuard } from './optional-bearer-auth.guard';
 import { RolesGuard } from './roles.guard';
+import { AuthRateLimitService } from './auth-rate-limit.service';
+import { AuthRateLimitGuard } from './auth-rate-limit.guard';
 
 @Module({
   imports: [JwtModule.register({})],
@@ -14,6 +16,8 @@ import { RolesGuard } from './roles.guard';
   providers: [
     AuthService,
     AuthTokenService,
+    AuthRateLimitService,
+    AuthRateLimitGuard,
     BearerAuthGuard,
     OptionalBearerAuthGuard,
     AdminBearerAuthGuard,
