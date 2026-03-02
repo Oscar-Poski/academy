@@ -5,26 +5,59 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { Alert, Button, Card, Input } from '@/src/components/ui';
-
-type RegisterError = {
-  code?: string;
-  message?: string;
-};
+import type { AuthApiError } from '@/src/lib/auth/types';
+import { safeNextPath } from '@/src/lib/auth/safe-next-path';
+import type { AuthFieldErrors } from '@/src/lib/auth/form-validation';
+import { validateSignupInput } from '@/src/lib/auth/form-validation';
 
 export function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get('next') || '/';
+  const nextPath = safeNextPath(searchParams.get('next'), '/');
 
   const [name, setName] = useState('New Student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const currentErrors = validateSignupInput({ name, email, password });
+  const isValid = Object.keys(currentErrors).length === 0;
+  const isSubmitDisabled = submitting || !isValid;
+
+  function applyFieldValidation(field: 'name' | 'email' | 'password'): void {
+    const nextErrors = validateSignupInput({ name, email, password });
+    setFieldErrors((previous) => {
+      const updated = { ...previous };
+      if (nextErrors[field]) {
+        updated[field] = nextErrors[field];
+      } else {
+        delete updated[field];
+      }
+      return updated;
+    });
+  }
+
+  function formatErrorMessage(payload: AuthApiError | null): string {
+    if (!payload) {
+      return 'Unable to create account right now. Try again.';
+    }
+    if (payload.code === 'rate_limited' && typeof payload.retry_after_seconds === 'number') {
+      return `${payload.message} Try again in ${payload.retry_after_seconds} seconds.`;
+    }
+    return payload.message;
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) {
+      return;
+    }
+
+    const validationErrors = validateSignupInput({ name, email, password });
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      setErrorMessage(null);
       return;
     }
 
@@ -41,8 +74,8 @@ export function SignupForm() {
       });
 
       if (!response.ok) {
-        const payload = (await response.json().catch(() => null)) as RegisterError | null;
-        setErrorMessage(payload?.message ?? 'Unable to create account right now. Try again.');
+        const payload = (await response.json().catch(() => null)) as AuthApiError | null;
+        setErrorMessage(formatErrorMessage(payload));
         return;
       }
 
@@ -64,7 +97,12 @@ export function SignupForm() {
         id="signup-name"
         label="Name"
         value={name}
-        onChange={(event) => setName(event.target.value)}
+        onChange={(event) => {
+          setName(event.target.value);
+          setErrorMessage(null);
+        }}
+        onBlur={() => applyFieldValidation('name')}
+        error={fieldErrors.name}
         autoComplete="name"
         required
       />
@@ -73,7 +111,12 @@ export function SignupForm() {
         id="signup-email"
         label="Email"
         value={email}
-        onChange={(event) => setEmail(event.target.value)}
+        onChange={(event) => {
+          setEmail(event.target.value);
+          setErrorMessage(null);
+        }}
+        onBlur={() => applyFieldValidation('email')}
+        error={fieldErrors.email}
         autoComplete="email"
         required
       />
@@ -83,12 +126,17 @@ export function SignupForm() {
         label="Password"
         type="password"
         value={password}
-        onChange={(event) => setPassword(event.target.value)}
+        onChange={(event) => {
+          setPassword(event.target.value);
+          setErrorMessage(null);
+        }}
+        onBlur={() => applyFieldValidation('password')}
+        error={fieldErrors.password}
         autoComplete="new-password"
         required
       />
 
-      <Button type="submit" loading={submitting}>
+      <Button type="submit" loading={submitting} disabled={isSubmitDisabled}>
         {submitting ? 'Creating account...' : 'Create account'}
       </Button>
 

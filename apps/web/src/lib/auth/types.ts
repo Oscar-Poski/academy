@@ -9,8 +9,11 @@ export type AuthApiError = {
     | 'unauthorized'
     | 'forbidden'
     | 'email_in_use'
-    | 'invalid_registration_input';
+    | 'invalid_registration_input'
+    | 'weak_password'
+    | 'rate_limited';
   message: string;
+  retry_after_seconds?: number;
 };
 
 export type LoginApiResponse = {

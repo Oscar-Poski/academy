@@ -35,6 +35,24 @@ describe('SignupForm', () => {
     expect(screen.getByRole('button', { name: 'Create account' })).toBeInTheDocument();
   });
 
+  it('shows inline field errors and blocks submit when invalid', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'invalid-email' } });
+    fireEvent.blur(screen.getByLabelText('Email'));
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'short' } });
+    fireEvent.blur(screen.getByLabelText('Password'));
+
+    expect(await screen.findByText('Name is required')).toBeInTheDocument();
+    expect(await screen.findByText('Enter a valid email address')).toBeInTheDocument();
+    expect(await screen.findByText('Password must be at least 8 characters long')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it('submits successfully and redirects to root by default', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
     render(<SignupForm />);
@@ -80,6 +98,30 @@ describe('SignupForm', () => {
       expect(screen.getByText('Email already registered')).toBeInTheDocument();
     });
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it('shows rate limited message with retry hint', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          code: 'rate_limited',
+          message: 'Too many auth attempts. Try again later.',
+          retry_after_seconds: 30
+        }),
+        { status: 429 }
+      )
+    );
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Too many auth attempts. Try again later. Try again in 30 seconds.')
+      ).toBeInTheDocument();
+    });
   });
 
   it('shows generic message for network failures', async () => {

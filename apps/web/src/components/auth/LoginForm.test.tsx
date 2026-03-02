@@ -34,6 +34,21 @@ describe('LoginForm', () => {
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
   });
 
+  it('shows inline field errors and blocks submit when invalid', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    render(<LoginForm />);
+
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: '' } });
+    fireEvent.blur(screen.getByLabelText('Email'));
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: '' } });
+    fireEvent.blur(screen.getByLabelText('Password'));
+
+    expect(await screen.findByText('Email is required')).toBeInTheDocument();
+    expect(await screen.findByText('Password is required')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it('submits successfully and redirects to root by default', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
     render(<LoginForm />);
@@ -76,6 +91,28 @@ describe('LoginForm', () => {
       expect(screen.getByText('Invalid email or password')).toBeInTheDocument();
     });
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it('shows rate limited message with retry hint', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          code: 'rate_limited',
+          message: 'Too many auth attempts. Try again later.',
+          retry_after_seconds: 25
+        }),
+        { status: 429 }
+      )
+    );
+    render(<LoginForm />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Too many auth attempts. Try again later. Try again in 25 seconds.')
+      ).toBeInTheDocument();
+    });
   });
 
   it('shows generic message on network failure', async () => {

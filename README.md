@@ -284,6 +284,12 @@ PR-50 reusable UI primitives v1:
 - auth surfaces (`LoginForm`, `SignupForm`, header auth actions, `LogoutButton`) now consume primitives to reduce repeated class logic
 - migration is intentionally scoped; legacy classes remain available for non-migrated pages/components
 
+PR-51 auth page UX polish:
+- `/login` and `/signup` now perform inline client validation with field-level error rendering
+- auth error handling now explicitly supports `weak_password` and `rate_limited` payload messaging in forms
+- authenticated visits to `/login` and `/signup` are server-redirected to a safe app path (`next` when valid, otherwise `/`)
+- no backend API contract changes in this PR
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity
