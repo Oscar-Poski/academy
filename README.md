@@ -335,6 +335,7 @@ PR-58 web UI regression guardrail pack:
 - added root convenience command:
   - `pnpm web:regression`
 - CI now includes `.github/workflows/web-regression.yml` to run `test:regression` + `typecheck` on every pull request
+- set repository branch protection to require the `web-regression` workflow check before merge
 - no backend/API/route contract changes in this PR
 
 PR-32 identity finalization:
@@ -677,6 +678,7 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
+pnpm web:regression
 ```
 
 ## Environment Notes
@@ -854,6 +856,7 @@ curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/gamif
 
 ```bash
 pnpm --filter @academy/web test
+pnpm --filter @academy/web test:regression
 pnpm --filter @academy/web typecheck
 pnpm --filter @academy/web dev
 ```
