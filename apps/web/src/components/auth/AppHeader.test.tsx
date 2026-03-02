@@ -3,20 +3,29 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { AppHeader } from './AppHeader';
 
-vi.mock('./LogoutButton', () => ({
-  LogoutButton: () => <button type="button">Log out</button>
+const appHeaderClientMock = vi.fn();
+
+vi.mock('./AppHeaderClient', () => ({
+  AppHeaderClient: (props: { sessionProfile: unknown; appName: string }) => {
+    appHeaderClientMock(props);
+    return <div data-testid="app-header-client" />;
+  }
 }));
 
 describe('AppHeader', () => {
-  it('renders login/signup actions for anonymous state', () => {
+  it('passes app name and anonymous session profile to client header', () => {
     render(<AppHeader sessionProfile={{ authenticated: false }} />);
 
-    expect(screen.getByRole('link', { name: 'Log in' })).toHaveAttribute('href', '/login');
-    expect(screen.getByRole('link', { name: 'Sign up' })).toHaveAttribute('href', '/signup');
-    expect(screen.queryByRole('button', { name: 'Log out' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('app-header-client')).toBeInTheDocument();
+    expect(appHeaderClientMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appName: 'Academy MVP',
+        sessionProfile: { authenticated: false }
+      })
+    );
   });
 
-  it('renders email and logout for authenticated state', () => {
+  it('passes authenticated session profile to client header', () => {
     render(
       <AppHeader
         sessionProfile={{
@@ -31,9 +40,19 @@ describe('AppHeader', () => {
       />
     );
 
-    expect(screen.getByText('student@academy.local')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Log in' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Sign up' })).not.toBeInTheDocument();
+    expect(appHeaderClientMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appName: 'Academy MVP',
+        sessionProfile: {
+          authenticated: true,
+          user: {
+            id: 'u1',
+            email: 'student@academy.local',
+            name: 'Student',
+            role: 'user'
+          }
+        }
+      })
+    );
   });
 });

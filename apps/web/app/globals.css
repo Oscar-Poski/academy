@@ -113,8 +113,27 @@ body {
   line-height: var(--line-height-base);
 }
 
+.skipLink {
+  position: absolute;
+  left: var(--space-3);
+  top: -200px;
+  z-index: 30;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-1);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.skipLink:focus {
+  top: var(--space-3);
+}
+
 .appShell {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .appHeader {
@@ -151,6 +170,49 @@ body {
   gap: var(--space-2);
 }
 
+.appHeaderMainNav {
+  margin-left: auto;
+}
+
+.appHeaderMenuButton {
+  display: none;
+}
+
+.appHeaderMenuPanel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.appNavPrimary,
+.appNavSecondary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.appNavLink {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  padding: 0.34rem 0.6rem;
+  transition:
+    background var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard);
+}
+
+.appNavLink:hover {
+  background: var(--color-surface-soft);
+  border-color: color-mix(in srgb, var(--color-border-strong) 60%, transparent);
+}
+
+.appNavLink--active {
+  background: var(--color-status-info-bg);
+  border-color: var(--color-status-info-border);
+}
+
 .appAuthText {
   color: var(--color-text-muted);
   font-size: var(--font-size-md);
@@ -182,7 +244,39 @@ body {
 }
 
 .appContent {
-  min-height: calc(100vh - 64px);
+  flex: 1;
+  min-height: 0;
+}
+
+.appFooter {
+  border-top: 1px solid var(--color-border-default);
+  background: color-mix(in srgb, var(--color-surface-1) 90%, black);
+}
+
+.appFooterInner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.appFooterMeta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.appFooterNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.appFooterAction {
+  min-height: 30px;
 }
 
 main {
@@ -1355,11 +1449,68 @@ main {
 @media (max-width: 960px) {
   .appHeaderInner {
     flex-wrap: wrap;
+    align-items: flex-start;
   }
 
-  .appNav {
+  .appHeaderMainNav {
+    width: 100%;
+  }
+
+  .appHeaderMenuButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0.35rem 0.7rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-action-border);
+    background: var(--color-action-bg);
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+  }
+
+  .appHeaderMenuPanel {
+    margin-top: var(--space-2);
+    width: 100%;
+    display: none;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-surface-1) 92%, black);
+    padding: var(--space-3);
+  }
+
+  .appHeaderMenuPanel.isOpen {
+    display: grid;
+  }
+
+  .appNavPrimary,
+  .appNavSecondary {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .appNavLink,
+  .appAuthAction {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .appAuthText {
+    display: block;
+    width: 100%;
+  }
+
+  .appFooterInner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .appFooterNav {
+    width: 100%;
     flex-wrap: wrap;
   }
 

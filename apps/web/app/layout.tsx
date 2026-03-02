@@ -1,5 +1,7 @@
+import React from 'react';
 import type { Metadata } from 'next';
 import { AppHeader } from '@/src/components/auth/AppHeader';
+import { AppFooter } from '@/src/components/shell/AppFooter';
 import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import './globals.css';
 
@@ -17,9 +19,15 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
+        <a href="#app-main-content" className="skipLink">
+          Skip to content
+        </a>
         <div className="appShell">
           <AppHeader sessionProfile={sessionProfile} />
-          <div className="appContent">{children}</div>
+          <div id="app-main-content" className="appContent">
+            {children}
+          </div>
+          <AppFooter sessionProfile={sessionProfile} />
         </div>
       </body>
     </html>

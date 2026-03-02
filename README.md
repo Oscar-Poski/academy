@@ -290,6 +290,12 @@ PR-51 auth page UX polish:
 - authenticated visits to `/login` and `/signup` are server-redirected to a safe app path (`next` when valid, otherwise `/`)
 - no backend API contract changes in this PR
 
+PR-52 global shell + responsive navigation:
+- app layout now includes a unified shell with global header + footer across learner/content pages
+- header navigation now supports mobile menu toggle behavior while preserving desktop inline navigation
+- shell auth actions stay session-aware (anonymous login/signup, authenticated email/logout)
+- no backend/API contract changes in this PR
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

@@ -1,0 +1,144 @@
+import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppHeaderClient } from './AppHeaderClient';
+
+const usePathnameMock = vi.fn();
+const logoutOnActionMock = vi.fn();
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => usePathnameMock()
+}));
+
+vi.mock('next/link', () => ({
+  default: ({
+    href,
+    onClick,
+    children,
+    ...rest
+  }: {
+    href: string;
+    onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
+    children: React.ReactNode;
+  }) => (
+    <a
+      href={href}
+      onClick={(event) => {
+        event.preventDefault();
+        onClick?.(event);
+      }}
+      {...rest}
+    >
+      {children}
+    </a>
+  )
+}));
+
+vi.mock('./LogoutButton', () => ({
+  LogoutButton: ({ onAction }: { onAction?: () => void }) => (
+    <button
+      type="button"
+      onClick={() => {
+        logoutOnActionMock();
+        onAction?.();
+      }}
+    >
+      Log out
+    </button>
+  )
+}));
+
+describe('AppHeaderClient', () => {
+  beforeEach(() => {
+    usePathnameMock.mockReset();
+    logoutOnActionMock.mockReset();
+    usePathnameMock.mockReturnValue('/');
+  });
+
+  it('renders Home + auth actions for anonymous state', () => {
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+
+    expect(screen.getByRole('link', { name: 'Academy MVP' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Log in' })).toHaveAttribute('href', '/login');
+    expect(screen.getByRole('link', { name: 'Sign up' })).toHaveAttribute('href', '/signup');
+  });
+
+  it('renders Home + email + logout for authenticated state', () => {
+    render(
+      <AppHeaderClient
+        appName="Academy MVP"
+        sessionProfile={{
+          authenticated: true,
+          user: {
+            id: 'u1',
+            email: 'student@academy.local',
+            name: 'Student',
+            role: 'user'
+          }
+        }}
+      />
+    );
+
+    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+    expect(screen.getByText('student@academy.local')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+  });
+
+  it('toggles menu open and closed from menu button', () => {
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+    const menuButton = screen.getByRole('button', { name: 'Menu' });
+    const panel = screen.getByTestId('app-header-menu-panel');
+
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+    expect(panel).toHaveAttribute('data-open', 'false');
+
+    fireEvent.click(menuButton);
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+    expect(panel).toHaveAttribute('data-open', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close menu' }));
+    expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false');
+    expect(panel).toHaveAttribute('data-open', 'false');
+  });
+
+  it('closes menu when selecting a nav action', () => {
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    expect(screen.getByTestId('app-header-menu-panel')).toHaveAttribute('data-open', 'true');
+
+    fireEvent.click(screen.getByRole('link', { name: 'Sign up' }));
+    expect(screen.getByTestId('app-header-menu-panel')).toHaveAttribute('data-open', 'false');
+  });
+
+  it('applies active class on Home link when pathname is root', () => {
+    usePathnameMock.mockReturnValue('/');
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveClass('appNavLink--active');
+  });
+
+  it('closes menu when logout action is triggered', () => {
+    render(
+      <AppHeaderClient
+        appName="Academy MVP"
+        sessionProfile={{
+          authenticated: true,
+          user: {
+            id: 'u1',
+            email: 'student@academy.local',
+            name: 'Student',
+            role: 'user'
+          }
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+
+    expect(logoutOnActionMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('app-header-menu-panel')).toHaveAttribute('data-open', 'false');
+  });
+});

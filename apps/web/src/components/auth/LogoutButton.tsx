@@ -4,7 +4,19 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/src/components/ui';
 
-export function LogoutButton() {
+type LogoutButtonProps = {
+  className?: string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  onAction?: () => void;
+};
+
+export function LogoutButton({
+  className = 'appAuthAction',
+  variant = 'secondary',
+  size = 'sm',
+  onAction
+}: LogoutButtonProps = {}) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
 
@@ -13,6 +25,7 @@ export function LogoutButton() {
       return;
     }
 
+    onAction?.();
     setSubmitting(true);
     try {
       await fetch('/api/auth/logout', {
@@ -30,9 +43,9 @@ export function LogoutButton() {
   return (
     <Button
       type="button"
-      variant="secondary"
-      size="sm"
-      className="appAuthAction"
+      variant={variant}
+      size={size}
+      className={className}
       onClick={onLogout}
       loading={submitting}
     >
