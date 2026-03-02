@@ -36,7 +36,7 @@ export default async function PathPage({ params }: PathPageProps) {
               </>
             ) : (
               <p className="pageProgressNotice">
-                Progress indicators unavailable (API or temp user not configured).
+                Progress indicators unavailable right now.
               </p>
             )}
           </div>

@@ -235,6 +235,12 @@ PR-31 web auth plumbing:
 - learner routes (`/`, `/learn/:sectionId`) require authenticated web session and redirect to `/login` when missing
 - content browsing routes (`/paths/:pathId`, `/modules/:moduleId`) remain anonymous-safe
 
+PR-44 global auth shell:
+- app layout now includes a global auth header across pages
+- anonymous state shows `Log in` and `Sign up`
+- authenticated state shows current user email and `Log out`
+- auth state is server-resolved with refresh-once behavior for stable SSR navigation state
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

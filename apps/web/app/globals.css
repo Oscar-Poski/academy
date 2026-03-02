@@ -18,6 +18,75 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
 }
 
+.appShell {
+  min-height: 100vh;
+}
+
+.appHeader {
+  border-bottom: 1px solid #223456;
+  background: color-mix(in srgb, var(--panel) 88%, black);
+}
+
+.appHeaderInner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.appBrand {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.appBrand:hover {
+  text-decoration: underline;
+}
+
+.appNav {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.appAuthText {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.appAuthAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #355487;
+  background: rgba(53, 84, 135, 0.2);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.appAuthAction:hover {
+  background: rgba(53, 84, 135, 0.34);
+}
+
+.appAuthAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.appContent {
+  min-height: calc(100vh - 64px);
+}
+
 main {
   max-width: 920px;
   margin: 4rem auto;
@@ -882,6 +951,16 @@ main {
 }
 
 @media (max-width: 960px) {
+  .appHeaderInner {
+    flex-wrap: wrap;
+  }
+
+  .appNav {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
   .pageListRow {
     flex-wrap: wrap;
     align-items: stretch;

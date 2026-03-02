@@ -67,7 +67,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
               </>
             ) : (
               <p className="pageProgressNotice">
-                Progress indicators unavailable (API or temp user not configured).
+                Progress indicators unavailable right now.
               </p>
             )}
           </div>
