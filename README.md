@@ -252,6 +252,12 @@ PR-46 first-time learner onboarding on home:
 - when available, the UI resolves the first unlocked section and shows `Start your first section` linking to `/learn/:sectionId`
 - if neither continue-learning nor onboarding candidate can be resolved, home shows a non-fatal fallback message
 
+PR-47 auth journey regression pack:
+- added test-only journey coverage for `register -> start progress -> logout -> login -> continue`
+- API e2e now verifies the same learner resumes the same in-progress section after re-login
+- web integration smoke verifies auth cookie session lifecycle and protected-route redirect behavior
+- PR-47 introduces no API/web runtime contract changes
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity
