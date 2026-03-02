@@ -1,6 +1,6 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { createHash } from 'node:crypto';
-import { compare } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ObservabilityService } from '../observability/observability.service';
@@ -11,7 +11,8 @@ import type {
   LoginResponseDto,
   LogoutRequestDto,
   LogoutResponseDto,
-  RefreshRequestDto
+  RefreshRequestDto,
+  RegisterRequestDto
 } from './dto';
 import { AuthTokenService } from './auth-token.service';
 
@@ -51,6 +52,44 @@ export class AuthService {
       email: user.email,
       role: user.role
     });
+  }
+
+  async register(input: RegisterRequestDto): Promise<LoginResponseDto> {
+    const email = this.normalizeRequiredRegistrationField(input?.email).toLowerCase();
+    const password = this.normalizeRequiredRegistrationField(input?.password);
+    const name = this.normalizeRequiredRegistrationField(input?.name);
+    const passwordHash = await hash(password, 10);
+
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          email,
+          name,
+          role: 'user',
+          passwordHash
+        },
+        select: {
+          id: true,
+          email: true,
+          role: true
+        }
+      });
+
+      return this.issueTokenPair({
+        id: user.id,
+        email: user.email,
+        role: user.role
+      });
+    } catch (error: unknown) {
+      if (this.isEmailUniqueConstraintError(error)) {
+        throw new ConflictException({
+          code: 'email_in_use',
+          message: 'Email already registered'
+        });
+      }
+
+      throw error;
+    }
   }
 
   async refresh(input: RefreshRequestDto): Promise<LoginResponseDto> {
@@ -183,6 +222,25 @@ export class AuthService {
 
     const normalized = value.trim();
     return field === 'email' ? normalized.toLowerCase() : normalized;
+  }
+
+  private normalizeRequiredRegistrationField(value: unknown): string {
+    if (typeof value !== 'string' || value.trim().length === 0) {
+      throw new BadRequestException({
+        code: 'invalid_registration_input',
+        message: 'Email, password, and name are required'
+      });
+    }
+
+    return value.trim();
+  }
+
+  private isEmailUniqueConstraintError(error: unknown): boolean {
+    if (typeof error !== 'object' || error === null || !('code' in error)) {
+      return false;
+    }
+
+    return (error as { code?: string }).code === 'P2002';
   }
 
   private async issueTokenPair(

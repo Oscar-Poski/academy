@@ -4,7 +4,12 @@ export type SessionTokens = {
 };
 
 export type AuthApiError = {
-  code: 'invalid_credentials' | 'unauthorized' | 'forbidden';
+  code:
+    | 'invalid_credentials'
+    | 'unauthorized'
+    | 'forbidden'
+    | 'email_in_use'
+    | 'invalid_registration_input';
   message: string;
 };
 
@@ -19,4 +24,10 @@ export type LoginApiResponse = {
 export type LoginRequestBody = {
   email: string;
   password: string;
+};
+
+export type RegisterRequestBody = {
+  email: string;
+  password: string;
+  name: string;
 };

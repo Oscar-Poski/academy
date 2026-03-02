@@ -7,7 +7,8 @@ import type {
   LoginResponseDto,
   LogoutRequestDto,
   LogoutResponseDto,
-  RefreshRequestDto
+  RefreshRequestDto,
+  RegisterRequestDto
 } from './dto';
 import type { AuthenticatedRequest } from './auth.types';
 
@@ -19,6 +20,12 @@ export class AuthController {
   @HttpCode(200)
   login(@Body() body: LoginRequestDto): Promise<LoginResponseDto> {
     return this.authService.login(body);
+  }
+
+  @Post('register')
+  @HttpCode(201)
+  register(@Body() body: RegisterRequestDto): Promise<LoginResponseDto> {
+    return this.authService.register(body);
   }
 
   @Post('refresh')

@@ -1,8 +1,19 @@
 import { getApiBaseUrl } from './constants';
-import type { LoginApiResponse, LoginRequestBody } from './types';
+import type { LoginApiResponse, LoginRequestBody, RegisterRequestBody } from './types';
 
 export async function apiLogin(body: LoginRequestBody): Promise<Response> {
   return fetch(`${getApiBaseUrl()}/v1/auth/login`, {
+    method: 'POST',
+    cache: 'no-store',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+}
+
+export async function apiRegister(body: RegisterRequestBody): Promise<Response> {
+  return fetch(`${getApiBaseUrl()}/v1/auth/register`, {
     method: 'POST',
     cache: 'no-store',
     headers: {

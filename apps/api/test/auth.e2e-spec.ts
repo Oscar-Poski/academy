@@ -13,6 +13,7 @@ describe('Auth API (e2e)', () => {
   const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const fixtureEmail = `auth-user-${unique}@academy.local`;
   const fixturePassword = 'password123';
+  const registerEmailPrefix = `auth-register-${unique}`;
   let fixtureUserId = '';
 
   beforeAll(async () => {
@@ -39,9 +40,23 @@ describe('Auth API (e2e)', () => {
   });
 
   afterAll(async () => {
-    if (fixtureUserId) {
-      await prisma.authRefreshToken.deleteMany({ where: { userId: fixtureUserId } });
-      await prisma.user.deleteMany({ where: { id: fixtureUserId } });
+    const registerUsers = await prisma.user.findMany({
+      where: {
+        email: {
+          startsWith: registerEmailPrefix
+        }
+      },
+      select: { id: true }
+    });
+
+    const userIdsToDelete = [
+      ...registerUsers.map((user) => user.id),
+      ...(fixtureUserId ? [fixtureUserId] : [])
+    ];
+
+    if (userIdsToDelete.length > 0) {
+      await prisma.authRefreshToken.deleteMany({ where: { userId: { in: userIdsToDelete } } });
+      await prisma.user.deleteMany({ where: { id: { in: userIdsToDelete } } });
     }
 
     await app.close();
@@ -64,6 +79,73 @@ describe('Auth API (e2e)', () => {
     expect(response.body.refresh_token.length).toBeGreaterThan(0);
     expect(typeof response.body.refresh_expires_in).toBe('number');
     expect(response.body.refresh_expires_in).toBeGreaterThan(0);
+  });
+
+  it('POST /v1/auth/register creates user and returns token pair; token works with GET /v1/auth/me', async () => {
+    const registerEmail = `${registerEmailPrefix}-success@academy.local`;
+    const registerPassword = 'password123';
+
+    const registered = await request(app.getHttpServer()).post('/v1/auth/register').send({
+      email: `  ${registerEmail.toUpperCase()}  `,
+      password: `  ${registerPassword}  `,
+      name: '  Register Success User  '
+    });
+
+    expect(registered.status).toBe(201);
+    expect(typeof registered.body.access_token).toBe('string');
+    expect(registered.body.access_token.length).toBeGreaterThan(0);
+    expect(registered.body.token_type).toBe('Bearer');
+    expect(typeof registered.body.expires_in).toBe('number');
+    expect(registered.body.expires_in).toBeGreaterThan(0);
+    expect(typeof registered.body.refresh_token).toBe('string');
+    expect(registered.body.refresh_token.length).toBeGreaterThan(0);
+    expect(typeof registered.body.refresh_expires_in).toBe('number');
+    expect(registered.body.refresh_expires_in).toBeGreaterThan(0);
+
+    const me = await request(app.getHttpServer())
+      .get('/v1/auth/me')
+      .set('Authorization', `Bearer ${registered.body.access_token}`);
+
+    expect(me.status).toBe(200);
+    expect(me.body.email).toBe(registerEmail);
+    expect(me.body.name).toBe('Register Success User');
+    expect(me.body.role).toBe('user');
+  });
+
+  it('POST /v1/auth/register rejects duplicate email', async () => {
+    const registerEmail = `${registerEmailPrefix}-duplicate@academy.local`;
+
+    const first = await request(app.getHttpServer()).post('/v1/auth/register').send({
+      email: registerEmail,
+      password: 'password123',
+      name: 'Duplicate User'
+    });
+    expect(first.status).toBe(201);
+
+    const second = await request(app.getHttpServer()).post('/v1/auth/register').send({
+      email: registerEmail,
+      password: 'password123',
+      name: 'Duplicate User'
+    });
+
+    expect(second.status).toBe(409);
+    expect(second.body).toEqual({
+      code: 'email_in_use',
+      message: 'Email already registered'
+    });
+  });
+
+  it('POST /v1/auth/register rejects missing or blank required fields', async () => {
+    const invalid = await request(app.getHttpServer()).post('/v1/auth/register').send({
+      email: '   ',
+      password: 'password123'
+    });
+
+    expect(invalid.status).toBe(400);
+    expect(invalid.body).toEqual({
+      code: 'invalid_registration_input',
+      message: 'Email, password, and name are required'
+    });
   });
 
   it('POST /v1/auth/login rejects unknown email and wrong password', async () => {

@@ -203,13 +203,14 @@ curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/credi
 
 Auth MVP endpoints are now available in `apps/api`:
 
+- `POST /v1/auth/register` with `{ email, password, name }`
 - `POST /v1/auth/login` with `{ email, password }`
 - `POST /v1/auth/refresh` with `{ refresh_token }`
 - `POST /v1/auth/logout` with `{ refresh_token }`
 - `GET /v1/auth/me` with `Authorization: Bearer <access_token>`
 
 PR-28 behavior:
-- login/refresh return `{ access_token, token_type, expires_in, refresh_token, refresh_expires_in }`
+- register/login/refresh return `{ access_token, token_type, expires_in, refresh_token, refresh_expires_in }`
 - refresh rotates refresh tokens as one-time-use (replay is rejected)
 - logout revokes the current refresh token
 - `auth/me` returns `{ id, email, name, role }` for the authenticated principal
@@ -225,9 +226,12 @@ PR-31 web auth plumbing:
 - web app now uses HTTP-only cookie session tokens (`academy_access_token`, `academy_refresh_token`)
 - new web auth routes:
   - `GET /login`
+  - `GET /signup`
   - `POST /api/auth/login`
+  - `POST /api/auth/register`
   - `POST /api/auth/logout`
   - `GET /api/auth/me`
+- successful signup/login creates an authenticated web session via HTTP-only cookies
 - learner routes (`/`, `/learn/:sectionId`) require authenticated web session and redirect to `/login` when missing
 - content browsing routes (`/paths/:pathId`, `/modules/:moduleId`) remain anonymous-safe
 
@@ -239,6 +243,13 @@ PR-32 identity finalization:
 Example:
 
 ```bash
+REGISTER_RESPONSE=$(curl -s -X POST "http://localhost:3001/v1/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"new.student@academy.local","password":"password123","name":"New Student"}')
+
+ACCESS_TOKEN=$(echo "$REGISTER_RESPONSE" | jq -r '.access_token')
+curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "http://localhost:3001/v1/auth/me" | jq
+
 LOGIN_RESPONSE=$(curl -s -X POST "http://localhost:3001/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d '{"email":"student@academy.local","password":"password123"}')

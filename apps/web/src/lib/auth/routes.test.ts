@@ -15,6 +15,7 @@ const cookieStore = {
 };
 
 const apiLogin = vi.fn();
+const apiRegister = vi.fn();
 const apiLogout = vi.fn();
 const apiMe = vi.fn();
 const apiRefresh = vi.fn();
@@ -26,6 +27,7 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/src/lib/auth/api', () => ({
   apiLogin,
+  apiRegister,
   apiLogout,
   apiMe,
   apiRefresh,
@@ -36,6 +38,7 @@ describe('auth route handlers', () => {
   beforeEach(() => {
     cookieStore.values.clear();
     apiLogin.mockReset();
+    apiRegister.mockReset();
     apiLogout.mockReset();
     apiMe.mockReset();
     apiRefresh.mockReset();
@@ -89,6 +92,84 @@ describe('auth route handlers', () => {
     await expect(response.json()).resolves.toEqual({
       code: 'invalid_credentials',
       message: 'Invalid email or password'
+    });
+  });
+
+  it('POST /api/auth/register sets access and refresh cookies on success', async () => {
+    apiRegister.mockResolvedValue(new Response('{}', { status: 201 }));
+    parseLoginResponse.mockResolvedValue({
+      access_token: 'access-register-1',
+      token_type: 'Bearer',
+      expires_in: 900,
+      refresh_token: 'refresh-register-1',
+      refresh_expires_in: 604800
+    });
+
+    const { POST } = await import('@/app/api/auth/register/route');
+
+    const response = await POST(
+      new Request('http://localhost/api/auth/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          name: 'New Student',
+          email: 'new.student@academy.local',
+          password: 'password123'
+        })
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('set-cookie')).toContain('academy_access_token=access-register-1');
+    expect(response.headers.get('set-cookie')).toContain('academy_refresh_token=refresh-register-1');
+  });
+
+  it('POST /api/auth/register passes duplicate email conflict payload through', async () => {
+    apiRegister.mockResolvedValue(
+      new Response(JSON.stringify({ code: 'email_in_use', message: 'Email already registered' }), {
+        status: 409
+      })
+    );
+
+    const { POST } = await import('@/app/api/auth/register/route');
+
+    const response = await POST(
+      new Request('http://localhost/api/auth/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          name: 'New Student',
+          email: 'new.student@academy.local',
+          password: 'password123'
+        })
+      })
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({
+      code: 'email_in_use',
+      message: 'Email already registered'
+    });
+  });
+
+  it('POST /api/auth/register returns invalid registration input for malformed body', async () => {
+    const { POST } = await import('@/app/api/auth/register/route');
+
+    const response = await POST(
+      new Request('http://localhost/api/auth/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          email: 'new.student@academy.local',
+          password: 'password123'
+        })
+      })
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      code: 'invalid_registration_input',
+      message: 'Invalid registration input'
     });
   });
 

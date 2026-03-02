@@ -73,6 +73,120 @@ describe('AuthService', () => {
     });
   });
 
+  it('registers user with normalized email and user role, persists hashed password, and returns token payload', async () => {
+    const prisma = {
+      user: {
+        create: jest.fn().mockResolvedValue({
+          id: 'u2',
+          email: 'new-user@example.com',
+          role: 'user'
+        })
+      },
+      authRefreshToken: {
+        create: jest.fn().mockResolvedValue({ id: 'rt2' })
+      }
+    };
+
+    const authTokenService = {
+      createAccessToken: jest.fn().mockResolvedValue({
+        accessToken: 'access-register',
+        expiresIn: 900
+      }),
+      createRefreshToken: jest.fn().mockResolvedValue({
+        refreshToken: 'refresh-register',
+        expiresIn: 604800
+      })
+    } as unknown as AuthTokenService;
+
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
+
+    const result = await service.register({
+      email: ' NEW-USER@EXAMPLE.COM ',
+      password: 'password123',
+      name: '  New User  '
+    });
+
+    expect(prisma.user.create).toHaveBeenCalledTimes(1);
+    const userCreateArg = prisma.user.create.mock.calls[0]?.[0];
+    expect(userCreateArg.data.email).toBe('new-user@example.com');
+    expect(userCreateArg.data.name).toBe('New User');
+    expect(userCreateArg.data.role).toBe('user');
+    expect(userCreateArg.data.passwordHash).toEqual(expect.any(String));
+    expect(userCreateArg.data.passwordHash).not.toBe('password123');
+
+    expect(prisma.authRefreshToken.create).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({
+      access_token: 'access-register',
+      token_type: 'Bearer',
+      expires_in: 900,
+      refresh_token: 'refresh-register',
+      refresh_expires_in: 604800
+    });
+  });
+
+  it('rejects register when email already exists', async () => {
+    const prisma = {
+      user: {
+        create: jest.fn().mockRejectedValue({ code: 'P2002' })
+      },
+      authRefreshToken: {
+        create: jest.fn()
+      }
+    };
+
+    const authTokenService = {
+      createAccessToken: jest.fn(),
+      createRefreshToken: jest.fn()
+    } as unknown as AuthTokenService;
+
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
+
+    await expect(
+      service.register({
+        email: 'user@example.com',
+        password: 'password123',
+        name: 'User'
+      })
+    ).rejects.toMatchObject({
+      response: {
+        code: 'email_in_use',
+        message: 'Email already registered'
+      }
+    });
+  });
+
+  it('rejects register for missing required fields', async () => {
+    const prisma = {
+      user: {
+        create: jest.fn()
+      },
+      authRefreshToken: {
+        create: jest.fn()
+      }
+    };
+
+    const authTokenService = {
+      createAccessToken: jest.fn(),
+      createRefreshToken: jest.fn()
+    } as unknown as AuthTokenService;
+
+    const service = new AuthService(prisma as never, authTokenService, observability as never);
+
+    await expect(
+      service.register({
+        email: 'user@example.com',
+        password: 'password123',
+        name: '   '
+      })
+    ).rejects.toMatchObject({
+      response: {
+        code: 'invalid_registration_input',
+        message: 'Email, password, and name are required'
+      }
+    });
+    expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
   it('rejects wrong password', async () => {
     const passwordHash = await hash('password123', 10);
 
