@@ -296,6 +296,12 @@ PR-52 global shell + responsive navigation:
 - shell auth actions stay session-aware (anonymous login/signup, authenticated email/logout)
 - no backend/API contract changes in this PR
 
+PR-53 paths/modules IA refresh:
+- `/paths/:pathId` and `/modules/:moduleId` now use refreshed catalog IA components for clearer action hierarchy
+- module and section actions are status-driven (`Start`, `Continue`, `Review`) with concise locked-state notices
+- progress-unavailable states remain non-fatal and keep pages readable
+- no API or route contract changes in this PR
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

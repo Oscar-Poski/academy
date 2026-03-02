@@ -1,38 +1,15 @@
-import Link from 'next/link';
+import React from 'react';
 import { notFound } from 'next/navigation';
 import { ContentApiError, getModule } from '@/src/lib/api-clients/content.client';
 import { getModuleProgress } from '@/src/lib/api-clients/progress.server';
-import type { ModuleSectionProgressItem, SectionProgressStatus } from '@/src/lib/progress-types';
+import type { ModuleSectionProgressItem } from '@/src/lib/progress-types';
+import { ModuleSectionRow } from '@/src/components/catalog';
 
 type ModulePageProps = {
   params: {
     moduleId: string;
   };
 };
-
-function getStatusLabel(status: SectionProgressStatus): string {
-  switch (status) {
-    case 'completed':
-      return 'Completed';
-    case 'in_progress':
-      return 'In Progress';
-    case 'not_started':
-    default:
-      return 'Not Started';
-  }
-}
-
-function getStatusClassName(status: SectionProgressStatus): string {
-  switch (status) {
-    case 'completed':
-      return 'progressBadge progressBadge--completed';
-    case 'in_progress':
-      return 'progressBadge progressBadge--inProgress';
-    case 'not_started':
-    default:
-      return 'progressBadge progressBadge--notStarted';
-  }
-}
 
 export default async function ModulePage({ params }: ModulePageProps) {
   try {
@@ -46,7 +23,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
 
     return (
       <main className="pageShell">
-        <header className="pageHeader playerCard">
+        <header className="pageHeader playerCard catalogHero">
           <p className="pageEyebrow">Module</p>
           <h1>{module.title}</h1>
           {module.description ? <p className="pageDescription">{module.description}</p> : null}
@@ -56,7 +33,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
               <span className="pageLockedReason">{module.lock.reasons[0] ?? 'Locked'}</span>
             </div>
           ) : null}
-          <div className="pageMetaRow">
+          <div className="pageMetaRow catalogHeroMeta">
             {moduleProgress ? (
               <>
                 <span className="progressBadge">Module Progress</span>
@@ -66,69 +43,31 @@ export default async function ModulePage({ params }: ModulePageProps) {
                 </span>
               </>
             ) : (
-              <p className="pageProgressNotice">
+              <p className="pageProgressNotice catalogMutedNotice">
                 Progress indicators unavailable right now.
               </p>
             )}
           </div>
         </header>
 
-        <section className="playerCard pageCard">
+        <section className="playerCard pageCard catalogModuleBody">
           <h2>Sections</h2>
           {module.sections.length === 0 ? (
-            <p className="pageMuted">No sections available yet.</p>
+            <p className="catalogMutedNotice">No sections available yet.</p>
           ) : (
-            <ul className="pageList">
+            <ul className="catalogSectionList">
               {module.sections.map((section) => {
                 const progress: ModuleSectionProgressItem | undefined = sectionProgressById.get(section.id);
                 const status = progress?.status ?? 'not_started';
                 const completionPct = progress?.completionPct ?? 0;
-
-                if (!moduleProgress) {
-                  return (
-                    <li key={section.id} className="pageListItem">
-                      {section.lock?.isLocked ? (
-                        <div>
-                          <div className="lockedText">
-                            <span>{section.title}</span>
-                            <span className="lockBadge lockBadge--locked">Locked</span>
-                          </div>
-                          <p className="pageLockedReason">{section.lock.reasons[0] ?? 'Locked'}</p>
-                        </div>
-                      ) : (
-                        <Link href={`/learn/${section.id}`}>{section.title}</Link>
-                      )}
-                    </li>
-                  );
-                }
-
                 return (
-                  <li key={section.id} className="pageListItem">
-                    <div className="pageListRow">
-                      <div className="pageListRowMain">
-                        {section.lock?.isLocked ? (
-                          <div>
-                            <div className="lockedText">
-                              <span>{section.title}</span>
-                              <span className="lockBadge lockBadge--locked">Locked</span>
-                            </div>
-                            <p className="pageLockedReason">{section.lock.reasons[0] ?? 'Locked'}</p>
-                          </div>
-                        ) : (
-                          <Link href={`/learn/${section.id}`}>{section.title}</Link>
-                        )}
-                      </div>
-                      <div className="pageListRowMeta">
-                        <span className={getStatusClassName(status)}>{getStatusLabel(status)}</span>
-                        {section.lock?.isLocked ? (
-                          <span className="pageLockedReason">{section.lock.reasons[0] ?? 'Locked'}</span>
-                        ) : null}
-                        {status === 'in_progress' ? (
-                          <span className="progressBadge">{completionPct}%</span>
-                        ) : null}
-                      </div>
-                    </div>
-                  </li>
+                  <ModuleSectionRow
+                    key={section.id}
+                    section={section}
+                    status={status}
+                    completionPct={completionPct}
+                    showProgress={Boolean(moduleProgress)}
+                  />
                 );
               })}
             </ul>

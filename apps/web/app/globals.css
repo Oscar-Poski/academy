@@ -399,6 +399,19 @@ main {
   gap: 1rem;
 }
 
+.catalogStack {
+  gap: var(--space-4);
+}
+
+.catalogHero {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.catalogHeroMeta {
+  min-height: 1.5rem;
+}
+
 .pageCard {
   padding: var(--space-4);
 }
@@ -763,6 +776,110 @@ main {
   gap: 0.45rem;
   flex-wrap: wrap;
   flex-shrink: 0;
+}
+
+.catalogModuleCard {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.catalogModuleHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.catalogModuleHeader h2 {
+  margin: 0;
+}
+
+.catalogModuleBody {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.catalogPrimaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-action-border);
+  background: var(--color-action-bg);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.catalogPrimaryCta:hover {
+  background: var(--color-action-bg-hover);
+}
+
+.catalogPrimaryCta.isDisabled {
+  border-color: color-mix(in srgb, var(--color-border-default) 82%, black);
+  background: color-mix(in srgb, var(--color-surface-2) 65%, black);
+  color: var(--color-action-disabled);
+  cursor: not-allowed;
+}
+
+.catalogMutedNotice {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.catalogSectionList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.catalogSectionRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  padding: 0.65rem 0.8rem;
+}
+
+.catalogSectionMain {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.catalogSectionMain p {
+  margin: 0;
+}
+
+.catalogSectionActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.catalogLockNotice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.catalogLockReason {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-status-warning-text) 92%, white);
+  font-size: 0.84rem;
 }
 
 .progressBadge {
@@ -1520,6 +1637,24 @@ main {
   }
 
   .pageListRowMeta {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .catalogModuleHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .catalogPrimaryCta {
+    width: 100%;
+  }
+
+  .catalogSectionRow {
+    flex-direction: column;
+  }
+
+  .catalogSectionActions {
     width: 100%;
     justify-content: flex-start;
   }

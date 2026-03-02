@@ -1,0 +1,44 @@
+import React from 'react';
+import Link from 'next/link';
+import type { ModuleDetailSection } from '@/src/lib/content-types';
+import type { SectionProgressStatus } from '@/src/lib/progress-types';
+import { getSectionPrimaryActionLabel } from '@/src/lib/catalog/presentation';
+import { CatalogLockNotice } from './CatalogLockNotice';
+import { CatalogProgressChip } from './CatalogProgressChip';
+
+type ModuleSectionRowProps = {
+  section: ModuleDetailSection;
+  status: SectionProgressStatus;
+  completionPct?: number;
+  showProgress: boolean;
+};
+
+export function ModuleSectionRow({ section, status, completionPct, showProgress }: ModuleSectionRowProps) {
+  const isLocked = section.lock?.isLocked === true;
+  const actionLabel = getSectionPrimaryActionLabel(status);
+  const lockReason = section.lock?.reasons[0] ?? 'Locked';
+
+  return (
+    <li className="catalogSectionRow">
+      <div className="catalogSectionMain">
+        <p>{section.title}</p>
+        {isLocked ? <CatalogLockNotice reason={lockReason} /> : null}
+      </div>
+      <div className="catalogSectionActions">
+        {showProgress ? <CatalogProgressChip status={status} /> : null}
+        {showProgress && status === 'in_progress' ? (
+          <CatalogProgressChip label={`${completionPct ?? 0}%`} />
+        ) : null}
+        {isLocked ? (
+          <span className="catalogPrimaryCta isDisabled" aria-disabled="true">
+            Locked
+          </span>
+        ) : (
+          <Link href={`/learn/${section.id}`} className="catalogPrimaryCta">
+            {actionLabel}
+          </Link>
+        )}
+      </div>
+    </li>
+  );
+}

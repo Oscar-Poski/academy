@@ -1,7 +1,8 @@
-import Link from 'next/link';
+import React from 'react';
 import { notFound } from 'next/navigation';
 import { ContentApiError, getPath } from '@/src/lib/api-clients/content.client';
 import { getPathProgress } from '@/src/lib/api-clients/progress.server';
+import { PathModuleCard } from '@/src/components/catalog';
 
 type PathPageProps = {
   params: {
@@ -21,11 +22,11 @@ export default async function PathPage({ params }: PathPageProps) {
 
     return (
       <main className="pageShell">
-        <header className="pageHeader playerCard">
+        <header className="pageHeader playerCard catalogHero">
           <p className="pageEyebrow">Path</p>
           <h1>{path.title}</h1>
           {path.description ? <p className="pageDescription">{path.description}</p> : null}
-          <div className="pageMetaRow">
+          <div className="pageMetaRow catalogHeroMeta">
             {pathProgress ? (
               <>
                 <span className="progressBadge">Path Progress</span>
@@ -35,71 +36,20 @@ export default async function PathPage({ params }: PathPageProps) {
                 </span>
               </>
             ) : (
-              <p className="pageProgressNotice">
+              <p className="pageProgressNotice catalogMutedNotice">
                 Progress indicators unavailable right now.
               </p>
             )}
           </div>
         </header>
 
-        <div className="pageStack">
+        <div className="pageStack catalogStack">
           {path.modules.map((module) => (
-            <section key={module.id} className="playerCard pageCard">
-              <div className="pageCardHeader">
-                <div>
-                  <h2>{module.title}</h2>
-                  {module.lock?.isLocked ? (
-                    <div className="pageMetaRow">
-                      <span className="lockBadge lockBadge--locked">Locked</span>
-                      <span className="pageLockedReason">{module.lock.reasons[0] ?? 'Locked'}</span>
-                    </div>
-                  ) : null}
-                  {(() => {
-                    const moduleProgress = moduleProgressById.get(module.id);
-                    if (!moduleProgress) {
-                      return null;
-                    }
-
-                    return (
-                      <div className="pageMetaRow">
-                        <span className="progressBadge">
-                          {moduleProgress.completionPct}% · {moduleProgress.completedSections}/
-                          {moduleProgress.totalSections} sections
-                        </span>
-                      </div>
-                    );
-                  })()}
-                </div>
-                {module.lock?.isLocked ? (
-                  <span className="pageActionLink isDisabled" aria-disabled="true">
-                    Open Module
-                  </span>
-                ) : (
-                  <Link className="pageActionLink" href={`/modules/${module.id}`}>
-                    Open Module
-                  </Link>
-                )}
-              </div>
-
-              {module.sections.length === 0 ? (
-                <p className="pageMuted">No sections in this module yet.</p>
-              ) : (
-                <ul className="pageList">
-                  {module.sections.map((section) => (
-                    <li key={section.id} className="pageListItem">
-                      {section.lock?.isLocked ? (
-                        <div className="lockedText">
-                          <span>{section.title}</span>
-                          <span className="lockBadge lockBadge--locked">Locked</span>
-                        </div>
-                      ) : (
-                        <Link href={`/learn/${section.id}`}>{section.title}</Link>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            <PathModuleCard
+              key={module.id}
+              module={module}
+              moduleProgress={moduleProgressById.get(module.id)}
+            />
           ))}
         </div>
       </main>
