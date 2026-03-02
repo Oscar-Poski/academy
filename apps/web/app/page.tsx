@@ -2,12 +2,17 @@ import { APP_NAME } from '@academy/shared';
 import { getApiHealth } from '@/src/lib/api';
 import { getContinueLearning } from '@/src/lib/api-clients/progress.server';
 import { requireAuthSession } from '@/src/lib/auth/require-auth-session.server';
+import { getStartLearningCandidate } from '@/src/lib/onboarding/get-start-learning-candidate.server';
 import Link from 'next/link';
+import React from 'react';
 
 export default async function HomePage() {
   await requireAuthSession('/');
-  const health = await getApiHealth();
-  const continueLearning = await getContinueLearning().catch(() => null);
+  const [health, continueLearning, startLearningCandidate] = await Promise.all([
+    getApiHealth(),
+    getContinueLearning().catch(() => null),
+    getStartLearningCandidate().catch(() => null)
+  ]);
 
   return (
     <main>
@@ -28,8 +33,23 @@ export default async function HomePage() {
               {continueLearning.source === 'resume' ? 'Resume section' : 'Start learning'}
             </Link>
           </div>
+        ) : startLearningCandidate ? (
+          <div className="homeContinueCard homeOnboardingCard">
+            <p className="homeContinuePath">
+              {startLearningCandidate.pathTitle} / {startLearningCandidate.moduleTitle}
+            </p>
+            <p className="homeContinueSection homeOnboardingTitle">
+              {startLearningCandidate.sectionTitle}
+            </p>
+            <p className="homeContinueMuted homeOnboardingHint">
+              You are all set. Start your first section.
+            </p>
+            <Link className="homeContinueLink" href={`/learn/${startLearningCandidate.sectionId}`}>
+              Start your first section
+            </Link>
+          </div>
         ) : (
-          <p className="homeContinueMuted">Continue learning is temporarily unavailable.</p>
+          <p className="homeContinueMuted">Learning recommendations are temporarily unavailable.</p>
         )}
       </section>
     </main>

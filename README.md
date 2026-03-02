@@ -247,6 +247,11 @@ PR-45 session guard hardening:
 - page loaders verify valid session via server auth profile resolution before rendering
 - invalid/expired sessions redirect to `/login?next=...` after refresh-once attempt
 
+PR-46 first-time learner onboarding on home:
+- authenticated home now has a first-time onboarding state when no resumable progress exists
+- when available, the UI resolves the first unlocked section and shows `Start your first section` linking to `/learn/:sectionId`
+- if neither continue-learning nor onboarding candidate can be resolved, home shows a non-fatal fallback message
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

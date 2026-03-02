@@ -144,6 +144,20 @@ main {
   color: var(--muted);
 }
 
+.homeOnboardingCard {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.homeOnboardingTitle {
+  margin-bottom: 0.3rem;
+}
+
+.homeOnboardingHint {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 .pageShell {
   max-width: 1080px;
   margin: 2rem auto 4rem;
