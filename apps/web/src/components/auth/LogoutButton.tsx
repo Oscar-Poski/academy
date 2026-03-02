@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/src/components/ui';
 
 export function LogoutButton() {
   const router = useRouter();
@@ -27,8 +28,15 @@ export function LogoutButton() {
   }
 
   return (
-    <button type="button" className="appAuthAction" onClick={onLogout} disabled={submitting}>
+    <Button
+      type="button"
+      variant="secondary"
+      size="sm"
+      className="appAuthAction"
+      onClick={onLogout}
+      loading={submitting}
+    >
       {submitting ? 'Logging out...' : 'Log out'}
-    </button>
+    </Button>
   );
 }

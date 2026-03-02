@@ -279,6 +279,11 @@ PR-49 design tokens + theme baseline:
 - backward-compatible aliases (`--bg`, `--panel`, `--text`, `--muted`, `--ok`) remain available and `--border` is now explicitly defined
 - no API or route contract changes; this PR is style/system groundwork for reusable UI primitives in PR-50
 
+PR-50 reusable UI primitives v1:
+- `apps/web/src/components/ui` now provides token-based `Button`, `Input`, `Card`, `Badge`, and `Alert` primitives
+- auth surfaces (`LoginForm`, `SignupForm`, header auth actions, `LogoutButton`) now consume primitives to reduce repeated class logic
+- migration is intentionally scoped; legacy classes remain available for non-migrated pages/components
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

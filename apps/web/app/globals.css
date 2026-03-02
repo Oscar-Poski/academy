@@ -365,6 +365,268 @@ main {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent-400) 38%, transparent);
 }
 
+/* UI primitives */
+.uiButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-action-border);
+  background: var(--color-action-bg);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-family: inherit;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard);
+}
+
+.uiButton--primary {
+  border-color: color-mix(in srgb, var(--color-accent-400) 45%, var(--color-action-border));
+  background: color-mix(in srgb, var(--color-accent-400) 20%, var(--color-action-bg));
+}
+
+.uiButton--primary:hover {
+  background: color-mix(in srgb, var(--color-accent-400) 32%, var(--color-action-bg-hover));
+}
+
+.uiButton--secondary {
+  border-color: var(--color-action-border);
+  background: var(--color-action-bg);
+}
+
+.uiButton--secondary:hover {
+  background: var(--color-action-bg-hover);
+}
+
+.uiButton--ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.uiButton--ghost:hover {
+  background: color-mix(in srgb, var(--color-surface-2) 55%, transparent);
+}
+
+.uiButton--danger {
+  border-color: var(--color-status-danger-border);
+  background: var(--color-status-danger-bg);
+  color: var(--color-danger-300);
+}
+
+.uiButton--danger:hover {
+  background: color-mix(in srgb, var(--color-status-danger-bg) 75%, var(--color-danger-400) 25%);
+}
+
+.uiButton--sm {
+  min-height: 34px;
+  padding: 0.35rem 0.7rem;
+  font-size: var(--font-size-sm);
+}
+
+.uiButton--md {
+  min-height: 40px;
+  padding: 0.55rem 0.9rem;
+  font-size: var(--font-size-md);
+}
+
+.uiButton--lg {
+  min-height: 46px;
+  padding: 0.72rem 1.1rem;
+  font-size: var(--font-size-lg);
+}
+
+.uiButton.isLoading {
+  opacity: 0.92;
+}
+
+.uiButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.uiField {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.uiLabel {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.uiInput {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-surface-2) 78%, black);
+  color: var(--color-text-primary);
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+}
+
+.uiInput:focus {
+  outline: none;
+  border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent-400) 38%, transparent);
+}
+
+.uiHint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.uiError {
+  margin: 0;
+  color: var(--color-status-danger-text);
+  font-size: var(--font-size-sm);
+}
+
+.uiCard {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+
+.uiCard--surface {
+  background: color-mix(in srgb, var(--color-surface-1) 90%, black);
+}
+
+.uiCard--subtle {
+  background: var(--color-surface-soft);
+}
+
+.uiCard--outlined {
+  border-color: var(--color-border-strong);
+  background: transparent;
+}
+
+.uiCard--pad-none {
+  padding: 0;
+}
+
+.uiCard--pad-sm {
+  padding: var(--space-3);
+}
+
+.uiCard--pad-md {
+  padding: var(--space-4);
+}
+
+.uiCard--pad-lg {
+  padding: var(--space-6);
+}
+
+.uiBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-status-muted-border);
+  background: var(--color-status-muted-bg);
+  color: var(--color-status-muted-text);
+  line-height: 1;
+  white-space: nowrap;
+  font-weight: var(--font-weight-medium);
+}
+
+.uiBadge--sm {
+  min-height: 24px;
+  padding: 0.16rem 0.5rem;
+  font-size: var(--font-size-xs);
+}
+
+.uiBadge--md {
+  min-height: 28px;
+  padding: 0.22rem 0.56rem;
+  font-size: var(--font-size-sm);
+}
+
+.uiBadge--neutral {
+  border-color: var(--color-status-muted-border);
+  background: var(--color-status-muted-bg);
+  color: var(--color-status-muted-text);
+}
+
+.uiBadge--info {
+  border-color: var(--color-status-info-border);
+  background: var(--color-status-info-bg);
+  color: var(--color-status-info-text);
+}
+
+.uiBadge--success {
+  border-color: var(--color-status-success-border);
+  background: var(--color-status-success-bg);
+  color: var(--color-status-success-text);
+}
+
+.uiBadge--warning {
+  border-color: var(--color-status-warning-border);
+  background: var(--color-status-warning-bg);
+  color: var(--color-status-warning-text);
+}
+
+.uiBadge--danger {
+  border-color: var(--color-status-danger-border);
+  background: var(--color-status-danger-bg);
+  color: var(--color-status-danger-text);
+}
+
+.uiAlert {
+  border: 1px solid var(--color-status-info-border);
+  background: var(--color-status-info-bg);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: grid;
+  gap: var(--space-1);
+}
+
+.uiAlertTitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.uiAlertBody {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.uiAlertBody p {
+  margin: 0;
+}
+
+.uiAlert--info {
+  border-color: var(--color-status-info-border);
+  background: var(--color-status-info-bg);
+  color: var(--color-status-info-text);
+}
+
+.uiAlert--success {
+  border-color: var(--color-status-success-border);
+  background: var(--color-status-success-bg);
+  color: var(--color-status-success-text);
+}
+
+.uiAlert--warning {
+  border-color: var(--color-status-warning-border);
+  background: var(--color-status-warning-bg);
+  color: var(--color-status-warning-text);
+}
+
+.uiAlert--danger {
+  border-color: var(--color-status-danger-border);
+  background: var(--color-status-danger-bg);
+  color: var(--color-status-danger-text);
+}
+
 .pageList {
   margin: 0.75rem 0 0;
   padding: 0;

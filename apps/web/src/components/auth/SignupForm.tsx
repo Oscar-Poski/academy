@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useState } from 'react';
+import { Alert, Button, Card, Input } from '@/src/components/ui';
 
 type RegisterError = {
   code?: string;
@@ -55,40 +56,31 @@ export function SignupForm() {
   }
 
   return (
-    <form className="playerCard pageCard" onSubmit={onSubmit}>
+    <Card as="form" className="playerCard pageCard" onSubmit={onSubmit}>
       <h1>Create Account</h1>
       <p className="pageMuted">Create your Academy account to start learning.</p>
 
-      <label className="pageLabel" htmlFor="signup-name">
-        Name
-      </label>
-      <input
+      <Input
         id="signup-name"
-        className="pageInput"
+        label="Name"
         value={name}
         onChange={(event) => setName(event.target.value)}
         autoComplete="name"
         required
       />
 
-      <label className="pageLabel" htmlFor="signup-email">
-        Email
-      </label>
-      <input
+      <Input
         id="signup-email"
-        className="pageInput"
+        label="Email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         autoComplete="email"
         required
       />
 
-      <label className="pageLabel" htmlFor="signup-password">
-        Password
-      </label>
-      <input
+      <Input
         id="signup-password"
-        className="pageInput"
+        label="Password"
         type="password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
@@ -96,14 +88,14 @@ export function SignupForm() {
         required
       />
 
-      <button type="submit" className="pageActionLink" disabled={submitting}>
+      <Button type="submit" loading={submitting}>
         {submitting ? 'Creating account...' : 'Create account'}
-      </button>
+      </Button>
 
-      {errorMessage ? <p className="playerFooterError">{errorMessage}</p> : null}
+      {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       <p className="pageMuted">
         Already have an account? <Link href="/login">Sign in</Link>
       </p>
-    </form>
+    </Card>
   );
 }

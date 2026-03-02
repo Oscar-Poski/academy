@@ -1,8 +1,10 @@
 'use client';
 
+import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
+import { Alert, Button, Card, Input } from '@/src/components/ui';
 
 type LoginError = {
   code?: string;
@@ -53,28 +55,22 @@ export function LoginForm() {
   }
 
   return (
-    <form className="playerCard pageCard" onSubmit={onSubmit}>
+    <Card as="form" className="playerCard pageCard" onSubmit={onSubmit}>
       <h1>Sign In</h1>
       <p className="pageMuted">Use your Academy credentials to continue learning.</p>
 
-      <label className="pageLabel" htmlFor="login-email">
-        Email
-      </label>
-      <input
+      <Input
         id="login-email"
-        className="pageInput"
+        label="Email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         autoComplete="email"
         required
       />
 
-      <label className="pageLabel" htmlFor="login-password">
-        Password
-      </label>
-      <input
+      <Input
         id="login-password"
-        className="pageInput"
+        label="Password"
         type="password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
@@ -82,14 +78,14 @@ export function LoginForm() {
         required
       />
 
-      <button type="submit" className="pageActionLink" disabled={submitting}>
+      <Button type="submit" loading={submitting}>
         {submitting ? 'Signing in...' : 'Sign in'}
-      </button>
+      </Button>
 
-      {errorMessage ? <p className="playerFooterError">{errorMessage}</p> : null}
+      {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       <p className="pageMuted">
         New here? <Link href="/signup">Create an account</Link>
       </p>
-    </form>
+    </Card>
   );
 }
