@@ -302,6 +302,12 @@ PR-53 paths/modules IA refresh:
 - progress-unavailable states remain non-fatal and keep pages readable
 - no API or route contract changes in this PR
 
+PR-54 learn player readability + action layout:
+- `/learn/:sectionId` now has improved reading rhythm (content width, spacing, metadata clarity)
+- player action controls (`Previous`, `Mark Complete`, `Next`) are rendered in a dedicated action rail with sticky desktop behavior and mobile fallback
+- sidebar active module/section states are visually emphasized for faster scanability
+- no API or route contract changes; completion/quiz/unlock behavior is unchanged
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

@@ -17,7 +17,7 @@ export function MarkdownBlock({ contentJson }: MarkdownBlockProps) {
   }
 
   return (
-    <section className="block blockMarkdown">
+    <section className="block blockMarkdown playerBlockProse">
       <pre className="blockMarkdownText">{contentJson.markdown}</pre>
     </section>
   );

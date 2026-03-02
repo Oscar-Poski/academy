@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { updateSectionPosition } from '@/src/lib/api-clients/progress.browser';
@@ -11,7 +12,6 @@ type PlayerNavButtonProps = {
   currentSectionId: string;
   lastBlockOrderToPersist: number;
   isLocked?: boolean;
-  lockReason?: string | null;
 };
 
 export function PlayerNavButton({
