@@ -8,6 +8,7 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
+    "web:regression": "pnpm --filter @academy/web test:regression && pnpm --filter @academy/web typecheck",
     "release:smoke": "bash scripts/release-smoke.sh",
     "format": "prettier --check .",
     "format:write": "prettier --write ."

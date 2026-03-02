@@ -328,6 +328,15 @@ PR-57 microcopy + UX consistency sweep:
 - known backend error codes now map to deterministic web-owned copy in `apps/web/src/lib/errors/error-messages.ts` (API payload messages are fallback-only for unknown codes)
 - wording is standardized to clear/neutral phrasing without changing behavior, route contracts, or backend APIs
 
+PR-58 web UI regression guardrail pack:
+- web regression is now codified as DOM/state and CSS contract tests using existing Vitest + Testing Library tooling (no screenshot baseline framework added)
+- added dedicated command in `apps/web/package.json`:
+  - `pnpm --filter @academy/web test:regression`
+- added root convenience command:
+  - `pnpm web:regression`
+- CI now includes `.github/workflows/web-regression.yml` to run `test:regression` + `typecheck` on every pull request
+- no backend/API/route contract changes in this PR
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity
