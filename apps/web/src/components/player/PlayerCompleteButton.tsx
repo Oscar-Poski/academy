@@ -2,12 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useState, useTransition } from 'react';
+import { Alert } from '@/src/components/ui';
 import { evaluateModuleUnlock } from '@/src/lib/api-clients/unlocks.browser';
 import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.browser';
 import {
   completeSectionProgress,
   isCompletionBlockedError
 } from '@/src/lib/api-clients/progress.browser';
+import { getErrorMessageFromUnknown } from '@/src/lib/errors/error-messages';
 import type { CompletionBlockedError, SectionProgress } from '@/src/lib/progress-types';
 
 type PlayerCompleteButtonProps = {
@@ -86,7 +88,7 @@ export function PlayerCompleteButton({
       }
 
       setCompletionBlocked(null);
-      setErrorMessage('Unable to mark section complete. Try again.');
+      setErrorMessage(getErrorMessageFromUnknown(error, 'Unable to mark section complete. Try again.'));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -186,7 +188,7 @@ export function PlayerCompleteButton({
         </div>
       ) : null}
       <div className="playerFooterError" aria-live="polite">
-        {errorMessage}
+        {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       </div>
     </div>
   );

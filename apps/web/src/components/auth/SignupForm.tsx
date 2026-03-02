@@ -9,6 +9,7 @@ import type { AuthApiError } from '@/src/lib/auth/types';
 import { safeNextPath } from '@/src/lib/auth/safe-next-path';
 import type { AuthFieldErrors } from '@/src/lib/auth/form-validation';
 import { validateSignupInput } from '@/src/lib/auth/form-validation';
+import { getAuthErrorMessage } from '@/src/lib/errors/error-messages';
 
 export function SignupForm() {
   const router = useRouter();
@@ -38,16 +39,6 @@ export function SignupForm() {
     });
   }
 
-  function formatErrorMessage(payload: AuthApiError | null): string {
-    if (!payload) {
-      return 'Unable to create account right now. Try again.';
-    }
-    if (payload.code === 'rate_limited' && typeof payload.retry_after_seconds === 'number') {
-      return `${payload.message} Try again in ${payload.retry_after_seconds} seconds.`;
-    }
-    return payload.message;
-  }
-
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) {
@@ -75,7 +66,7 @@ export function SignupForm() {
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as AuthApiError | null;
-        setErrorMessage(formatErrorMessage(payload));
+        setErrorMessage(getAuthErrorMessage(payload, 'Unable to create account right now. Try again.'));
         return;
       }
 

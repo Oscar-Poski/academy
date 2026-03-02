@@ -4,6 +4,7 @@ import { ContentApiError, getModule } from '@/src/lib/api-clients/content.client
 import { getModuleProgress } from '@/src/lib/api-clients/progress.server';
 import type { ModuleSectionProgressItem } from '@/src/lib/progress-types';
 import { ModuleSectionRow } from '@/src/components/catalog';
+import { InlineNotice } from '@/src/components/state';
 
 type ModulePageProps = {
   params: {
@@ -43,9 +44,10 @@ export default async function ModulePage({ params }: ModulePageProps) {
                 </span>
               </>
             ) : (
-              <p className="pageProgressNotice catalogMutedNotice">
-                Progress indicators unavailable right now.
-              </p>
+              <InlineNotice
+                className="pageProgressNotice catalogMutedNotice"
+                message="Progress indicators unavailable right now."
+              />
             )}
           </div>
         </header>
@@ -53,7 +55,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
         <section className="playerCard pageCard catalogModuleBody">
           <h2>Sections</h2>
           {module.sections.length === 0 ? (
-            <p className="catalogMutedNotice">No sections available yet.</p>
+            <InlineNotice className="catalogMutedNotice" message="No sections available yet." />
           ) : (
             <ul className="catalogSectionList">
               {module.sections.map((section) => {

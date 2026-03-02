@@ -11,6 +11,7 @@ import {
   getSectionStatusClassName,
   getSectionStatusLabel
 } from '@/src/lib/player/presentation';
+import { InlineNotice } from '@/src/components/state';
 import { LessonBlockRenderer } from './LessonBlockRenderer';
 import { PlayerActionRail } from './PlayerActionRail';
 import { PlayerLifecycleAnalytics } from './PlayerLifecycleAnalytics';
@@ -85,7 +86,7 @@ export function PlayerContent({
               {getSectionStatusLabel(sectionProgress.status)}
             </span>
           ) : (
-            <span className="playerHeaderMetaText">Progress indicators unavailable right now.</span>
+            <InlineNotice className="playerHeaderMetaText" message="Progress indicators unavailable right now." />
           )}
           {sectionMeta.completionLabel ? (
             <span className="playerHeaderMetaText">{sectionMeta.completionLabel}</span>
@@ -99,7 +100,7 @@ export function PlayerContent({
         <div className="playerReadingColumn">
           <div className="playerBlocks playerBlockStack">
             {renderableLessonBlocks.length === 0 && !hasQuizBlockOnly ? (
-              <div className="playerCard playerEmptyState">No lesson blocks available for this section yet.</div>
+              <InlineNotice className="playerCard playerEmptyState" message="No lesson blocks available for this section yet." />
             ) : (
               renderableLessonBlocks.map((block) => (
                 <div key={block.id} className="playerBlockItem">

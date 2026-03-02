@@ -97,6 +97,7 @@ describe('SignupForm', () => {
     await waitFor(() => {
       expect(screen.getByText('Email already registered')).toBeInTheDocument();
     });
+    expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
   });
 

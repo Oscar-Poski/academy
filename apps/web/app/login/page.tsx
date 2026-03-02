@@ -2,6 +2,7 @@ import React from 'react';
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { LoginForm } from '@/src/components/auth/LoginForm';
+import { PageSkeleton } from '@/src/components/state';
 import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import { safeNextPath } from '@/src/lib/auth/safe-next-path';
 
@@ -20,7 +21,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <main className="pageShell">
-      <Suspense fallback={null}>
+      <Suspense fallback={<PageSkeleton variant="auth" />}>
         <LoginForm />
       </Suspense>
     </main>

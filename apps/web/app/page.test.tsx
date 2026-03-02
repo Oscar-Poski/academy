@@ -84,9 +84,9 @@ describe('HomePage', () => {
 
     render(await HomePage());
 
-    expect(
-      screen.getByText('Learning recommendations are temporarily unavailable.')
-    ).toBeInTheDocument();
+    const notice = screen.getByText('Learning recommendations are temporarily unavailable.');
+    expect(notice).toBeInTheDocument();
+    expect(notice).toHaveClass('stateInlineNotice');
     expect(screen.queryByRole('link', { name: 'Resume section' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Start your first section' })).not.toBeInTheDocument();
   });

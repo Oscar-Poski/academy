@@ -33,7 +33,11 @@ describe('quiz.browser client', () => {
       submitQuizAttempt('section-1', {
         answers: [{ question_id: 'q1', selected_option: 'GET' }]
       })
-    ).rejects.toBeInstanceOf(BrowserQuizApiError);
+    ).rejects.toMatchObject({
+      name: 'BrowserQuizApiError',
+      status: 400,
+      payload: { code: 'invalid' }
+    });
 
     fetchSpy.mockRestore();
   });

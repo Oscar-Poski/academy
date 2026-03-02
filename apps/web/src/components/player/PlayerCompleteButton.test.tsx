@@ -178,5 +178,6 @@ describe('PlayerCompleteButton', () => {
     await waitFor(() => {
       expect(screen.getByText('Unable to mark section complete. Try again.')).toBeInTheDocument();
     });
+    expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
   });
 });

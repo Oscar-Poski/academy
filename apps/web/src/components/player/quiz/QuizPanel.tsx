@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { useMemo, useState } from 'react';
+import { Alert } from '@/src/components/ui';
 import { submitQuizAttempt } from '@/src/lib/api-clients/quiz.browser';
+import { getErrorMessageFromUnknown } from '@/src/lib/errors/error-messages';
 import type { QuizAttemptResult, QuizDelivery, QuizSubmissionRequest } from '@/src/lib/quiz-types';
 import { QuizQuestionCard } from './QuizQuestionCard';
 
@@ -62,8 +64,8 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
 
       const attempt = await submitQuizAttempt(sectionId, payload);
       setResult(attempt);
-    } catch {
-      setErrorMessage('Unable to submit quiz right now. Try again.');
+    } catch (error) {
+      setErrorMessage(getErrorMessageFromUnknown(error, 'Unable to submit quiz right now. Try again.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -106,9 +108,9 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
       </div>
 
       {errorMessage ? (
-        <p className="quizError" role="status">
-          {errorMessage}
-        </p>
+        <div className="quizError" role="status">
+          <Alert tone="danger">{errorMessage}</Alert>
+        </div>
       ) : null}
 
       {result ? (

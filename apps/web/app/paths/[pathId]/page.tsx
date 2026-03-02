@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ContentApiError, getPath } from '@/src/lib/api-clients/content.client';
 import { getPathProgress } from '@/src/lib/api-clients/progress.server';
 import { PathModuleCard } from '@/src/components/catalog';
+import { InlineNotice } from '@/src/components/state';
 
 type PathPageProps = {
   params: {
@@ -36,9 +37,10 @@ export default async function PathPage({ params }: PathPageProps) {
                 </span>
               </>
             ) : (
-              <p className="pageProgressNotice catalogMutedNotice">
-                Progress indicators unavailable right now.
-              </p>
+              <InlineNotice
+                className="pageProgressNotice catalogMutedNotice"
+                message="Progress indicators unavailable right now."
+              />
             )}
           </div>
         </header>

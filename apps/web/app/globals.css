@@ -734,6 +734,123 @@ main {
   color: var(--color-status-danger-text);
 }
 
+/* Shared runtime states */
+.stateCard {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.stateCard--loading {
+  border-color: var(--color-status-info-border);
+  background: color-mix(in srgb, var(--color-status-info-bg) 70%, var(--color-surface-1));
+}
+
+.stateCard--empty,
+.stateCard--info {
+  border-color: var(--color-border-default);
+  background: var(--color-surface-soft);
+}
+
+.stateCard--error {
+  border-color: var(--color-status-danger-border);
+  background: var(--color-status-danger-bg);
+}
+
+.stateCardTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-family: var(--font-display);
+}
+
+.stateCardMessage {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.stateActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.stateInlineNotice {
+  margin: 0;
+  border: 1px solid var(--color-status-info-border);
+  border-radius: var(--radius-md);
+  background: var(--color-status-info-bg);
+  color: var(--color-status-info-text);
+  padding: 0.5rem 0.65rem;
+  font-size: var(--font-size-sm);
+}
+
+.stateInlineNotice--warning {
+  border-color: var(--color-status-warning-border);
+  background: var(--color-status-warning-soft-bg);
+  color: var(--color-status-warning-soft-text);
+}
+
+.stateInlineNotice--info {
+  border-color: var(--color-status-info-border);
+  background: var(--color-status-info-bg);
+  color: var(--color-status-info-text);
+}
+
+.stateSkeleton {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.stateSkeletonBlock {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface-1) 90%, black);
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.stateSkeletonLine {
+  height: 0.75rem;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-border-default) 70%, var(--color-surface-2));
+}
+
+.stateSkeletonLine--lg {
+  width: min(360px, 82%);
+  height: 1rem;
+}
+
+.stateSkeletonLine--md {
+  width: min(460px, 90%);
+}
+
+.stateSkeletonLine--sm {
+  width: min(280px, 70%);
+}
+
+.stateSkeletonPulse {
+  animation: state-skeleton-pulse 1.5s var(--ease-standard) infinite alternate;
+}
+
+.authSkeleton {
+  max-width: 760px;
+}
+
+.catalogSkeleton,
+.learnSkeleton {
+  max-width: 1080px;
+}
+
+@keyframes state-skeleton-pulse {
+  from {
+    opacity: 0.84;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .pageList {
   margin: 0.75rem 0 0;
   padding: 0;
@@ -1162,7 +1279,6 @@ main {
 
 .playerEmptyState {
   padding: 1rem 1.25rem;
-  color: var(--muted);
 }
 
 .playerFooter {
@@ -1239,11 +1355,10 @@ main {
 
 .playerFooterError {
   min-height: 1rem;
-  color: var(--color-status-danger-text);
   font-size: 0.8rem;
   line-height: 1.2;
   text-align: center;
- }
+}
 
 .completionBlockedCard {
   width: 100%;
@@ -1531,7 +1646,6 @@ main {
 
 .quizError {
   margin: 0;
-  color: color-mix(in srgb, var(--color-danger-300) 92%, white);
 }
 
 .quizResult {
@@ -1691,6 +1805,14 @@ main {
   .appFooterNav {
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .stateActions {
+    width: 100%;
+  }
+
+  .stateActions .uiButton {
+    width: 100%;
   }
 
   .pageListRow {

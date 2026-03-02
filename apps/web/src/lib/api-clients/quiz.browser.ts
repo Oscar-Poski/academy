@@ -3,7 +3,8 @@ import type { QuizAttemptResult, QuizSubmissionRequest } from '@/src/lib/quiz-ty
 export class BrowserQuizApiError extends Error {
   constructor(
     message: string,
-    public readonly status: number
+    public readonly status: number,
+    public readonly payload?: unknown
   ) {
     super(message);
     this.name = 'BrowserQuizApiError';
@@ -24,7 +25,12 @@ export async function submitQuizAttempt(
   });
 
   if (!response.ok) {
-    throw new BrowserQuizApiError(`Quiz attempt request failed for section ${sectionId}`, response.status);
+    const payload = (await response.json().catch(() => null)) as unknown;
+    throw new BrowserQuizApiError(
+      `Quiz attempt request failed for section ${sectionId}`,
+      response.status,
+      payload
+    );
   }
 
   return (await response.json()) as QuizAttemptResult;

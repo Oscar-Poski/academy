@@ -308,6 +308,13 @@ PR-54 learn player readability + action layout:
 - sidebar active module/section states are visually emphasized for faster scanability
 - no API or route contract changes; completion/quiz/unlock behavior is unchanged
 
+PR-55 loading/empty/error state system:
+- key app routes now render deterministic skeleton loading states (`home`, `auth`, `catalog`, `learn`) instead of blank fallbacks
+- app-level recoverable error boundary (`/app/error.tsx`) now provides a retry action and safe home navigation
+- non-fatal fallback UI on home/path/module/player now uses shared inline notices for consistent state rendering
+- auth/quiz/progress error surfaces use centralized message mapping with reusable alert-style presentation
+- no API or route contract changes in this PR
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

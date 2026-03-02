@@ -161,6 +161,8 @@ describe('ModulePage', () => {
 
     render(await ModulePage({ params: { moduleId: 'module-1' } }));
 
-    expect(screen.getByText('Progress indicators unavailable right now.')).toBeInTheDocument();
+    const notice = screen.getByText('Progress indicators unavailable right now.');
+    expect(notice).toBeInTheDocument();
+    expect(notice).toHaveClass('stateInlineNotice');
   });
 });

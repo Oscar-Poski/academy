@@ -132,7 +132,7 @@ describe('QuizPanel', () => {
   });
 
   it('shows non-fatal error on submit failure', async () => {
-    submitQuizAttempt.mockRejectedValue(new Error('network')); 
+    submitQuizAttempt.mockRejectedValue(new Error('network'));
 
     render(<QuizPanel sectionId="section-1" quizDelivery={delivery} />);
 
@@ -142,5 +142,6 @@ describe('QuizPanel', () => {
     await waitFor(() => {
       expect(screen.getByText('Unable to submit quiz right now. Try again.')).toBeInTheDocument();
     });
+    expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
   });
 });

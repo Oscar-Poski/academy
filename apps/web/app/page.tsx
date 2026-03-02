@@ -3,6 +3,7 @@ import { getApiHealth } from '@/src/lib/api';
 import { getContinueLearning } from '@/src/lib/api-clients/progress.server';
 import { requireAuthSession } from '@/src/lib/auth/require-auth-session.server';
 import { getStartLearningCandidate } from '@/src/lib/onboarding/get-start-learning-candidate.server';
+import { InlineNotice } from '@/src/components/state';
 import Link from 'next/link';
 import React from 'react';
 
@@ -49,7 +50,10 @@ export default async function HomePage() {
             </Link>
           </div>
         ) : (
-          <p className="homeContinueMuted">Learning recommendations are temporarily unavailable.</p>
+          <InlineNotice
+            className="homeContinueMuted"
+            message="Learning recommendations are temporarily unavailable."
+          />
         )}
       </section>
     </main>

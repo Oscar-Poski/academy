@@ -29,7 +29,13 @@ export async function PATCH(request: Request, context: RouteContext): Promise<Re
 
     return NextResponse.json(payload, { status: 200 });
   } catch (error) {
-    const status = error instanceof AuthenticatedApiError ? error.status : 500;
-    return NextResponse.json({ code: 'unauthorized', message: 'Invalid or missing bearer token' }, { status });
+    if (error instanceof AuthenticatedApiError) {
+      return NextResponse.json(
+        { code: 'unauthorized', message: 'Invalid or missing bearer token' },
+        { status: error.status }
+      );
+    }
+
+    return NextResponse.json({ code: 'internal_error', message: 'Unexpected server error' }, { status: 500 });
   }
 }

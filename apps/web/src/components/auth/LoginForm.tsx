@@ -9,6 +9,7 @@ import type { AuthApiError } from '@/src/lib/auth/types';
 import { safeNextPath } from '@/src/lib/auth/safe-next-path';
 import type { AuthFieldErrors } from '@/src/lib/auth/form-validation';
 import { validateLoginInput } from '@/src/lib/auth/form-validation';
+import { getAuthErrorMessage } from '@/src/lib/errors/error-messages';
 
 export function LoginForm() {
   const router = useRouter();
@@ -35,16 +36,6 @@ export function LoginForm() {
       }
       return updated;
     });
-  }
-
-  function formatErrorMessage(payload: AuthApiError | null): string {
-    if (!payload) {
-      return 'Invalid email or password';
-    }
-    if (payload.code === 'rate_limited' && typeof payload.retry_after_seconds === 'number') {
-      return `${payload.message} Try again in ${payload.retry_after_seconds} seconds.`;
-    }
-    return payload.message;
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -74,7 +65,7 @@ export function LoginForm() {
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as AuthApiError | null;
-        setErrorMessage(formatErrorMessage(payload));
+        setErrorMessage(getAuthErrorMessage(payload, 'Invalid email or password'));
         return;
       }
 

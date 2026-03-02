@@ -90,6 +90,7 @@ describe('LoginForm', () => {
     await waitFor(() => {
       expect(screen.getByText('Invalid email or password')).toBeInTheDocument();
     });
+    expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
   });
 
