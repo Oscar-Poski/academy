@@ -2,6 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { ContentApiError, getPath } from '@/src/lib/api-clients/content.client';
 import { getPathProgress } from '@/src/lib/api-clients/progress.server';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { PathModuleCard } from '@/src/components/catalog';
 import { InlineNotice } from '@/src/components/state';
 
@@ -24,13 +25,13 @@ export default async function PathPage({ params }: PathPageProps) {
     return (
       <main className="pageShell">
         <header className="pageHeader playerCard catalogHero">
-          <p className="pageEyebrow">Path</p>
+          <p className="pageEyebrow">{microcopy.catalog.pathLabel}</p>
           <h1>{path.title}</h1>
           {path.description ? <p className="pageDescription">{path.description}</p> : null}
           <div className="pageMetaRow catalogHeroMeta">
             {pathProgress ? (
               <>
-                <span className="progressBadge">Path Progress</span>
+                <span className="progressBadge">{microcopy.catalog.pathProgress}</span>
                 <span className="pageProgressSummary">
                   {pathProgress.completionPct}% complete · {pathProgress.completedModules}/
                   {pathProgress.totalModules} modules
@@ -39,7 +40,7 @@ export default async function PathPage({ params }: PathPageProps) {
             ) : (
               <InlineNotice
                 className="pageProgressNotice catalogMutedNotice"
-                message="Progress indicators unavailable right now."
+                message={microcopy.catalog.progressUnavailable}
               />
             )}
           </div>

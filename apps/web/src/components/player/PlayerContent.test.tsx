@@ -111,6 +111,10 @@ describe('PlayerContent', () => {
       item.textContent?.trim()
     );
     expect(metaItems).toEqual(['In Progress', '55% complete', '2 blocks', '4 min read']);
+    expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toBeInTheDocument();
+    const breadcrumbItems = container.querySelectorAll('.playerBreadcrumbList .playerBreadcrumbItem');
+    expect(breadcrumbItems).toHaveLength(3);
+    expect(breadcrumbItems[2]).toHaveAttribute('aria-current', 'page');
     expect(container.querySelector('.playerReadFrame')).toBeInTheDocument();
     expect(container.querySelector('.playerReadingColumn')).toBeInTheDocument();
     expect(screen.getByTestId('lifecycle-analytics')).toBeInTheDocument();

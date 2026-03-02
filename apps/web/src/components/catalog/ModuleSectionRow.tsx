@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import type { ModuleDetailSection } from '@/src/lib/content-types';
 import type { SectionProgressStatus } from '@/src/lib/progress-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { getSectionPrimaryActionLabel } from '@/src/lib/catalog/presentation';
 import { CatalogLockNotice } from './CatalogLockNotice';
 import { CatalogProgressChip } from './CatalogProgressChip';
@@ -16,7 +17,7 @@ type ModuleSectionRowProps = {
 export function ModuleSectionRow({ section, status, completionPct, showProgress }: ModuleSectionRowProps) {
   const isLocked = section.lock?.isLocked === true;
   const actionLabel = getSectionPrimaryActionLabel(status);
-  const lockReason = section.lock?.reasons[0] ?? 'Locked';
+  const lockReason = section.lock?.reasons[0] ?? microcopy.catalog.lockedReasonFallback;
 
   return (
     <li className="catalogSectionRow">
@@ -30,8 +31,14 @@ export function ModuleSectionRow({ section, status, completionPct, showProgress 
           <CatalogProgressChip label={`${completionPct ?? 0}%`} />
         ) : null}
         {isLocked ? (
-          <span className="catalogPrimaryCta isDisabled" aria-disabled="true">
-            Locked
+          <span
+            className="catalogPrimaryCta isDisabled"
+            aria-disabled="true"
+            role="note"
+            aria-label={`Locked: ${lockReason}`}
+            title={lockReason}
+          >
+            {microcopy.catalog.locked}
           </span>
         ) : (
           <Link href={`/learn/${section.id}`} className="catalogPrimaryCta">

@@ -1,4 +1,5 @@
 import type { AuthApiError } from '@/src/lib/auth/types';
+import { getKnownErrorMessage, microcopy } from '@/src/lib/copy/microcopy';
 
 type ErrorPayload = {
   code?: unknown;
@@ -17,22 +18,33 @@ function getRateLimitedSuffix(payload: ErrorPayload): string {
   if (payload.code !== 'rate_limited' || typeof payload.retry_after_seconds !== 'number') {
     return '';
   }
-  return ` Try again in ${payload.retry_after_seconds} seconds.`;
+  return ` ${microcopy.errors.rateLimitedSuffixPrefix} ${payload.retry_after_seconds} seconds.`;
 }
 
 export function getAuthErrorMessage(payload: AuthApiError | null, fallback: string): string {
   if (!payload) {
     return fallback;
   }
-  return `${payload.message}${getRateLimitedSuffix(payload)}`;
+  const knownMessage = getKnownErrorMessage(payload.code);
+  if (!knownMessage) {
+    return fallback;
+  }
+
+  return `${knownMessage}${getRateLimitedSuffix(payload)}`;
 }
 
 export function getErrorMessageFromPayload(payload: unknown, fallback: string): string {
   const parsed = readObject(payload) as ErrorPayload | null;
-  if (!parsed || typeof parsed.code !== 'string' || typeof parsed.message !== 'string') {
+  if (!parsed) {
     return fallback;
   }
-  return `${parsed.message}${getRateLimitedSuffix(parsed)}`;
+
+  const knownMessage = getKnownErrorMessage(parsed.code);
+  if (!knownMessage) {
+    return fallback;
+  }
+
+  return `${knownMessage}${getRateLimitedSuffix(parsed)}`;
 }
 
 export function getErrorMessageFromUnknown(error: unknown, fallback: string): string {

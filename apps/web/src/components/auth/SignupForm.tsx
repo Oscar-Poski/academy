@@ -9,6 +9,7 @@ import type { AuthApiError } from '@/src/lib/auth/types';
 import { safeNextPath } from '@/src/lib/auth/safe-next-path';
 import type { AuthFieldErrors } from '@/src/lib/auth/form-validation';
 import { validateSignupInput } from '@/src/lib/auth/form-validation';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { getAuthErrorMessage } from '@/src/lib/errors/error-messages';
 
 export function SignupForm() {
@@ -66,14 +67,14 @@ export function SignupForm() {
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as AuthApiError | null;
-        setErrorMessage(getAuthErrorMessage(payload, 'Unable to create account right now. Try again.'));
+        setErrorMessage(getAuthErrorMessage(payload, microcopy.auth.errors.signUpUnavailable));
         return;
       }
 
       router.push(nextPath);
       router.refresh();
     } catch {
-      setErrorMessage('Unable to create account right now. Try again.');
+      setErrorMessage(microcopy.auth.errors.signUpUnavailable);
     } finally {
       setSubmitting(false);
     }
@@ -81,8 +82,8 @@ export function SignupForm() {
 
   return (
     <Card as="form" className="playerCard pageCard" onSubmit={onSubmit}>
-      <h1>Create Account</h1>
-      <p className="pageMuted">Create your Academy account to start learning.</p>
+      <h1>{microcopy.auth.headings.signUp}</h1>
+      <p className="pageMuted">{microcopy.auth.descriptions.signUp}</p>
 
       <Input
         id="signup-name"
@@ -128,12 +129,13 @@ export function SignupForm() {
       />
 
       <Button type="submit" loading={submitting} disabled={isSubmitDisabled}>
-        {submitting ? 'Creating account...' : 'Create account'}
+        {submitting ? microcopy.auth.buttons.signingUp : microcopy.auth.buttons.signUp}
       </Button>
 
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       <p className="pageMuted">
-        Already have an account? <Link href="/login">Sign in</Link>
+        {microcopy.auth.links.alreadyHaveAccountPrefix}{' '}
+        <Link href="/login">{microcopy.auth.links.alreadyHaveAccountAction}</Link>
       </p>
     </Card>
   );

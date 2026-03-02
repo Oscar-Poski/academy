@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import type { PathTreeModule } from '@/src/lib/content-types';
 import type { PathModuleProgressItem } from '@/src/lib/progress-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { CatalogLockNotice } from './CatalogLockNotice';
 import { CatalogProgressChip } from './CatalogProgressChip';
 
@@ -12,7 +13,7 @@ type PathModuleCardProps = {
 
 export function PathModuleCard({ module, moduleProgress }: PathModuleCardProps) {
   const isLocked = module.lock?.isLocked === true;
-  const lockReason = module.lock?.reasons[0] ?? 'Locked';
+  const lockReason = module.lock?.reasons[0] ?? microcopy.catalog.lockedReasonFallback;
 
   return (
     <section className="playerCard pageCard catalogModuleCard">
@@ -29,23 +30,29 @@ export function PathModuleCard({ module, moduleProgress }: PathModuleCardProps) 
           ) : null}
         </div>
         {isLocked ? (
-          <span className="catalogPrimaryCta isDisabled" aria-disabled="true">
-            Locked
+          <span
+            className="catalogPrimaryCta isDisabled"
+            aria-disabled="true"
+            role="note"
+            aria-label={`Locked: ${lockReason}`}
+            title={lockReason}
+          >
+            {microcopy.catalog.locked}
           </span>
         ) : (
           <Link className="catalogPrimaryCta" href={`/modules/${module.id}`}>
-            Open module
+            {microcopy.catalog.openModule}
           </Link>
         )}
       </header>
 
       {module.sections.length === 0 ? (
-        <p className="catalogMutedNotice">No sections in this module yet.</p>
+        <p className="catalogMutedNotice">{microcopy.catalog.noSectionsInModuleYet}</p>
       ) : (
         <ul className="catalogSectionList">
           {module.sections.map((section) => {
             const sectionLocked = section.lock?.isLocked === true;
-            const sectionLockReason = section.lock?.reasons[0] ?? 'Locked';
+            const sectionLockReason = section.lock?.reasons[0] ?? microcopy.catalog.lockedReasonFallback;
 
             return (
               <li key={section.id} className="catalogSectionRow">
@@ -55,12 +62,18 @@ export function PathModuleCard({ module, moduleProgress }: PathModuleCardProps) 
                 </div>
                 <div className="catalogSectionActions">
                   {sectionLocked ? (
-                    <span className="catalogPrimaryCta isDisabled" aria-disabled="true">
-                      Locked
+                    <span
+                      className="catalogPrimaryCta isDisabled"
+                      aria-disabled="true"
+                      role="note"
+                      aria-label={`Locked: ${sectionLockReason}`}
+                      title={sectionLockReason}
+                    >
+                      {microcopy.catalog.locked}
                     </span>
                   ) : (
                     <Link className="catalogPrimaryCta" href={`/learn/${section.id}`}>
-                      Start
+                      {microcopy.catalog.start}
                     </Link>
                   )}
                 </div>

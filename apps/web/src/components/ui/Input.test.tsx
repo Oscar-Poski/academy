@@ -16,6 +16,7 @@ describe('Input', () => {
 
     const input = screen.getByLabelText('Password');
     expect(input).toHaveAttribute('aria-describedby', 'password-hint password-error');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(screen.getByText('Use 8+ characters')).toBeInTheDocument();
     expect(screen.getByText('Password too short')).toBeInTheDocument();
   });

@@ -31,7 +31,7 @@ describe('LoginForm', () => {
 
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument();
   });
 
   it('shows inline field errors and blocks submit when invalid', async () => {
@@ -45,7 +45,7 @@ describe('LoginForm', () => {
 
     expect(await screen.findByText('Email is required')).toBeInTheDocument();
     expect(await screen.findByText('Password is required')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Log in' })).toBeDisabled();
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -55,7 +55,7 @@ describe('LoginForm', () => {
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'student@academy.local' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/');
@@ -68,7 +68,7 @@ describe('LoginForm', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
     render(<LoginForm />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/learn/section-1');
@@ -85,10 +85,10 @@ describe('LoginForm', () => {
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'student@academy.local' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'wrong-password' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid email or password')).toBeInTheDocument();
+      expect(screen.getByText('Invalid email or password.')).toBeInTheDocument();
     });
     expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
@@ -107,7 +107,7 @@ describe('LoginForm', () => {
     );
     render(<LoginForm />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() => {
       expect(
@@ -120,10 +120,10 @@ describe('LoginForm', () => {
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network'));
     render(<LoginForm />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Unable to sign in right now. Try again.')).toBeInTheDocument();
+      expect(screen.getByText('Unable to log in right now. Try again.')).toBeInTheDocument();
     });
   });
 
@@ -137,9 +137,9 @@ describe('LoginForm', () => {
     );
 
     render(<LoginForm />);
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
-    expect(screen.getByRole('button', { name: 'Signing in...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Logging in...' })).toBeDisabled();
 
     resolveFetch?.(new Response('{}', { status: 200 }));
     await waitFor(() => {

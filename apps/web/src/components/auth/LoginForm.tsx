@@ -9,6 +9,7 @@ import type { AuthApiError } from '@/src/lib/auth/types';
 import { safeNextPath } from '@/src/lib/auth/safe-next-path';
 import type { AuthFieldErrors } from '@/src/lib/auth/form-validation';
 import { validateLoginInput } from '@/src/lib/auth/form-validation';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { getAuthErrorMessage } from '@/src/lib/errors/error-messages';
 
 export function LoginForm() {
@@ -65,14 +66,14 @@ export function LoginForm() {
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as AuthApiError | null;
-        setErrorMessage(getAuthErrorMessage(payload, 'Invalid email or password'));
+        setErrorMessage(getAuthErrorMessage(payload, microcopy.auth.errors.invalidCredentials));
         return;
       }
 
       router.push(nextPath);
       router.refresh();
     } catch {
-      setErrorMessage('Unable to sign in right now. Try again.');
+      setErrorMessage(microcopy.auth.errors.signInUnavailable);
     } finally {
       setSubmitting(false);
     }
@@ -80,8 +81,8 @@ export function LoginForm() {
 
   return (
     <Card as="form" className="playerCard pageCard" onSubmit={onSubmit}>
-      <h1>Sign In</h1>
-      <p className="pageMuted">Use your Academy credentials to continue learning.</p>
+      <h1>{microcopy.auth.headings.logIn}</h1>
+      <p className="pageMuted">{microcopy.auth.descriptions.logIn}</p>
 
       <Input
         id="login-email"
@@ -113,12 +114,12 @@ export function LoginForm() {
       />
 
       <Button type="submit" loading={submitting} disabled={isSubmitDisabled}>
-        {submitting ? 'Signing in...' : 'Sign in'}
+        {submitting ? microcopy.auth.buttons.loggingIn : microcopy.auth.buttons.logIn}
       </Button>
 
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       <p className="pageMuted">
-        New here? <Link href="/signup">Create an account</Link>
+        {microcopy.auth.links.needAccountPrefix} <Link href="/signup">{microcopy.auth.links.needAccountAction}</Link>
       </p>
     </Card>
   );

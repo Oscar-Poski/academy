@@ -13,9 +13,9 @@ vi.mock('next/link', () => ({
 
 describe('StateCard', () => {
   it('renders title and message by kind', () => {
-    render(<StateCard kind="empty" title="Nothing here" message="No records found." />);
+    render(<StateCard kind="empty" titleAs="h1" title="Nothing here" message="No records found." />);
 
-    expect(screen.getByRole('heading', { name: 'Nothing here' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Nothing here' })).toBeInTheDocument();
     expect(screen.getByText('No records found.')).toBeInTheDocument();
   });
 

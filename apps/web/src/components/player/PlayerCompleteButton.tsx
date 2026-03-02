@@ -5,6 +5,7 @@ import React, { useState, useTransition } from 'react';
 import { Alert } from '@/src/components/ui';
 import { evaluateModuleUnlock } from '@/src/lib/api-clients/unlocks.browser';
 import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.browser';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import {
   completeSectionProgress,
   isCompletionBlockedError
@@ -39,7 +40,11 @@ export function PlayerCompleteButton({
   const [isCompleted, setIsCompleted] = useState(initialSectionProgress?.status === 'completed');
 
   const isDisabled = isSubmitting || isRefreshing || isCompleted || isEvaluatingUnlock;
-  const label = isSubmitting ? 'Completing...' : isCompleted ? 'Completed' : 'Mark Complete';
+  const label = isSubmitting
+    ? microcopy.player.complete.completing
+    : isCompleted
+      ? microcopy.player.complete.completed
+      : microcopy.player.complete.action;
 
   async function handleClick() {
     if (isDisabled) {
@@ -88,7 +93,7 @@ export function PlayerCompleteButton({
       }
 
       setCompletionBlocked(null);
-      setErrorMessage(getErrorMessageFromUnknown(error, 'Unable to mark section complete. Try again.'));
+      setErrorMessage(getErrorMessageFromUnknown(error, microcopy.player.complete.completeFailed));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -116,13 +121,13 @@ export function PlayerCompleteButton({
     try {
       const decision = await evaluateModuleUnlock(moduleId);
       if (decision.isUnlocked) {
-        setActionMessage('Module unlocked. Retrying completion...');
+        setActionMessage(microcopy.player.complete.unlockedRetrying);
         const completed = await attemptComplete();
         if (completed) {
           return;
         }
       } else {
-        setActionMessage('Module is still locked. Resolve the remaining requirements and try again.');
+        setActionMessage(microcopy.player.complete.stillLocked);
       }
 
       setCompletionBlocked((current) => {
@@ -138,7 +143,7 @@ export function PlayerCompleteButton({
         };
       });
     } catch {
-      setErrorMessage('Unable to evaluate unlock right now. Try again.');
+      setErrorMessage(microcopy.player.complete.evaluateFailed);
     } finally {
       setIsEvaluatingUnlock(false);
     }
@@ -155,8 +160,15 @@ export function PlayerCompleteButton({
         {label}
       </button>
       {completionBlocked ? (
-        <div className="completionBlockedCard" role="status" aria-live="polite">
-          <p className="completionBlockedTitle">Completion blocked</p>
+        <div
+          className="completionBlockedCard"
+          role="region"
+          aria-live="polite"
+          aria-labelledby="completion-blocked-title"
+        >
+          <p id="completion-blocked-title" className="completionBlockedTitle">
+            {microcopy.player.complete.blockedTitle}
+          </p>
           <ul className="completionBlockedReasons">
             {completionBlocked.reasons.map((reason) => (
               <li key={reason}>{reason}</li>
@@ -170,7 +182,7 @@ export function PlayerCompleteButton({
                 onClick={handleGoToQuiz}
                 disabled={isDisabled}
               >
-                Go to Quiz
+                {microcopy.player.complete.goToQuiz}
               </button>
             ) : null}
             {completionBlocked.requiresUnlock ? (
@@ -180,14 +192,20 @@ export function PlayerCompleteButton({
                 onClick={handleEvaluateUnlock}
                 disabled={isDisabled}
               >
-                {isEvaluatingUnlock ? 'Evaluating...' : 'Evaluate Unlock'}
+                {isEvaluatingUnlock
+                  ? microcopy.player.complete.evaluatingUnlock
+                  : microcopy.player.complete.evaluateUnlock}
               </button>
             ) : null}
           </div>
-          {actionMessage ? <p className="completionBlockedMeta">{actionMessage}</p> : null}
+          {actionMessage ? (
+            <p className="completionBlockedMeta" role="status" aria-live="polite">
+              {actionMessage}
+            </p>
+          ) : null}
         </div>
       ) : null}
-      <div className="playerFooterError" aria-live="polite">
+      <div className="playerFooterError">
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       </div>
     </div>

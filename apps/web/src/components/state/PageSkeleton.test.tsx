@@ -7,7 +7,12 @@ describe('PageSkeleton', () => {
   it('renders deterministic home skeleton variant', () => {
     const { container } = render(<PageSkeleton variant="home" />);
     expect(container.querySelector('.homeSkeleton')).toBeTruthy();
-    expect(screen.getByRole('main')).toHaveAttribute('data-variant', 'home');
+    const main = screen.getByRole('main');
+    expect(main).toHaveAttribute('data-variant', 'home');
+    expect(main).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('status')).toHaveTextContent('Loading page content');
+    const hiddenBlocks = container.querySelectorAll('.stateSkeletonBlock[aria-hidden="true"]');
+    expect(hiddenBlocks.length).toBeGreaterThan(0);
   });
 
   it('renders auth skeleton with deterministic structure', () => {

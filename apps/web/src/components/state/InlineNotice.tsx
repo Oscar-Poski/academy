@@ -7,8 +7,17 @@ type InlineNoticeProps = {
   message: string;
   tone?: InlineNoticeTone;
   className?: string;
+  role?: 'status' | 'alert' | 'note';
 };
 
-export function InlineNotice({ message, tone = 'info', className }: InlineNoticeProps) {
-  return <p className={cn('stateInlineNotice', `stateInlineNotice--${tone}`, className)}>{message}</p>;
+export function InlineNotice({ message, tone = 'info', className, role = 'status' }: InlineNoticeProps) {
+  return (
+    <p
+      className={cn('stateInlineNotice', `stateInlineNotice--${tone}`, className)}
+      role={role}
+      aria-live={role === 'alert' ? 'assertive' : 'polite'}
+    >
+      {message}
+    </p>
+  );
 }

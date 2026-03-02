@@ -58,4 +58,9 @@ describe('design token baseline', () => {
     }
     expect(borderVarUsageCount).toBeGreaterThan(0);
   });
+
+  it('defines a shared focus-visible treatment for interactive controls', () => {
+    expect(globalsCss).toContain(':where(a, button, input, textarea, select, [tabindex]):focus-visible');
+    expect(globalsCss).toContain('outline: 2px solid var(--color-accent-300)');
+  });
 });

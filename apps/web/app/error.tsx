@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { StateCard } from '@/src/components/state';
+import { microcopy } from '@/src/lib/copy/microcopy';
 
 type ErrorPageProps = {
   error: Error & { digest?: string };
@@ -13,19 +14,20 @@ export default function GlobalErrorPage({ reset }: ErrorPageProps) {
     <main className="pageShell">
       <StateCard
         kind="error"
-        title="Something went wrong"
-        message="The page failed to load. You can retry now or return home."
+        titleAs="h1"
+        title={microcopy.state.globalError.title}
+        message={microcopy.state.globalError.message}
         action={{
-          label: 'Try again',
+          label: microcopy.state.globalError.tryAgain,
           onAction: reset
         }}
       />
       <StateCard
         kind="info"
-        title="Need a safe route?"
-        message="Go back to the home page."
+        title={microcopy.state.globalError.safeRouteTitle}
+        message={microcopy.state.globalError.safeRouteMessage}
         action={{
-          label: 'Home',
+          label: microcopy.nav.home,
           href: '/'
         }}
       />

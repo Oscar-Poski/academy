@@ -315,6 +315,19 @@ PR-55 loading/empty/error state system:
 - auth/quiz/progress error surfaces use centralized message mapping with reusable alert-style presentation
 - no API or route contract changes in this PR
 
+PR-56 critical accessibility pass:
+- added critical keyboard/focus hardening across core web surfaces (global shell, auth, catalog, and learn player)
+- global interactive controls now share explicit `:focus-visible` styling for dark-theme contrast and usability
+- mobile header menu now supports Escape-to-close, focus handoff on open, and focus return to toggle on close
+- form fields now expose `aria-invalid` when errors are present, preserving existing field-level error wiring
+- loading/error/notice surfaces now include stronger assistive semantics (status/live-region friendly skeleton and state components)
+- no backend/API/route contract changes in this PR; this is a web-only critical a11y pass
+
+PR-57 microcopy + UX consistency sweep:
+- learner-facing copy is now centralized in `apps/web/src/lib/copy/microcopy.ts` and reused across auth, home, catalog, player, quiz, and shared state surfaces
+- known backend error codes now map to deterministic web-owned copy in `apps/web/src/lib/errors/error-messages.ts` (API payload messages are fallback-only for unknown codes)
+- wording is standardized to clear/neutral phrasing without changing behavior, route contracts, or backend APIs
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

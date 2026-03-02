@@ -4,6 +4,7 @@ import React from 'react';
 import { useMemo, useState } from 'react';
 import { Alert } from '@/src/components/ui';
 import { submitQuizAttempt } from '@/src/lib/api-clients/quiz.browser';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { getErrorMessageFromUnknown } from '@/src/lib/errors/error-messages';
 import type { QuizAttemptResult, QuizDelivery, QuizSubmissionRequest } from '@/src/lib/quiz-types';
 import { QuizQuestionCard } from './QuizQuestionCard';
@@ -65,7 +66,7 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
       const attempt = await submitQuizAttempt(sectionId, payload);
       setResult(attempt);
     } catch (error) {
-      setErrorMessage(getErrorMessageFromUnknown(error, 'Unable to submit quiz right now. Try again.'));
+      setErrorMessage(getErrorMessageFromUnknown(error, microcopy.quiz.submitFailed));
     } finally {
       setIsSubmitting(false);
     }
@@ -78,10 +79,15 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
   }
 
   return (
-    <section id="section-quiz-panel" tabIndex={-1} className="playerCard quizPanel" aria-label="Section quiz">
+    <section
+      id="section-quiz-panel"
+      tabIndex={-1}
+      className="playerCard quizPanel"
+      aria-label={microcopy.quiz.panelTitle}
+    >
       <header className="quizPanelHeader">
-        <h2 className="quizPanelTitle">Section Quiz</h2>
-        <p className="quizPanelSubtitle">Answer the questions below and submit when you are ready.</p>
+        <h2 className="quizPanelTitle">{microcopy.quiz.panelTitle}</h2>
+        <p className="quizPanelSubtitle">{microcopy.quiz.panelSubtitle}</p>
       </header>
 
       <div className="quizQuestionList">
@@ -98,11 +104,11 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
 
       <div className="quizActions">
         <button type="button" className="quizSubmitBtn" onClick={handleSubmit} disabled={isSubmitDisabled}>
-          {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
+          {isSubmitting ? microcopy.quiz.submitting : microcopy.quiz.submit}
         </button>
         {result ? (
           <button type="button" className="quizRetryBtn" onClick={handleRetry} disabled={isSubmitting}>
-            Retry Quiz
+            {microcopy.quiz.retry}
           </button>
         ) : null}
       </div>
@@ -117,7 +123,7 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
         <section className="quizResult" aria-live="polite">
           <div className="quizResultSummary">
             <span className={`quizResultBadge ${result.passed ? 'isPass' : 'isFail'}`}>
-              {result.passed ? 'Passed' : 'Not Passed'}
+              {result.passed ? microcopy.quiz.passed : microcopy.quiz.notPassed}
             </span>
             <span className="quizResultScore">
               Score: {result.score}/{result.maxScore}

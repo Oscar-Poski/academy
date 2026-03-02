@@ -6,6 +6,7 @@ import { useState } from 'react';
 import type { SectionLessonBlock, SectionNavigation } from '@/src/lib/content-types';
 import type { SectionProgress } from '@/src/lib/progress-types';
 import type { QuizDelivery } from '@/src/lib/quiz-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import {
   formatSectionMeta,
   getSectionStatusClassName,
@@ -73,11 +74,17 @@ export function PlayerContent({
       ) : null}
       <header className="playerHeader playerCard">
         <nav className="playerBreadcrumb" aria-label="Breadcrumb">
-          <Link href={`/paths/${breadcrumb.pathId}`}>{breadcrumb.pathTitle}</Link>
-          <span className="playerBreadcrumbSep">/</span>
-          <Link href={`/modules/${breadcrumb.moduleId}`}>{breadcrumb.moduleTitle}</Link>
-          <span className="playerBreadcrumbSep">/</span>
-          <span aria-current="page">{breadcrumb.sectionTitle}</span>
+          <ol className="playerBreadcrumbList">
+            <li className="playerBreadcrumbItem">
+              <Link href={`/paths/${breadcrumb.pathId}`}>{breadcrumb.pathTitle}</Link>
+            </li>
+            <li className="playerBreadcrumbItem">
+              <Link href={`/modules/${breadcrumb.moduleId}`}>{breadcrumb.moduleTitle}</Link>
+            </li>
+            <li className="playerBreadcrumbItem" aria-current="page">
+              <span>{breadcrumb.sectionTitle}</span>
+            </li>
+          </ol>
         </nav>
         <h1 className="playerSectionTitle">{breadcrumb.sectionTitle}</h1>
         <div className="playerHeaderMeta playerSectionMetaList">
@@ -86,7 +93,7 @@ export function PlayerContent({
               {getSectionStatusLabel(sectionProgress.status)}
             </span>
           ) : (
-            <InlineNotice className="playerHeaderMetaText" message="Progress indicators unavailable right now." />
+            <InlineNotice className="playerHeaderMetaText" message={microcopy.player.progressUnavailable} />
           )}
           {sectionMeta.completionLabel ? (
             <span className="playerHeaderMetaText">{sectionMeta.completionLabel}</span>
@@ -100,7 +107,7 @@ export function PlayerContent({
         <div className="playerReadingColumn">
           <div className="playerBlocks playerBlockStack">
             {renderableLessonBlocks.length === 0 && !hasQuizBlockOnly ? (
-              <InlineNotice className="playerCard playerEmptyState" message="No lesson blocks available for this section yet." />
+              <InlineNotice className="playerCard playerEmptyState" message={microcopy.player.noLessonBlocks} />
             ) : (
               renderableLessonBlocks.map((block) => (
                 <div key={block.id} className="playerBlockItem">

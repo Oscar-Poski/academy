@@ -1,4 +1,5 @@
 import React from 'react';
+import { microcopy } from '@/src/lib/copy/microcopy';
 
 type PageSkeletonVariant = 'home' | 'catalog' | 'learn' | 'auth';
 
@@ -8,18 +9,21 @@ type PageSkeletonProps = {
 
 export function PageSkeleton({ variant }: PageSkeletonProps) {
   return (
-    <main className={`pageShell stateSkeleton ${variant}Skeleton`} data-variant={variant}>
-      <div className="stateSkeletonBlock stateSkeletonPulse">
+    <main className={`pageShell stateSkeleton ${variant}Skeleton`} data-variant={variant} aria-busy="true">
+      <p className="stateSrOnly" role="status" aria-live="polite">
+        {microcopy.state.loadingPage}
+      </p>
+      <div className="stateSkeletonBlock stateSkeletonPulse" aria-hidden="true">
         <div className="stateSkeletonLine stateSkeletonLine--lg" />
         <div className="stateSkeletonLine stateSkeletonLine--md" />
       </div>
-      <div className="stateSkeletonBlock stateSkeletonPulse">
+      <div className="stateSkeletonBlock stateSkeletonPulse" aria-hidden="true">
         <div className="stateSkeletonLine stateSkeletonLine--md" />
         <div className="stateSkeletonLine stateSkeletonLine--sm" />
         <div className="stateSkeletonLine stateSkeletonLine--sm" />
       </div>
       {variant !== 'auth' ? (
-        <div className="stateSkeletonBlock stateSkeletonPulse">
+        <div className="stateSkeletonBlock stateSkeletonPulse" aria-hidden="true">
           <div className="stateSkeletonLine stateSkeletonLine--md" />
           <div className="stateSkeletonLine stateSkeletonLine--sm" />
         </div>

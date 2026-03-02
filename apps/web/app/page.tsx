@@ -2,6 +2,7 @@ import { APP_NAME } from '@academy/shared';
 import { getApiHealth } from '@/src/lib/api';
 import { getContinueLearning } from '@/src/lib/api-clients/progress.server';
 import { requireAuthSession } from '@/src/lib/auth/require-auth-session.server';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { getStartLearningCandidate } from '@/src/lib/onboarding/get-start-learning-candidate.server';
 import { InlineNotice } from '@/src/components/state';
 import Link from 'next/link';
@@ -23,7 +24,7 @@ export default async function HomePage() {
         API health: <strong>{health.status}</strong>
       </p>
       <section className="homeCard">
-        <h2>Continue learning</h2>
+        <h2>{microcopy.home.sectionTitle}</h2>
         {continueLearning ? (
           <div className="homeContinueCard">
             <p className="homeContinuePath">
@@ -31,7 +32,7 @@ export default async function HomePage() {
             </p>
             <p className="homeContinueSection">{continueLearning.sectionTitle}</p>
             <Link className="homeContinueLink" href={`/learn/${continueLearning.sectionId}`}>
-              {continueLearning.source === 'resume' ? 'Resume section' : 'Start learning'}
+              {continueLearning.source === 'resume' ? microcopy.home.resumeSection : microcopy.home.startLearning}
             </Link>
           </div>
         ) : startLearningCandidate ? (
@@ -42,18 +43,13 @@ export default async function HomePage() {
             <p className="homeContinueSection homeOnboardingTitle">
               {startLearningCandidate.sectionTitle}
             </p>
-            <p className="homeContinueMuted homeOnboardingHint">
-              You are all set. Start your first section.
-            </p>
+            <p className="homeContinueMuted homeOnboardingHint">{microcopy.home.onboardingHint}</p>
             <Link className="homeContinueLink" href={`/learn/${startLearningCandidate.sectionId}`}>
-              Start your first section
+              {microcopy.home.onboardingCta}
             </Link>
           </div>
         ) : (
-          <InlineNotice
-            className="homeContinueMuted"
-            message="Learning recommendations are temporarily unavailable."
-          />
+          <InlineNotice className="homeContinueMuted" message={microcopy.home.fallback} />
         )}
       </section>
     </main>

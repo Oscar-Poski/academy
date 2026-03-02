@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { APP_NAME } from '@academy/shared';
 import { buttonClassName } from '@/src/components/ui';
 import { LogoutButton } from '@/src/components/auth/LogoutButton';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import type { SessionProfile } from '@/src/lib/auth/get-session-profile.server';
 
 type AppFooterProps = {
@@ -25,17 +26,17 @@ export function AppFooter({ sessionProfile }: AppFooterProps) {
         </p>
         <nav className="appFooterNav" aria-label="Footer navigation">
           <Link href="/" className="appNavLink">
-            Home
+            {microcopy.nav.home}
           </Link>
           {sessionProfile.authenticated ? (
             <LogoutButton variant="ghost" size="sm" className="appAuthAction appFooterAction" />
           ) : (
             <>
               <Link href="/login" className={actionClassName}>
-                Log in
+                {microcopy.auth.actions.logIn}
               </Link>
               <Link href="/signup" className={actionClassName}>
-                Sign up
+                {microcopy.auth.actions.signUp}
               </Link>
             </>
           )}

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ContentApiError, getModule } from '@/src/lib/api-clients/content.client';
 import { getModuleProgress } from '@/src/lib/api-clients/progress.server';
 import type { ModuleSectionProgressItem } from '@/src/lib/progress-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { ModuleSectionRow } from '@/src/components/catalog';
 import { InlineNotice } from '@/src/components/state';
 
@@ -25,19 +26,21 @@ export default async function ModulePage({ params }: ModulePageProps) {
     return (
       <main className="pageShell">
         <header className="pageHeader playerCard catalogHero">
-          <p className="pageEyebrow">Module</p>
+          <p className="pageEyebrow">{microcopy.catalog.moduleLabel}</p>
           <h1>{module.title}</h1>
           {module.description ? <p className="pageDescription">{module.description}</p> : null}
           {module.lock?.isLocked ? (
             <div className="pageMetaRow">
-              <span className="lockBadge lockBadge--locked">Locked</span>
-              <span className="pageLockedReason">{module.lock.reasons[0] ?? 'Locked'}</span>
+              <span className="lockBadge lockBadge--locked">{microcopy.catalog.locked}</span>
+              <span className="pageLockedReason">
+                {module.lock.reasons[0] ?? microcopy.catalog.lockedReasonFallback}
+              </span>
             </div>
           ) : null}
           <div className="pageMetaRow catalogHeroMeta">
             {moduleProgress ? (
               <>
-                <span className="progressBadge">Module Progress</span>
+                <span className="progressBadge">{microcopy.catalog.moduleProgress}</span>
                 <span className="pageProgressSummary">
                   {moduleProgress.completionPct}% complete · {moduleProgress.completedSections}/
                   {moduleProgress.totalSections} sections
@@ -46,16 +49,16 @@ export default async function ModulePage({ params }: ModulePageProps) {
             ) : (
               <InlineNotice
                 className="pageProgressNotice catalogMutedNotice"
-                message="Progress indicators unavailable right now."
+                message={microcopy.catalog.progressUnavailable}
               />
             )}
           </div>
         </header>
 
         <section className="playerCard pageCard catalogModuleBody">
-          <h2>Sections</h2>
+          <h2>{microcopy.catalog.sectionsLabel}</h2>
           {module.sections.length === 0 ? (
-            <InlineNotice className="catalogMutedNotice" message="No sections available yet." />
+            <InlineNotice className="catalogMutedNotice" message={microcopy.catalog.emptyModuleSections} />
           ) : (
             <ul className="catalogSectionList">
               {module.sections.map((section) => {

@@ -32,7 +32,7 @@ describe('SignupForm', () => {
     expect(screen.getByLabelText('Name')).toBeInTheDocument();
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create account' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign up' })).toBeInTheDocument();
   });
 
   it('shows inline field errors and blocks submit when invalid', async () => {
@@ -49,7 +49,7 @@ describe('SignupForm', () => {
     expect(await screen.findByText('Name is required')).toBeInTheDocument();
     expect(await screen.findByText('Enter a valid email address')).toBeInTheDocument();
     expect(await screen.findByText('Password must be at least 8 characters long')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Sign up' })).toBeDisabled();
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -60,7 +60,7 @@ describe('SignupForm', () => {
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'New Student' } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/');
@@ -75,7 +75,7 @@ describe('SignupForm', () => {
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/learn/section-1');
@@ -92,10 +92,10 @@ describe('SignupForm', () => {
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'existing@academy.local' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Email already registered')).toBeInTheDocument();
+      expect(screen.getByText('Email already registered.')).toBeInTheDocument();
     });
     expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe('SignupForm', () => {
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
 
     await waitFor(() => {
       expect(
@@ -131,10 +131,10 @@ describe('SignupForm', () => {
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Unable to create account right now. Try again.')).toBeInTheDocument();
+      expect(screen.getByText('Unable to create your account right now. Try again.')).toBeInTheDocument();
     });
   });
 
@@ -150,10 +150,10 @@ describe('SignupForm', () => {
     render(<SignupForm />);
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    const button = screen.getByRole('button', { name: 'Create account' });
+    const button = screen.getByRole('button', { name: 'Sign up' });
     fireEvent.click(button);
 
-    expect(screen.getByRole('button', { name: 'Creating account...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Signing up...' })).toBeDisabled();
 
     resolveFetch?.(new Response('{}', { status: 200 }));
     await waitFor(() => {

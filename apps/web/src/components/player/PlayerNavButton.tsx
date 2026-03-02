@@ -26,10 +26,14 @@ export function PlayerNavButton({
   const [isNavigating, setIsNavigating] = useState(false);
 
   if (!targetSectionId || isLocked) {
+    const unavailableReason = isLocked ? 'section is locked' : 'no target section available';
+
     return (
       <span
         className="playerNavBtn isDisabled"
         aria-disabled="true"
+        role="note"
+        aria-label={`${label} unavailable: ${unavailableReason}`}
         data-direction={direction}
       >
         {label}

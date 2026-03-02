@@ -16,6 +16,7 @@ describe('state system styles', () => {
     expect(globalsCss).toContain('.stateSkeleton');
     expect(globalsCss).toContain('.stateSkeletonLine');
     expect(globalsCss).toContain('.stateSkeletonPulse');
+    expect(globalsCss).toContain('.stateSrOnly');
     expect(globalsCss).toContain('.stateActions');
     expect(globalsCss).toContain('.authSkeleton');
     expect(globalsCss).toContain('.catalogSkeleton');
@@ -28,5 +29,11 @@ describe('state system styles', () => {
 
     expect(mediaBlock).toContain('.stateActions');
     expect(mediaBlock).toContain('.stateActions .uiButton');
+  });
+
+  it('includes reduced-motion fallback for skeleton animation', () => {
+    expect(globalsCss).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(globalsCss).toContain('.stateSkeletonPulse');
+    expect(globalsCss).toContain('animation: none;');
   });
 });

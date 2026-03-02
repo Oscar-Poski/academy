@@ -102,6 +102,24 @@ describe('AppHeaderClient', () => {
     expect(panel).toHaveAttribute('data-open', 'false');
   });
 
+  it('moves focus to first menu action when opening the menu', () => {
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+
+    expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Home' }));
+  });
+
+  it('closes menu on Escape and restores focus to toggle button', () => {
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false');
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Menu' }));
+  });
+
   it('closes menu when selecting a nav action', () => {
     render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
 

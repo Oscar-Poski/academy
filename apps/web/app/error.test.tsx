@@ -16,7 +16,7 @@ describe('GlobalErrorPage', () => {
     const reset = vi.fn();
     render(<GlobalErrorPage error={new Error('boom')} reset={reset} />);
 
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Something went wrong' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(reset).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');

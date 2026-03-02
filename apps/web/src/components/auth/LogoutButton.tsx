@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/src/components/ui';
+import { microcopy } from '@/src/lib/copy/microcopy';
 
 type LogoutButtonProps = {
   className?: string;
@@ -49,7 +50,7 @@ export function LogoutButton({
       onClick={onLogout}
       loading={submitting}
     >
-      {submitting ? 'Logging out...' : 'Log out'}
+      {submitting ? microcopy.auth.buttons.loggingOut : microcopy.auth.actions.logOut}
     </Button>
   );
 }

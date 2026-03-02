@@ -23,23 +23,31 @@ type StateCardProps = {
   message?: string;
   action?: StateCardAction;
   className?: string;
+  titleAs?: 'h1' | 'h2' | 'h3';
 };
 
-export function StateCard({ kind, title, message, action, className }: StateCardProps) {
+export function StateCard({ kind, title, message, action, className, titleAs = 'h2' }: StateCardProps) {
+  const Heading = titleAs;
+
   return (
     <Card className={cn('stateCard', `stateCard--${kind}`, className)} padding="md">
-      <h2 className="stateCardTitle">{title}</h2>
+      <Heading className="stateCardTitle">{title}</Heading>
       {message ? <p className="stateCardMessage">{message}</p> : null}
       {action ? (
         <div className="stateActions">
           {'href' in action && typeof action.href === 'string' ? (
-            <Link href={action.href} className={buttonClassName({ variant: 'secondary', size: 'sm' })}>
+            <Link
+              href={action.href}
+              aria-label={action.label}
+              className={buttonClassName({ variant: 'secondary', size: 'sm' })}
+            >
               {action.label}
             </Link>
           ) : (
             <button
               type="button"
               className={buttonClassName({ variant: 'secondary', size: 'sm' })}
+              aria-label={action.label}
               onClick={action.onAction}
             >
               {action.label}

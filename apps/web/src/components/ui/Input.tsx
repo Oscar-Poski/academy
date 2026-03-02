@@ -37,7 +37,13 @@ export function Input({
           {label}
         </label>
       ) : null}
-      <input {...rest} id={id} className={cn('uiInput', inputClassName)} aria-describedby={describedBy} />
+      <input
+        {...rest}
+        id={id}
+        className={cn('uiInput', inputClassName)}
+        aria-describedby={describedBy}
+        aria-invalid={error ? 'true' : undefined}
+      />
       {hint ? (
         <p id={hintId} className="uiHint">
           {hint}

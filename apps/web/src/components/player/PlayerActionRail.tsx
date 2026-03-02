@@ -1,6 +1,7 @@
 import React from 'react';
 import type { SectionNavigation } from '@/src/lib/content-types';
 import type { SectionProgress } from '@/src/lib/progress-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { PlayerCompleteButton } from './PlayerCompleteButton';
 import { PlayerNavButton } from './PlayerNavButton';
 
@@ -36,7 +37,7 @@ export function PlayerActionRail({
       <div className="playerActionRailInner">
         <PlayerNavButton
           direction="prev"
-          label="Previous Section"
+          label={microcopy.player.previousSection}
           targetSectionId={navigation.prevSectionId}
           currentSectionId={currentSectionId}
           lastBlockOrderToPersist={lastBlockOrderToPersist}
@@ -55,7 +56,7 @@ export function PlayerActionRail({
 
         <PlayerNavButton
           direction="next"
-          label="Next Section"
+          label={microcopy.player.nextSection}
           targetSectionId={navigation.nextSectionId}
           currentSectionId={currentSectionId}
           lastBlockOrderToPersist={lastBlockOrderToPersist}
