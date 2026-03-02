@@ -137,4 +137,20 @@ describe('getSessionProfileFromStore', () => {
     expect(cookieStore.values.has('academy_access_token')).toBe(false);
     expect(cookieStore.values.has('academy_refresh_token')).toBe(false);
   });
+
+  it('clears session and returns unauthenticated when apiMe returns non-401 failure', async () => {
+    const cookieStore = createCookieStore({
+      academy_access_token: 'access-1',
+      academy_refresh_token: 'refresh-1'
+    });
+    apiMe.mockResolvedValue(new Response('{}', { status: 500 }));
+
+    await expect(getSessionProfileFromStore(cookieStore)).resolves.toEqual({
+      authenticated: false
+    });
+
+    expect(apiRefresh).not.toHaveBeenCalled();
+    expect(cookieStore.values.has('academy_access_token')).toBe(false);
+    expect(cookieStore.values.has('academy_refresh_token')).toBe(false);
+  });
 });

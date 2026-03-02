@@ -1,9 +1,11 @@
 import { APP_NAME } from '@academy/shared';
 import { getApiHealth } from '@/src/lib/api';
 import { getContinueLearning } from '@/src/lib/api-clients/progress.server';
+import { requireAuthSession } from '@/src/lib/auth/require-auth-session.server';
 import Link from 'next/link';
 
 export default async function HomePage() {
+  await requireAuthSession('/');
   const health = await getApiHealth();
   const continueLearning = await getContinueLearning().catch(() => null);
 

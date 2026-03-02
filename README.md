@@ -241,6 +241,12 @@ PR-44 global auth shell:
 - authenticated state shows current user email and `Log out`
 - auth state is server-resolved with refresh-once behavior for stable SSR navigation state
 
+PR-45 session guard hardening:
+- protected web routes (`/`, `/learn/:sectionId`) now enforce strict server-side session validation
+- cookie presence remains a coarse middleware pre-check for performance
+- page loaders verify valid session via server auth profile resolution before rendering
+- invalid/expired sessions redirect to `/login?next=...` after refresh-once attempt
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

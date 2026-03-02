@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { PlayerLayout } from '@/src/components/player/PlayerLayout';
 import { ContentApiError, getModule, getPath, getSection } from '@/src/lib/api-clients/content.client';
 import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.server';
+import { requireAuthSession } from '@/src/lib/auth/require-auth-session.server';
 import { startSectionProgress } from '@/src/lib/api-clients/progress.server';
 import { getQuizDelivery } from '@/src/lib/api-clients/quiz.server';
 
@@ -12,6 +13,8 @@ type LearnPageProps = {
 };
 
 export default async function LearnPage({ params }: LearnPageProps) {
+  await requireAuthSession(`/learn/${params.sectionId}`);
+
   try {
     const section = await getSection(params.sectionId, { includeUserContext: true });
 

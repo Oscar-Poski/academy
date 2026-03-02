@@ -22,6 +22,17 @@ describe('auth middleware', () => {
     expect(response.status).toBe(200);
   });
 
+  it('allows request when only refresh token cookie exists', () => {
+    const request = new NextRequest('http://localhost:3000/', {
+      headers: {
+        cookie: 'academy_refresh_token=token-2'
+      }
+    });
+
+    const response = middleware(request);
+    expect(response.status).toBe(200);
+  });
+
   it('only applies matcher to learner routes', () => {
     expect(config.matcher).toEqual(['/', '/learn/:path*']);
   });
