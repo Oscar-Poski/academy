@@ -273,6 +273,12 @@ PR-48 minimal auth abuse protections:
   - `AUTH_RATE_LIMIT_LOGIN_MAX`
   - `AUTH_RATE_LIMIT_REGISTER_MAX`
 
+PR-49 design tokens + theme baseline:
+- web styling now has a tokenized theme baseline in `apps/web/app/globals.css` (single theme)
+- core app/auth/home/player shell surfaces use semantic tokens for color, border, spacing, type, and motion
+- backward-compatible aliases (`--bg`, `--panel`, `--text`, `--muted`, `--ok`) remain available and `--border` is now explicitly defined
+- no API or route contract changes; this PR is style/system groundwork for reusable UI primitives in PR-50
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity
