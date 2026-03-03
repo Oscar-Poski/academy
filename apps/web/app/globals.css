@@ -22,12 +22,12 @@
   --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
   --font-size-xs: 0.78rem;
   --font-size-sm: 0.85rem;
-  --font-size-md: 0.95rem;
-  --font-size-lg: 1.05rem;
+  --font-size-md: 0.98rem;
+  --font-size-lg: 1.08rem;
   --font-size-xl: 1.6rem;
   --line-height-tight: 1.2;
   --line-height-base: 1.5;
-  --line-height-relaxed: 1.6;
+  --line-height-relaxed: 1.66;
   --font-weight-medium: 600;
   --font-weight-bold: 700;
 
@@ -151,7 +151,7 @@ body {
 .appHeaderInner {
   max-width: 1320px;
   margin: 0 auto;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-5);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -242,6 +242,8 @@ body {
 
 .appAuthAction:hover {
   background: var(--color-action-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
 }
 
 .appAuthAction:disabled {
@@ -360,7 +362,7 @@ main {
 
 .homeLanding {
   max-width: 1080px;
-  margin: var(--space-7) auto var(--space-8);
+  margin: calc(var(--space-7) + var(--space-1)) auto var(--space-8);
   padding: 0 var(--space-4);
   border: none;
   border-radius: 0;
@@ -379,8 +381,8 @@ main {
 
 .homeHeroInner {
   display: grid;
-  gap: var(--space-3);
-  padding: var(--space-6);
+  gap: var(--space-4);
+  padding: calc(var(--space-6) + var(--space-1));
 }
 
 .homeHeroEyebrow {
@@ -395,20 +397,21 @@ main {
   margin: 0;
   max-width: 18ch;
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 3.8vw, 2.5rem);
-  line-height: var(--line-height-tight);
+  font-size: clamp(1.8rem, 3.9vw, 2.8rem);
+  line-height: 1.14;
 }
 
 .homeHeroSubtitle {
   margin: 0;
-  max-width: 62ch;
+  max-width: 58ch;
   color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
 }
 
 .homeHeroActions {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .homeFeatured {
@@ -420,7 +423,7 @@ main {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .homeFeaturedHeader h2 {
@@ -431,12 +434,22 @@ main {
 .homeFeaturedGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .homeFeaturedCard {
   display: grid;
   gap: var(--space-3);
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard);
+}
+
+.homeFeaturedCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-action-border);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
 }
 
 .homeFeaturedCardTitle {
@@ -461,7 +474,7 @@ main {
 
 .pageShell {
   max-width: 1080px;
-  margin: var(--space-7) auto var(--space-8);
+  margin: calc(var(--space-7) + var(--space-1)) auto var(--space-8);
   padding: 0 var(--space-4);
 }
 
@@ -478,8 +491,9 @@ main {
 }
 
 .pageDescription {
-  margin: var(--space-2) 0 0;
+  margin: var(--space-3) 0 0;
   color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
 }
 
 .pageMetaRow {
@@ -507,7 +521,7 @@ main {
 }
 
 .catalogStack {
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .catalogHero {
@@ -983,6 +997,12 @@ main {
   .playerNavBtn {
     transition: none;
   }
+
+  .homeFeaturedCard,
+  .coursesCard,
+  .catalogModuleCard {
+    transition: none;
+  }
 }
 
 .pageList {
@@ -1032,6 +1052,16 @@ main {
 .catalogModuleCard {
   display: grid;
   gap: var(--space-4);
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard);
+}
+
+.catalogModuleCard:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-action-border);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
 }
 
 .catalogModuleHeader {
@@ -1043,6 +1073,7 @@ main {
 
 .catalogModuleHeader h2 {
   margin: 0;
+  font-size: 1.16rem;
 }
 
 .catalogModuleBody {
@@ -1063,10 +1094,16 @@ main {
   text-decoration: none;
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    background var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard);
 }
 
 .catalogPrimaryCta:hover {
   background: var(--color-action-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
 .catalogPrimaryCta.isDisabled {
@@ -1114,7 +1151,7 @@ main {
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   background: var(--color-surface-soft);
-  padding: 0.65rem 0.8rem;
+  padding: 0.75rem 0.9rem;
 }
 
 .catalogSectionMain {
@@ -1152,19 +1189,29 @@ main {
 
 .coursesShell {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .coursesGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .coursesCard {
   display: grid;
   gap: var(--space-3);
   align-content: start;
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard);
+}
+
+.coursesCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-action-border);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
 }
 
 .coursesCardHeader {
@@ -1176,7 +1223,8 @@ main {
 
 .coursesCardTitle {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.16rem;
+  line-height: 1.28;
 }
 
 .coursesCardDescription {
@@ -1958,6 +2006,7 @@ main {
   .appHeaderInner {
     flex-wrap: wrap;
     align-items: flex-start;
+    padding: var(--space-3) var(--space-4);
   }
 
   .appHeaderMainNav {
@@ -1987,7 +2036,7 @@ main {
     border: 1px solid var(--color-border-default);
     border-radius: var(--radius-md);
     background: color-mix(in srgb, var(--color-surface-1) 92%, black);
-    padding: var(--space-3);
+    padding: var(--space-4);
   }
 
   .appHeaderMenuPanel.isOpen {
@@ -2060,6 +2109,7 @@ main {
 
   .coursesGrid {
     grid-template-columns: 1fr;
+    gap: var(--space-3);
   }
 
   .coursesCardCta {
@@ -2083,6 +2133,7 @@ main {
 
   .homeFeaturedGrid {
     grid-template-columns: 1fr;
+    gap: var(--space-3);
   }
 
   .homeFeaturedCta {
@@ -2153,5 +2204,38 @@ main {
   .quizSubmitBtn,
   .quizRetryBtn {
     width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .appHeaderInner,
+  .appFooterInner {
+    padding-inline: var(--space-3);
+  }
+
+  .pageShell,
+  .homeLanding {
+    padding-inline: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .homeHeroTitle {
+    max-width: none;
+    font-size: clamp(1.5rem, 8.2vw, 2.1rem);
+  }
+
+  .homeHeroSubtitle {
+    max-width: none;
+    font-size: 0.95rem;
+  }
+
+  .homeFeaturedCard,
+  .coursesCard,
+  .catalogModuleCard {
+    gap: var(--space-2);
+  }
+
+  .catalogSectionRow {
+    padding: var(--space-3);
   }
 }

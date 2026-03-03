@@ -4,6 +4,34 @@ import { describe, expect, it } from 'vitest';
 
 const globalsCss = readFileSync(path.resolve(process.cwd(), 'app/globals.css'), 'utf8');
 
+function getMediaBlock(query: string): string {
+  const marker = `@media (${query})`;
+  const start = globalsCss.indexOf(marker);
+  if (start === -1) {
+    return '';
+  }
+
+  const openBraceIndex = globalsCss.indexOf('{', start);
+  if (openBraceIndex === -1) {
+    return '';
+  }
+
+  let depth = 0;
+  for (let index = openBraceIndex; index < globalsCss.length; index += 1) {
+    const char = globalsCss[index];
+    if (char === '{') {
+      depth += 1;
+    } else if (char === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        return globalsCss.slice(openBraceIndex + 1, index);
+      }
+    }
+  }
+
+  return '';
+}
+
 describe('catalog IA styles', () => {
   it('declares required catalog selectors', () => {
     expect(globalsCss).toContain('.catalogHero');
@@ -22,12 +50,17 @@ describe('catalog IA styles', () => {
   });
 
   it('includes responsive catalog rules in mobile media block', () => {
-    const mediaMatch = globalsCss.match(/@media \(max-width: 960px\)\s*\{([\s\S]*)\}\s*$/);
-    const mediaBlock = mediaMatch?.[1] ?? '';
+    const mediaBlock = getMediaBlock('max-width: 960px');
 
     expect(mediaBlock).toContain('.catalogModuleHeader');
     expect(mediaBlock).toContain('.catalogPrimaryCta');
     expect(mediaBlock).toContain('.catalogSectionRow');
     expect(mediaBlock).toContain('.catalogSectionActions');
+  });
+
+  it('keeps compact catalog spacing rules in 640px media block', () => {
+    const compactBlock = getMediaBlock('max-width: 640px');
+    expect(compactBlock).toContain('.catalogSectionRow');
+    expect(compactBlock).toContain('.catalogModuleCard');
   });
 });

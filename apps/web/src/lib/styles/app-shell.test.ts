@@ -4,6 +4,34 @@ import { describe, expect, it } from 'vitest';
 
 const globalsCss = readFileSync(path.resolve(process.cwd(), 'app/globals.css'), 'utf8');
 
+function getMediaBlock(query: string): string {
+  const marker = `@media (${query})`;
+  const start = globalsCss.indexOf(marker);
+  if (start === -1) {
+    return '';
+  }
+
+  const openBraceIndex = globalsCss.indexOf('{', start);
+  if (openBraceIndex === -1) {
+    return '';
+  }
+
+  let depth = 0;
+  for (let index = openBraceIndex; index < globalsCss.length; index += 1) {
+    const char = globalsCss[index];
+    if (char === '{') {
+      depth += 1;
+    } else if (char === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        return globalsCss.slice(openBraceIndex + 1, index);
+      }
+    }
+  }
+
+  return '';
+}
+
 describe('app shell styles', () => {
   it('declares required shell selectors', () => {
     expect(globalsCss).toContain('.skipLink');
@@ -21,8 +49,7 @@ describe('app shell styles', () => {
   });
 
   it('includes responsive mobile menu styles under the 960px media query', () => {
-    const mediaMatch = globalsCss.match(/@media \(max-width: 960px\)\s*\{([\s\S]*)\}\s*$/);
-    const mediaBlock = mediaMatch?.[1] ?? '';
+    const mediaBlock = getMediaBlock('max-width: 960px');
 
     expect(mediaBlock).toContain('.appHeaderMenuButton');
     expect(mediaBlock).toContain('.appHeaderMenuPanel');

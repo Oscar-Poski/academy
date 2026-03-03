@@ -384,6 +384,12 @@ PR-65 pulido de catálogo público (paths/modules) con CTAs amigables para anón
 - estados bloqueados y razones de bloqueo se mantienen igual
 - no hay cambios en APIs, rutas ni esquema de base de datos
 
+PR-66 polish visual SaaS (spacing, tipografía, motion y responsive):
+- refinamiento visual en `apps/web/app/globals.css` para ritmo de espaciado, jerarquía tipográfica y legibilidad de landing/catalog
+- mejoras sutiles de motion/elevación en tarjetas y CTAs clave, preservando `prefers-reduced-motion`
+- ajuste responsive sobre el breakpoint existente (`<=960px`) y nuevo ajuste compacto (`<=640px`) para shell + home + catálogo
+- no hay cambios en lógica de producto, contratos API, rutas o comportamiento funcional
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity
