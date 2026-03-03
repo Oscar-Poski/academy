@@ -1,7 +1,9 @@
 import React from 'react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ContentApiError, getPath } from '@/src/lib/api-clients/content.client';
 import { getPathProgress } from '@/src/lib/api-clients/progress.server';
+import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { PathModuleCard } from '@/src/components/catalog';
 import { InlineNotice } from '@/src/components/state';
@@ -14,10 +16,12 @@ type PathPageProps = {
 
 export default async function PathPage({ params }: PathPageProps) {
   try {
-    const [path, pathProgress] = await Promise.all([
+    const [sessionProfile, path, pathProgress] = await Promise.all([
+      getSessionProfile(),
       getPath(params.pathId, { includeUserContext: true }),
       getPathProgress(params.pathId).catch(() => null)
     ]);
+    const isAuthenticated = sessionProfile.authenticated;
     const moduleProgressById = new Map(
       (pathProgress?.modules ?? []).map((moduleProgress) => [moduleProgress.moduleId, moduleProgress])
     );
@@ -29,7 +33,7 @@ export default async function PathPage({ params }: PathPageProps) {
           <h1>{path.title}</h1>
           {path.description ? <p className="pageDescription">{path.description}</p> : null}
           <div className="pageMetaRow catalogHeroMeta">
-            {pathProgress ? (
+            {isAuthenticated && pathProgress ? (
               <>
                 <span className="progressBadge">{microcopy.catalog.pathProgress}</span>
                 <span className="pageProgressSummary">
@@ -37,11 +41,18 @@ export default async function PathPage({ params }: PathPageProps) {
                   {pathProgress.completedModules}/{pathProgress.totalModules} {microcopy.catalog.progress.modulesWord}
                 </span>
               </>
-            ) : (
+            ) : isAuthenticated ? (
               <InlineNotice
                 className="pageProgressNotice catalogMutedNotice"
                 message={microcopy.catalog.progressUnavailable}
               />
+            ) : (
+              <p className="catalogAuthPrompt">
+                {microcopy.catalog.logInToTrackProgress}{' '}
+                <Link className="catalogAuthPromptLink" href={`/login?next=/paths/${params.pathId}`}>
+                  {microcopy.catalog.logInCta}
+                </Link>
+              </p>
             )}
           </div>
         </header>
@@ -52,6 +63,7 @@ export default async function PathPage({ params }: PathPageProps) {
               key={module.id}
               module={module}
               moduleProgress={moduleProgressById.get(module.id)}
+              isAuthenticated={isAuthenticated}
             />
           ))}
         </div>

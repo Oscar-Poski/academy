@@ -36,13 +36,22 @@ const moduleProgress: PathModuleProgressItem = {
 };
 
 describe('PathModuleCard', () => {
-  it('renders unlocked module card with module/section actions and progress chip', () => {
-    render(<PathModuleCard module={moduleBase} moduleProgress={moduleProgress} />);
+  it('renders unlocked module card with authenticated section action and progress chip', () => {
+    render(<PathModuleCard module={moduleBase} moduleProgress={moduleProgress} isAuthenticated />);
 
     expect(screen.getByRole('heading', { name: 'HTTP Basics' })).toBeInTheDocument();
     expect(screen.getByText('50% · 1/2 secciones')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Abrir módulo' })).toHaveAttribute('href', '/modules/module-1');
     expect(screen.getByRole('link', { name: 'Comenzar' })).toHaveAttribute('href', '/learn/section-1');
+  });
+
+  it('renders login-first section action for anonymous users', () => {
+    render(<PathModuleCard module={moduleBase} moduleProgress={moduleProgress} isAuthenticated={false} />);
+
+    expect(screen.getByRole('link', { name: 'Iniciar sesión para comenzar' })).toHaveAttribute(
+      'href',
+      '/login?next=/learn/section-1'
+    );
   });
 
   it('renders lock reason and disabled CTA for locked module', () => {
@@ -56,7 +65,7 @@ describe('PathModuleCard', () => {
       }
     };
 
-    render(<PathModuleCard module={lockedModule} />);
+    render(<PathModuleCard module={lockedModule} isAuthenticated={false} />);
 
     expect(screen.getByText('Complete module prerequisites')).toBeInTheDocument();
     const lockedAction = screen.getAllByText('Bloqueado').find((node) =>
@@ -68,7 +77,7 @@ describe('PathModuleCard', () => {
   });
 
   it('renders empty-state notice when module has no sections', () => {
-    render(<PathModuleCard module={{ ...moduleBase, sections: [] }} />);
+    render(<PathModuleCard module={{ ...moduleBase, sections: [] }} isAuthenticated />);
     expect(screen.getByText('Aún no hay secciones en este módulo.')).toBeInTheDocument();
   });
 });

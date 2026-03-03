@@ -12,9 +12,16 @@ type ModuleSectionRowProps = {
   status: SectionProgressStatus;
   completionPct?: number;
   showProgress: boolean;
+  isAuthenticated: boolean;
 };
 
-export function ModuleSectionRow({ section, status, completionPct, showProgress }: ModuleSectionRowProps) {
+export function ModuleSectionRow({
+  section,
+  status,
+  completionPct,
+  showProgress,
+  isAuthenticated
+}: ModuleSectionRowProps) {
   const isLocked = section.lock?.isLocked === true;
   const actionLabel = getSectionPrimaryActionLabel(status);
   const lockReason = section.lock?.reasons[0] ?? microcopy.catalog.lockedReasonFallback;
@@ -41,8 +48,11 @@ export function ModuleSectionRow({ section, status, completionPct, showProgress 
             {microcopy.catalog.locked}
           </span>
         ) : (
-          <Link href={`/learn/${section.id}`} className="catalogPrimaryCta">
-            {actionLabel}
+          <Link
+            href={isAuthenticated ? `/learn/${section.id}` : `/login?next=/learn/${section.id}`}
+            className="catalogPrimaryCta"
+          >
+            {isAuthenticated ? actionLabel : microcopy.catalog.logInToStartSection}
           </Link>
         )}
       </div>

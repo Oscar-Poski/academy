@@ -35,6 +35,12 @@ describe('microcopy', () => {
     expect(microcopy.courses.countUnavailable).toBe('Conteo no disponible');
   });
 
+  it('defines catalog auth guidance copy', () => {
+    expect(microcopy.catalog.logInCta).toBe('Iniciar sesión');
+    expect(microcopy.catalog.logInToTrackProgress).toBe('Inicia sesión para guardar tu progreso.');
+    expect(microcopy.catalog.logInToStartSection).toBe('Iniciar sesión para comenzar');
+  });
+
   it('defines home hero and featured copy', () => {
     expect(microcopy.home.hero.title).toBe('Aprende habilidades reales con rutas guiadas y práctica inmediata.');
     expect(microcopy.home.hero.primaryCta).toBe('Explorar cursos');

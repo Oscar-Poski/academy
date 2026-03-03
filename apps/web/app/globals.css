@@ -1081,6 +1081,23 @@ main {
   color: var(--color-text-muted);
 }
 
+.catalogAuthPrompt {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.catalogAuthPromptLink {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.catalogAuthPromptLink:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
 .catalogSectionList {
   margin: 0;
   padding: 0;

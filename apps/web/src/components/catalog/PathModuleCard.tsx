@@ -9,9 +9,10 @@ import { CatalogProgressChip } from './CatalogProgressChip';
 type PathModuleCardProps = {
   module: PathTreeModule;
   moduleProgress?: PathModuleProgressItem;
+  isAuthenticated: boolean;
 };
 
-export function PathModuleCard({ module, moduleProgress }: PathModuleCardProps) {
+export function PathModuleCard({ module, moduleProgress, isAuthenticated }: PathModuleCardProps) {
   const isLocked = module.lock?.isLocked === true;
   const lockReason = module.lock?.reasons[0] ?? microcopy.catalog.lockedReasonFallback;
 
@@ -72,8 +73,11 @@ export function PathModuleCard({ module, moduleProgress }: PathModuleCardProps) 
                       {microcopy.catalog.locked}
                     </span>
                   ) : (
-                    <Link className="catalogPrimaryCta" href={`/learn/${section.id}`}>
-                      {microcopy.catalog.start}
+                    <Link
+                      className="catalogPrimaryCta"
+                      href={isAuthenticated ? `/learn/${section.id}` : `/login?next=/learn/${section.id}`}
+                    >
+                      {isAuthenticated ? microcopy.catalog.start : microcopy.catalog.logInToStartSection}
                     </Link>
                   )}
                 </div>

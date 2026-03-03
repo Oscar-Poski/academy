@@ -2,9 +2,10 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getPath, getPathProgress, notFound } = vi.hoisted(() => ({
+const { getPath, getPathProgress, getSessionProfile, notFound } = vi.hoisted(() => ({
   getPath: vi.fn(),
   getPathProgress: vi.fn(),
+  getSessionProfile: vi.fn(),
   notFound: vi.fn()
 }));
 
@@ -22,6 +23,10 @@ vi.mock('@/src/lib/api-clients/content.client', () => ({
 
 vi.mock('@/src/lib/api-clients/progress.server', () => ({
   getPathProgress
+}));
+
+vi.mock('@/src/lib/auth/get-session-profile.server', () => ({
+  getSessionProfile
 }));
 
 vi.mock('next/navigation', () => ({
@@ -42,7 +47,9 @@ describe('PathPage', () => {
   beforeEach(() => {
     getPath.mockReset();
     getPathProgress.mockReset();
+    getSessionProfile.mockReset();
     notFound.mockReset();
+    getSessionProfile.mockResolvedValue({ authenticated: true });
   });
 
   it('renders module cards with progress chips when progress exists', async () => {
@@ -109,5 +116,35 @@ describe('PathPage', () => {
     const notice = screen.getByText('Los indicadores de progreso no están disponibles en este momento.');
     expect(notice).toBeInTheDocument();
     expect(notice).toHaveClass('stateInlineNotice');
+  });
+
+  it('renders anonymous auth prompt and login-first section CTA', async () => {
+    getSessionProfile.mockResolvedValue({ authenticated: false });
+    getPath.mockResolvedValue({
+      id: 'path-1',
+      slug: 'web-foundations',
+      title: 'Web Foundations',
+      description: null,
+      modules: [
+        {
+          id: 'module-1',
+          slug: 'http-basics',
+          title: 'HTTP Basics',
+          sortOrder: 1,
+          sections: [{ id: 'section-1', slug: 'intro', title: 'Intro', sortOrder: 1 }]
+        }
+      ]
+    });
+    getPathProgress.mockRejectedValue(new Error('progress down'));
+
+    render(await PathPage({ params: { pathId: 'path-1' } }));
+
+    expect(screen.getByText('Inicia sesión para guardar tu progreso.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/login?next=/paths/path-1');
+    expect(screen.getByRole('link', { name: 'Iniciar sesión para comenzar' })).toHaveAttribute(
+      'href',
+      '/login?next=/learn/section-1'
+    );
+    expect(screen.queryByText('Los indicadores de progreso no están disponibles en este momento.')).not.toBeInTheDocument();
   });
 });

@@ -377,6 +377,13 @@ PR-64 hardening de navegación pública + login opcional:
 - se mantienen sin cambios los comportamientos de menú móvil (toggle, cierre con Escape, foco inicial y cierre al seleccionar acciones)
 - no hay cambios en contratos API/backend/rutas
 
+PR-65 pulido de catálogo público (paths/modules) con CTAs amigables para anónimos:
+- `/paths/:pathId` y `/modules/:moduleId` mantienen acceso público y ahora muestran guía explícita de autenticación para guardar progreso
+- en estado anónimo, las acciones de inicio de sección usan CTA de login con `next` (`/login?next=/learn/:sectionId`) en lugar de navegación directa al learn protegido
+- para usuarios autenticados, se conservan los chips de progreso y acciones directas (`Comenzar`, `Continuar`, `Repasar`) sin cambios de contrato
+- estados bloqueados y razones de bloqueo se mantienen igual
+- no hay cambios en APIs, rutas ni esquema de base de datos
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

@@ -1,7 +1,9 @@
 import React from 'react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ContentApiError, getModule } from '@/src/lib/api-clients/content.client';
 import { getModuleProgress } from '@/src/lib/api-clients/progress.server';
+import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import type { ModuleSectionProgressItem } from '@/src/lib/progress-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { ModuleSectionRow } from '@/src/components/catalog';
@@ -15,10 +17,12 @@ type ModulePageProps = {
 
 export default async function ModulePage({ params }: ModulePageProps) {
   try {
-    const [module, moduleProgress] = await Promise.all([
+    const [sessionProfile, module, moduleProgress] = await Promise.all([
+      getSessionProfile(),
       getModule(params.moduleId, { includeUserContext: true }),
       getModuleProgress(params.moduleId).catch(() => null)
     ]);
+    const isAuthenticated = sessionProfile.authenticated;
     const sectionProgressById = new Map(
       (moduleProgress?.sections ?? []).map((sectionProgress) => [sectionProgress.sectionId, sectionProgress])
     );
@@ -38,7 +42,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
             </div>
           ) : null}
           <div className="pageMetaRow catalogHeroMeta">
-            {moduleProgress ? (
+            {isAuthenticated && moduleProgress ? (
               <>
                 <span className="progressBadge">{microcopy.catalog.moduleProgress}</span>
                 <span className="pageProgressSummary">
@@ -47,11 +51,18 @@ export default async function ModulePage({ params }: ModulePageProps) {
                   {microcopy.catalog.progress.sectionsWord}
                 </span>
               </>
-            ) : (
+            ) : isAuthenticated ? (
               <InlineNotice
                 className="pageProgressNotice catalogMutedNotice"
                 message={microcopy.catalog.progressUnavailable}
               />
+            ) : (
+              <p className="catalogAuthPrompt">
+                {microcopy.catalog.logInToTrackProgress}{' '}
+                <Link className="catalogAuthPromptLink" href={`/login?next=/modules/${params.moduleId}`}>
+                  {microcopy.catalog.logInCta}
+                </Link>
+              </p>
             )}
           </div>
         </header>
@@ -73,6 +84,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
                     status={status}
                     completionPct={completionPct}
                     showProgress={Boolean(moduleProgress)}
+                    isAuthenticated={isAuthenticated}
                   />
                 );
               })}
