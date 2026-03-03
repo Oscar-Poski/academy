@@ -17,7 +17,7 @@ describe('HomeHero', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Aprende habilidades reales con rutas guiadas y práctica inmediata.'
+        name: 'Aprende habilidades de IT desde cero con rutas guiadas y práctica inmediata.'
       })
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Explorar cursos' })).toHaveAttribute('href', '/courses');

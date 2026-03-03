@@ -42,7 +42,7 @@ describe('microcopy', () => {
   });
 
   it('defines home hero and featured copy', () => {
-    expect(microcopy.home.hero.title).toBe('Aprende habilidades reales con rutas guiadas y práctica inmediata.');
+    expect(microcopy.home.hero.title).toBe('Aprende habilidades de IT desde cero con rutas guiadas y práctica inmediata.');
     expect(microcopy.home.hero.primaryCta).toBe('Explorar cursos');
     expect(microcopy.home.hero.secondaryCtaAnon).toBe('Iniciar sesión');
     expect(microcopy.home.hero.secondaryCtaAuth).toBe('Ir a mi inicio');

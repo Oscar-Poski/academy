@@ -52,10 +52,10 @@ export const microcopy = {
   },
   home: {
     hero: {
-      eyebrow: 'Academy',
-      title: 'Aprende habilidades reales con rutas guiadas y práctica inmediata.',
+      eyebrow: 'Academia en línea',
+      title: 'Aprende habilidades de IT desde cero con rutas guiadas y práctica inmediata.',
       subtitle:
-        'Empieza gratis, explora cursos públicos y avanza sección por sección con una experiencia clara.',
+        'Consigue trabajo en cualquier área de IT. Empieza a estudiar y avanza sección por sección.',
       primaryCta: 'Explorar cursos',
       secondaryCtaAnon: 'Iniciar sesión',
       secondaryCtaAuth: 'Ir a mi inicio'
