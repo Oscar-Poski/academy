@@ -1,24 +1,24 @@
 :root {
   /* Core color tokens */
-  --color-neutral-950: #0b1220;
-  --color-neutral-900: #111a2d;
-  --color-neutral-850: #16233b;
-  --color-neutral-800: #1c2b45;
-  --color-neutral-700: #223456;
-  --color-neutral-600: #355487;
-  --color-neutral-300: #95a1b8;
-  --color-neutral-100: #e6edf7;
-  --color-accent-300: #b8d8ff;
-  --color-accent-400: #4ea1ff;
-  --color-success-400: #4ade80;
+  --color-neutral-950: #0a0a0a;
+  --color-neutral-900: #111111;
+  --color-neutral-850: #171717;
+  --color-neutral-800: #1f1f1f;
+  --color-neutral-700: #2a2a2a;
+  --color-neutral-600: #3f3f46;
+  --color-neutral-300: #a1a1aa;
+  --color-neutral-100: #f5f5f5;
+  --color-accent-300: #fde047;
+  --color-accent-400: #facc15;
+  --color-success-400: #22c55e;
   --color-warning-300: #fde68a;
   --color-warning-400: #f59e0b;
-  --color-danger-300: #f5b2b2;
+  --color-danger-300: #fecaca;
   --color-danger-400: #ef4444;
 
   /* Typography tokens */
-  --font-display: 'Avenir Next', 'Trebuchet MS', 'Segoe UI', sans-serif;
-  --font-body: 'Source Sans 3', 'Helvetica Neue', 'Segoe UI', sans-serif;
+  --font-display: 'Sora', 'Avenir Next', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --font-body: 'Manrope', 'Source Sans 3', 'Helvetica Neue', 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
   --font-size-xs: 0.78rem;
   --font-size-sm: 0.85rem;
@@ -49,14 +49,14 @@
   --radius-pill: 999px;
 
   /* Elevation + motion */
-  --shadow-surface: 0 10px 30px rgba(2, 8, 20, 0.32);
+  --shadow-surface: 0 14px 36px rgba(0, 0, 0, 0.45);
   --dur-fast: 120ms;
   --dur-base: 180ms;
   --ease-standard: ease;
 
   /* Semantic tokens */
   --color-bg-canvas: var(--color-neutral-950);
-  --color-bg-glow: #1a2a4a;
+  --color-bg-glow: #2b240c;
   --color-surface-1: var(--color-neutral-900);
   --color-surface-2: var(--color-neutral-850);
   --color-surface-soft: rgba(255, 255, 255, 0.03);
@@ -65,26 +65,27 @@
   --color-border-default: var(--color-neutral-700);
   --color-border-strong: var(--color-neutral-600);
   --color-link: var(--color-accent-300);
-  --color-link-hover: #d4e8ff;
-  --color-action-bg: rgba(53, 84, 135, 0.2);
-  --color-action-bg-hover: rgba(53, 84, 135, 0.34);
-  --color-action-border: var(--color-border-strong);
-  --color-action-disabled: #7f8ca4;
-  --color-status-info-border: rgba(78, 161, 255, 0.45);
-  --color-status-info-bg: rgba(78, 161, 255, 0.14);
-  --color-status-info-text: #b9ddff;
+  --color-link-hover: #fef3c7;
+  --color-action-bg: rgba(250, 204, 21, 0.12);
+  --color-action-bg-hover: rgba(250, 204, 21, 0.22);
+  --color-action-border: color-mix(in srgb, var(--color-accent-400) 36%, var(--color-border-strong));
+  --color-action-disabled: #737373;
+  --color-focus-ring: var(--color-accent-300);
+  --color-status-info-border: rgba(250, 204, 21, 0.4);
+  --color-status-info-bg: rgba(250, 204, 21, 0.12);
+  --color-status-info-text: #fef3c7;
   --color-status-success-border: rgba(74, 222, 128, 0.45);
   --color-status-success-bg: rgba(74, 222, 128, 0.14);
-  --color-status-success-text: #baf7cd;
-  --color-status-muted-border: #29405f;
-  --color-status-muted-bg: rgba(41, 64, 95, 0.24);
-  --color-status-muted-text: #b7c3d7;
+  --color-status-success-text: #bbf7d0;
+  --color-status-muted-border: #3f3f46;
+  --color-status-muted-bg: rgba(63, 63, 70, 0.35);
+  --color-status-muted-text: #d4d4d8;
   --color-status-warning-border: rgba(245, 158, 11, 0.45);
   --color-status-warning-bg: rgba(245, 158, 11, 0.18);
   --color-status-warning-text: var(--color-warning-300);
-  --color-status-warning-soft-bg: rgba(180, 83, 9, 0.14);
-  --color-status-warning-soft-text: #f3e4c3;
-  --color-status-warning-action-bg: rgba(120, 53, 15, 0.42);
+  --color-status-warning-soft-bg: rgba(120, 53, 15, 0.18);
+  --color-status-warning-soft-text: #fde68a;
+  --color-status-warning-action-bg: rgba(120, 53, 15, 0.5);
   --color-status-warning-action-text: #fef3c7;
   --color-status-danger-soft-bg: rgba(248, 113, 113, 0.2);
   --color-status-danger-border: rgba(239, 68, 68, 0.4);
@@ -114,7 +115,7 @@ body {
 }
 
 :where(a, button, input, textarea, select, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-accent-300);
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
 }
 
@@ -1031,6 +1032,57 @@ main {
   font-size: 0.84rem;
 }
 
+.coursesShell {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.coursesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.coursesCard {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.coursesCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.coursesCardTitle {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.coursesCardDescription {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+}
+
+.coursesCardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 1.8rem;
+}
+
+.coursesCardCta {
+  justify-self: start;
+}
+
+.coursesMutedNotice {
+  margin: 0;
+}
+
 .progressBadge {
   display: inline-flex;
   align-items: center;
@@ -1499,19 +1551,19 @@ main {
 }
 
 .blockCallout {
-  border-left: 4px solid #4ea1ff;
+  border-left: 4px solid var(--color-accent-400);
 }
 
 .blockCallout-warning {
-  border-left-color: #f59e0b;
+  border-left-color: var(--color-warning-400);
 }
 
 .blockCallout-danger {
-  border-left-color: #ef4444;
+  border-left-color: var(--color-danger-400);
 }
 
 .blockCallout-success {
-  border-left-color: #22c55e;
+  border-left-color: var(--color-success-400);
 }
 
 .blockCalloutLabel {
@@ -1886,6 +1938,15 @@ main {
   .catalogSectionActions {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .coursesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .coursesCardCta {
+    width: 100%;
+    justify-content: center;
   }
 
   .playerLayout {

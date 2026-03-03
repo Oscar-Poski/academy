@@ -13,6 +13,7 @@ describe('AppFooter', () => {
 
     expect(screen.getByText(/HekaDemos/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Cursos' })).toHaveAttribute('href', '/courses');
     expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/login');
     expect(screen.getByRole('link', { name: 'Crear cuenta' })).toHaveAttribute('href', '/signup');
   });
@@ -33,6 +34,7 @@ describe('AppFooter', () => {
     );
 
     expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Cursos' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Iniciar sesión' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Crear cuenta' })).not.toBeInTheDocument();

@@ -60,6 +60,7 @@ describe('AppHeaderClient', () => {
 
     expect(screen.getByRole('link', { name: 'Academy MVP' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Cursos' })).toHaveAttribute('href', '/courses');
     expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/login');
     expect(screen.getByRole('link', { name: 'Crear cuenta' })).toHaveAttribute('href', '/signup');
   });
@@ -81,6 +82,7 @@ describe('AppHeaderClient', () => {
     );
 
     expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Cursos' })).toBeInTheDocument();
     expect(screen.getByText('student@academy.local')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument();
   });
@@ -135,6 +137,15 @@ describe('AppHeaderClient', () => {
     render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
 
     expect(screen.getByRole('link', { name: 'Inicio' })).toHaveClass('appNavLink--active');
+    expect(screen.getByRole('link', { name: 'Cursos' })).not.toHaveClass('appNavLink--active');
+  });
+
+  it('applies active class on courses link when pathname is /courses', () => {
+    usePathnameMock.mockReturnValue('/courses');
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+
+    expect(screen.getByRole('link', { name: 'Cursos' })).toHaveClass('appNavLink--active');
+    expect(screen.getByRole('link', { name: 'Inicio' })).not.toHaveClass('appNavLink--active');
   });
 
   it('closes menu when logout action is triggered', () => {

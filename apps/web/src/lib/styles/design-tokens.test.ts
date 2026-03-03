@@ -13,6 +13,8 @@ function getRuleBlock(selector: string): string {
 
 describe('design token baseline', () => {
   it('declares required semantic tokens and backward-compat aliases', () => {
+    expect(globalsCss).toContain('--color-accent-300: #fde047;');
+    expect(globalsCss).toContain('--color-accent-400: #facc15;');
     expect(globalsCss).toContain('--color-bg-canvas:');
     expect(globalsCss).toContain('--color-surface-1:');
     expect(globalsCss).toContain('--color-surface-2:');
@@ -20,6 +22,7 @@ describe('design token baseline', () => {
     expect(globalsCss).toContain('--color-text-muted:');
     expect(globalsCss).toContain('--color-border-default:');
     expect(globalsCss).toContain('--color-action-bg:');
+    expect(globalsCss).toContain('--color-focus-ring:');
     expect(globalsCss).toContain('--color-status-success-bg:');
     expect(globalsCss).toContain('--color-status-warning-bg:');
     expect(globalsCss).toContain('--color-status-danger-bg:');
@@ -61,6 +64,6 @@ describe('design token baseline', () => {
 
   it('defines a shared focus-visible treatment for interactive controls', () => {
     expect(globalsCss).toContain(':where(a, button, input, textarea, select, [tabindex]):focus-visible');
-    expect(globalsCss).toContain('outline: 2px solid var(--color-accent-300)');
+    expect(globalsCss).toContain('outline: 2px solid var(--color-focus-ring)');
   });
 });

@@ -350,6 +350,19 @@ PR-60 acceso público al home + resolución SSR segura de sesión:
 - la resolución de sesión usada por layout/páginas SSR ahora es de solo lectura (sin mutación de cookies) para evitar el error de Next sobre `cookies().set/delete` fuera de Server Actions o Route Handlers
 - los flujos mutables de refresh/persistencia de sesión se conservan para contextos permitidos (rutas `/api/auth/*`)
 
+PR-61 visual theme foundation v2:
+- la UI web adopta una dirección visual SaaS en negro/blanco/amarillo
+- se actualizaron tokens semánticos y alias en `apps/web/app/globals.css` para shell, auth, home, catálogo, player, quiz, estados y primitives
+- se mantuvo estructura de rutas y comportamiento sin cambios (solo styling/tokens)
+- focus-visible y reglas de reduced-motion se mantienen para preservar baseline de accesibilidad
+
+PR-62 catálogo público de cursos:
+- se agregó la ruta pública `GET /courses` para explorar cursos disponibles sin autenticación
+- la página muestra tarjetas de rutas con título, descripción, conteos (módulos/secciones) y CTA `Ver ruta`
+- los conteos se calculan con fetch público de detalle por ruta y degradan de forma no fatal si falla alguna ruta individual
+- header y footer ahora incluyen navegación `Cursos` para descubrimiento inmediato
+- no hay cambios en contratos API/backend ni en rutas existentes
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

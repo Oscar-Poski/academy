@@ -1,6 +1,7 @@
 export const microcopy = {
   nav: {
     home: 'Inicio',
+    courses: 'Cursos',
     menu: 'Menú',
     closeMenu: 'Cerrar menú',
     primaryNavigationAriaLabel: 'Navegación principal',
@@ -56,6 +57,16 @@ export const microcopy = {
     onboardingHint: 'Todo está listo. Comienza tu primera sección.',
     onboardingCta: 'Comenzar mi primera sección',
     fallback: 'Las recomendaciones de aprendizaje no están disponibles por el momento.'
+  },
+  courses: {
+    title: 'Cursos disponibles',
+    subtitle: 'Explora rutas públicas y entra a la que quieras comenzar.',
+    openPath: 'Ver ruta',
+    modulesCountLabel: 'módulos',
+    sectionsCountLabel: 'secciones',
+    empty: 'Aún no hay cursos disponibles.',
+    unavailable: 'No pudimos cargar el catálogo de cursos en este momento.',
+    countUnavailable: 'Conteo no disponible'
   },
   catalog: {
     pathLabel: 'Ruta',

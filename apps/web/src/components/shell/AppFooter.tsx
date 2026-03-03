@@ -28,6 +28,9 @@ export function AppFooter({ sessionProfile }: AppFooterProps) {
           <Link href="/" className="appNavLink">
             {microcopy.nav.home}
           </Link>
+          <Link href="/courses" className="appNavLink">
+            {microcopy.nav.courses}
+          </Link>
           {sessionProfile.authenticated ? (
             <LogoutButton variant="ghost" size="sm" className="appAuthAction appFooterAction" />
           ) : (

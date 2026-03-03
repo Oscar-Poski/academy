@@ -6,6 +6,7 @@ describe('microcopy', () => {
     expect(microcopy.auth.actions.logIn).toBe('Iniciar sesión');
     expect(microcopy.auth.actions.signUp).toBe('Crear cuenta');
     expect(microcopy.auth.actions.logOut).toBe('Cerrar sesión');
+    expect(microcopy.nav.courses).toBe('Cursos');
   });
 
   it('defines deterministic known auth and player error copy', () => {
@@ -21,5 +22,16 @@ describe('microcopy', () => {
     expect(microcopy.state.loadingPage).toBe('Cargando contenido de la página');
     expect(microcopy.state.globalError.title).toBe('Algo salió mal');
     expect(microcopy.state.globalError.tryAgain).toBe('Intentar de nuevo');
+  });
+
+  it('defines deterministic courses catalog copy', () => {
+    expect(microcopy.courses.title).toBe('Cursos disponibles');
+    expect(microcopy.courses.subtitle).toBe('Explora rutas públicas y entra a la que quieras comenzar.');
+    expect(microcopy.courses.openPath).toBe('Ver ruta');
+    expect(microcopy.courses.modulesCountLabel).toBe('módulos');
+    expect(microcopy.courses.sectionsCountLabel).toBe('secciones');
+    expect(microcopy.courses.empty).toBe('Aún no hay cursos disponibles.');
+    expect(microcopy.courses.unavailable).toBe('No pudimos cargar el catálogo de cursos en este momento.');
+    expect(microcopy.courses.countUnavailable).toBe('Conteo no disponible');
   });
 });

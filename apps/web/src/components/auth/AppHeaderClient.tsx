@@ -20,6 +20,7 @@ export function AppHeaderClient({ sessionProfile, appName }: AppHeaderClientProp
   const menuPanelRef = useRef<HTMLDivElement>(null);
   const menuPanelId = 'app-header-menu-panel';
   const homeLinkClass = `appNavLink${pathname === '/' ? ' appNavLink--active' : ''}`;
+  const coursesLinkClass = `appNavLink${pathname === '/courses' ? ' appNavLink--active' : ''}`;
   const authLinkClass = buttonClassName({
     variant: 'secondary',
     size: 'sm',
@@ -114,6 +115,15 @@ export function AppHeaderClient({ sessionProfile, appName }: AppHeaderClientProp
               }}
             >
               {microcopy.nav.home}
+            </Link>
+            <Link
+              href="/courses"
+              className={coursesLinkClass}
+              onClick={() => {
+                closeMenu();
+              }}
+            >
+              {microcopy.nav.courses}
             </Link>
           </div>
           <div className="appNavSecondary">
