@@ -148,6 +148,22 @@ describe('AppHeaderClient', () => {
     expect(screen.getByRole('link', { name: 'Inicio' })).not.toHaveClass('appNavLink--active');
   });
 
+  it('applies active class on courses link when pathname is a path detail route', () => {
+    usePathnameMock.mockReturnValue('/paths/path-1');
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+
+    expect(screen.getByRole('link', { name: 'Cursos' })).toHaveClass('appNavLink--active');
+    expect(screen.getByRole('link', { name: 'Inicio' })).not.toHaveClass('appNavLink--active');
+  });
+
+  it('applies active class on courses link when pathname is a module detail route', () => {
+    usePathnameMock.mockReturnValue('/modules/module-1');
+    render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
+
+    expect(screen.getByRole('link', { name: 'Cursos' })).toHaveClass('appNavLink--active');
+    expect(screen.getByRole('link', { name: 'Inicio' })).not.toHaveClass('appNavLink--active');
+  });
+
   it('closes menu when logout action is triggered', () => {
     render(
       <AppHeaderClient

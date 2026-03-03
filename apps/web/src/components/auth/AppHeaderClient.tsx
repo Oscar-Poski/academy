@@ -19,8 +19,11 @@ export function AppHeaderClient({ sessionProfile, appName }: AppHeaderClientProp
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuPanelRef = useRef<HTMLDivElement>(null);
   const menuPanelId = 'app-header-menu-panel';
-  const homeLinkClass = `appNavLink${pathname === '/' ? ' appNavLink--active' : ''}`;
-  const coursesLinkClass = `appNavLink${pathname === '/courses' ? ' appNavLink--active' : ''}`;
+  const isHomeActive = pathname === '/';
+  const isCoursesActive =
+    pathname === '/courses' || pathname.startsWith('/paths/') || pathname.startsWith('/modules/');
+  const homeLinkClass = `appNavLink${isHomeActive ? ' appNavLink--active' : ''}`;
+  const coursesLinkClass = `appNavLink${isCoursesActive ? ' appNavLink--active' : ''}`;
   const authLinkClass = buttonClassName({
     variant: 'secondary',
     size: 'sm',

@@ -370,6 +370,13 @@ PR-63 landing pública con hero + cursos destacados:
 - fallas de datos públicos o personalizados degradan de forma no fatal (la página sigue renderizando)
 - no hay cambios en contratos API/backend ni en protección de `/learn/:sectionId`
 
+PR-64 hardening de navegación pública + login opcional:
+- header y footer mantienen IA pública explícita con `Inicio` y `Cursos` en todos los estados de sesión
+- usuarios anónimos siguen viendo acciones opcionales de autenticación (`Iniciar sesión`, `Crear cuenta`) y usuarios autenticados mantienen identidad + `Cerrar sesión`
+- el estado activo de navegación ahora considera `/courses`, `/paths/:pathId` y `/modules/:moduleId` como parte de `Cursos`
+- se mantienen sin cambios los comportamientos de menú móvil (toggle, cierre con Escape, foco inicial y cierre al seleccionar acciones)
+- no hay cambios en contratos API/backend/rutas
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity
