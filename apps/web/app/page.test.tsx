@@ -2,10 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getApiHealth, getContinueLearning, requireAuthSession, getStartLearningCandidate } = vi.hoisted(() => ({
+const { getApiHealth, getContinueLearning, getStartLearningCandidate } = vi.hoisted(() => ({
   getApiHealth: vi.fn(),
   getContinueLearning: vi.fn(),
-  requireAuthSession: vi.fn(),
   getStartLearningCandidate: vi.fn()
 }));
 
@@ -15,10 +14,6 @@ vi.mock('@/src/lib/api', () => ({
 
 vi.mock('@/src/lib/api-clients/progress.server', () => ({
   getContinueLearning
-}));
-
-vi.mock('@/src/lib/auth/require-auth-session.server', () => ({
-  requireAuthSession
 }));
 
 vi.mock('@/src/lib/onboarding/get-start-learning-candidate.server', () => ({
@@ -31,15 +26,7 @@ describe('HomePage', () => {
   beforeEach(() => {
     getApiHealth.mockReset();
     getContinueLearning.mockReset();
-    requireAuthSession.mockReset();
     getStartLearningCandidate.mockReset();
-
-    requireAuthSession.mockResolvedValue({
-      id: 'u1',
-      email: 'student@academy.local',
-      name: 'Student',
-      role: 'user'
-    });
     getApiHealth.mockResolvedValue({ status: 'ok' });
     getContinueLearning.mockResolvedValue(null);
     getStartLearningCandidate.mockResolvedValue(null);
@@ -56,7 +43,6 @@ describe('HomePage', () => {
 
     render(await HomePage());
 
-    expect(requireAuthSession).toHaveBeenCalledWith('/');
     expect(screen.getByRole('link', { name: 'Retomar sección' })).toHaveAttribute('href', '/learn/s-resume');
     expect(screen.queryByRole('link', { name: 'Comenzar mi primera sección' })).not.toBeInTheDocument();
   });

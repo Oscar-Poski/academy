@@ -344,6 +344,12 @@ PR-59 localización UX a español (México):
 - no hay cambios en rutas, contratos de API ni esquema de base de datos
 - esta PR no traduce contenido curricular dinámico proveniente de seed/import (títulos y markdown de paths/modules/sections)
 
+PR-60 acceso público al home + resolución SSR segura de sesión:
+- `GET /` ahora es público (no requiere sesión)
+- `/learn/:sectionId` se mantiene protegido con middleware + validación estricta en página
+- la resolución de sesión usada por layout/páginas SSR ahora es de solo lectura (sin mutación de cookies) para evitar el error de Next sobre `cookies().set/delete` fuera de Server Actions o Route Handlers
+- los flujos mutables de refresh/persistencia de sesión se conservan para contextos permitidos (rutas `/api/auth/*`)
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity
