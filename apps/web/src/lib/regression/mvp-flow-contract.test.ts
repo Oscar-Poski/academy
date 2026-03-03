@@ -1,8 +1,14 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { middleware } from '@/middleware';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { getErrorMessageFromUnknown } from '@/src/lib/errors/error-messages';
+import { HomeHero } from '@/src/components/home/HomeHero';
+import { FeaturedCourses } from '@/src/components/home/FeaturedCourses';
+import { PathModuleCard } from '@/src/components/catalog/PathModuleCard';
+import { ModuleSectionRow } from '@/src/components/catalog/ModuleSectionRow';
 
 const cookieStore = {
   values: new Map<string, string>(),
@@ -32,6 +38,11 @@ vi.mock('@/src/lib/auth/api', () => ({
   apiRegister,
   apiLogout,
   parseLoginResponse
+}));
+
+vi.mock('next/link', () => ({
+  default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) =>
+    React.createElement('a', { href, ...rest }, children)
 }));
 
 describe('MVP flow contracts', () => {
@@ -155,5 +166,95 @@ describe('MVP flow contracts', () => {
         microcopy.player.complete.completeFailed
       )
     ).toBe(microcopy.errors.unauthorized);
+  });
+
+  it('preserves anonymous public journey CTA chain contracts', () => {
+    const hero = render(React.createElement(HomeHero, { authenticated: false }));
+    expect(screen.getByRole('link', { name: 'Explorar cursos' })).toHaveAttribute('href', '/courses');
+    hero.unmount();
+
+    const featured = render(
+      React.createElement(FeaturedCourses, {
+        unavailable: false,
+        courses: [
+          {
+            id: 'path-1',
+            slug: 'web-foundations',
+            title: 'Web Foundations',
+            description: 'Base path',
+            moduleCount: 1,
+            sectionCount: 1
+          }
+        ]
+      })
+    );
+    expect(screen.getByRole('link', { name: 'Ver ruta' })).toHaveAttribute('href', '/paths/path-1');
+    featured.unmount();
+
+    const pathModuleCard = render(
+      React.createElement(PathModuleCard, {
+        isAuthenticated: false,
+        module: {
+          id: 'module-1',
+          slug: 'http-basics',
+          title: 'HTTP Basics',
+          sortOrder: 1,
+          sections: [{ id: 'section-1', slug: 'intro', title: 'Intro', sortOrder: 1 }]
+        }
+      })
+    );
+    expect(screen.getByRole('link', { name: 'Abrir módulo' })).toHaveAttribute('href', '/modules/module-1');
+    expect(screen.getByRole('link', { name: 'Iniciar sesión para comenzar' })).toHaveAttribute(
+      'href',
+      '/login?next=/learn/section-1'
+    );
+    pathModuleCard.unmount();
+
+    render(
+      React.createElement(ModuleSectionRow, {
+        section: { id: 'section-1', slug: 'intro', title: 'Intro', sortOrder: 1 },
+        status: 'not_started',
+        completionPct: 0,
+        showProgress: true,
+        isAuthenticated: false
+      })
+    );
+    expect(screen.getByRole('link', { name: 'Iniciar sesión para comenzar' })).toHaveAttribute(
+      'href',
+      '/login?next=/learn/section-1'
+    );
+  });
+
+  it('preserves authenticated continuity for direct learn actions and progress labels', () => {
+    const pathModuleCard = render(
+      React.createElement(PathModuleCard, {
+        isAuthenticated: true,
+        moduleProgress: { moduleId: 'module-1', completionPct: 50, completedSections: 1, totalSections: 2 },
+        module: {
+          id: 'module-1',
+          slug: 'http-basics',
+          title: 'HTTP Basics',
+          sortOrder: 1,
+          sections: [{ id: 'section-1', slug: 'intro', title: 'Intro', sortOrder: 1 }]
+        }
+      })
+    );
+
+    expect(screen.getByText('50% · 1/2 secciones')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Comenzar' })).toHaveAttribute('href', '/learn/section-1');
+    pathModuleCard.unmount();
+
+    render(
+      React.createElement(ModuleSectionRow, {
+        section: { id: 'section-1', slug: 'intro', title: 'Intro', sortOrder: 1 },
+        status: 'in_progress',
+        completionPct: 42,
+        showProgress: true,
+        isAuthenticated: true
+      })
+    );
+
+    expect(screen.getByText('En progreso')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Continuar' })).toHaveAttribute('href', '/learn/section-1');
   });
 });

@@ -390,6 +390,12 @@ PR-66 polish visual SaaS (spacing, tipografía, motion y responsive):
 - ajuste responsive sobre el breakpoint existente (`<=960px`) y nuevo ajuste compacto (`<=640px`) para shell + home + catálogo
 - no hay cambios en lógica de producto, contratos API, rutas o comportamiento funcional
 
+PR-67 hardening de regresión para el journey público:
+- se reforzó la cobertura de contratos del flujo anónimo público (`/` -> `/courses` -> `/paths/:id` -> `/modules/:id`) y handoff login-first hacia `/learn/:sectionId`
+- `apps/web/src/lib/regression/mvp-flow-contract.test.ts` ahora valida continuidad de CTAs clave en estados anónimo y autenticado sin cambiar comportamiento runtime
+- `test:regression` en `apps/web/package.json` ahora incluye explícitamente `app/courses/page.test.tsx`, `app/courses/loading.test.tsx` y `src/lib/styles/saas-polish.test.ts`
+- el gate requerido `web-regression` sigue ejecutando `test:regression` + `typecheck`; esta PR es de hardening (sin cambios de API/rutas/DB)
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity
