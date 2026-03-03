@@ -34,4 +34,16 @@ describe('microcopy', () => {
     expect(microcopy.courses.unavailable).toBe('No pudimos cargar el catálogo de cursos en este momento.');
     expect(microcopy.courses.countUnavailable).toBe('Conteo no disponible');
   });
+
+  it('defines home hero and featured copy', () => {
+    expect(microcopy.home.hero.title).toBe('Aprende habilidades reales con rutas guiadas y práctica inmediata.');
+    expect(microcopy.home.hero.primaryCta).toBe('Explorar cursos');
+    expect(microcopy.home.hero.secondaryCtaAnon).toBe('Iniciar sesión');
+    expect(microcopy.home.hero.secondaryCtaAuth).toBe('Ir a mi inicio');
+    expect(microcopy.home.featured.title).toBe('Cursos destacados');
+    expect(microcopy.home.featured.viewPath).toBe('Ver ruta');
+    expect(microcopy.home.featured.viewAll).toBe('Ver todos los cursos');
+    expect(microcopy.home.featured.empty).toBe('Aún no hay cursos destacados disponibles.');
+    expect(microcopy.home.featured.unavailable).toBe('No pudimos cargar los cursos destacados en este momento.');
+  });
 });

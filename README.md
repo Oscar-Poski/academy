@@ -363,6 +363,13 @@ PR-62 catálogo público de cursos:
 - header y footer ahora incluyen navegación `Cursos` para descubrimiento inmediato
 - no hay cambios en contratos API/backend ni en rutas existentes
 
+PR-63 landing pública con hero + cursos destacados:
+- `GET /` ahora prioriza una experiencia de landing marketing con hero público y CTAs hacia `Cursos` y autenticación opcional
+- la home muestra una sección pública de cursos destacados (top 3 por orden API) con CTA directa a `/paths/:pathId` y acceso a `/courses`
+- el bloque personalizado de `continuar/comenzar` se mantiene, pero solo para sesiones autenticadas y como sección secundaria
+- fallas de datos públicos o personalizados degradan de forma no fatal (la página sigue renderizando)
+- no hay cambios en contratos API/backend ni en protección de `/learn/:sectionId`
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

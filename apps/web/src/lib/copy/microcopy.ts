@@ -51,6 +51,24 @@ export const microcopy = {
     }
   },
   home: {
+    hero: {
+      eyebrow: 'Academy',
+      title: 'Aprende habilidades reales con rutas guiadas y práctica inmediata.',
+      subtitle:
+        'Empieza gratis, explora cursos públicos y avanza sección por sección con una experiencia clara.',
+      primaryCta: 'Explorar cursos',
+      secondaryCtaAnon: 'Iniciar sesión',
+      secondaryCtaAuth: 'Ir a mi inicio'
+    },
+    featured: {
+      title: 'Cursos destacados',
+      subtitle: 'Empieza con estas rutas recomendadas para avanzar rápido.',
+      viewPath: 'Ver ruta',
+      viewAll: 'Ver todos los cursos',
+      descriptionFallback: 'Ruta disponible para comenzar hoy.',
+      empty: 'Aún no hay cursos destacados disponibles.',
+      unavailable: 'No pudimos cargar los cursos destacados en este momento.'
+    },
     sectionTitle: 'Continúa aprendiendo',
     resumeSection: 'Retomar sección',
     startLearning: 'Comenzar a aprender',

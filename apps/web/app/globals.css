@@ -358,6 +358,107 @@ main {
   font-size: 0.9rem;
 }
 
+.homeLanding {
+  max-width: 1080px;
+  margin: var(--space-7) auto var(--space-8);
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.homeHero {
+  overflow: hidden;
+  border-color: var(--color-action-border);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(250, 204, 21, 0.18), transparent 48%),
+    linear-gradient(160deg, color-mix(in srgb, var(--color-surface-2) 92%, black), var(--color-surface-1));
+}
+
+.homeHeroInner {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+.homeHeroEyebrow {
+  margin: 0;
+  color: var(--color-accent-300);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.homeHeroTitle {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.8vw, 2.5rem);
+  line-height: var(--line-height-tight);
+}
+
+.homeHeroSubtitle {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--color-text-muted);
+}
+
+.homeHeroActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.homeFeatured {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.homeFeaturedHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.homeFeaturedHeader h2 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.homeFeaturedGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.homeFeaturedCard {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.homeFeaturedCardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.homeFeaturedMeta {
+  margin: 0;
+  color: var(--color-text-muted);
+  min-height: 2.6em;
+}
+
+.homeFeaturedCta {
+  width: fit-content;
+}
+
+.homePersonalizedStrip {
+  margin-top: var(--space-1);
+}
+
 .pageShell {
   max-width: 1080px;
   margin: var(--space-7) auto var(--space-8);
@@ -1945,6 +2046,29 @@ main {
   }
 
   .coursesCardCta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .homeHeroInner {
+    padding: var(--space-4);
+  }
+
+  .homeHeroActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .homeFeaturedHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .homeFeaturedGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .homeFeaturedCta {
     width: 100%;
     justify-content: center;
   }
