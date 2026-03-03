@@ -82,4 +82,21 @@ describe('session helpers', () => {
 
     vi.unstubAllEnvs();
   });
+
+  it('does not throw when cookie store is immutable', () => {
+    const store = {
+      get() {
+        return undefined;
+      },
+      set() {
+        throw new Error('immutable cookies');
+      },
+      delete() {
+        throw new Error('immutable cookies');
+      }
+    };
+
+    expect(() => setSessionTokensOnStore(store, { accessToken: 'a', refreshToken: 'r' })).not.toThrow();
+    expect(() => clearSessionTokensOnStore(store)).not.toThrow();
+  });
 });

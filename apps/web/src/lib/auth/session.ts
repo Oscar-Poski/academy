@@ -54,8 +54,13 @@ export function setSessionTokensOnStore(store: CookieStore, tokens: SessionToken
   }
 
   const options = getSessionCookieOptions();
-  store.set(ACCESS_TOKEN_COOKIE, tokens.accessToken, options);
-  store.set(REFRESH_TOKEN_COOKIE, tokens.refreshToken, options);
+  try {
+    store.set(ACCESS_TOKEN_COOKIE, tokens.accessToken, options);
+    store.set(REFRESH_TOKEN_COOKIE, tokens.refreshToken, options);
+  } catch {
+    // Some Next.js contexts expose an immutable cookie store (Server Components).
+    // Token writes are best-effort and should not crash rendering in those contexts.
+  }
 }
 
 export function clearSessionTokensOnStore(store: CookieStore): void {
@@ -63,8 +68,13 @@ export function clearSessionTokensOnStore(store: CookieStore): void {
     return;
   }
 
-  store.delete(ACCESS_TOKEN_COOKIE);
-  store.delete(REFRESH_TOKEN_COOKIE);
+  try {
+    store.delete(ACCESS_TOKEN_COOKIE);
+    store.delete(REFRESH_TOKEN_COOKIE);
+  } catch {
+    // Some Next.js contexts expose an immutable cookie store (Server Components).
+    // Token clears are best-effort and should not crash rendering in those contexts.
+  }
 }
 
 export function readSessionTokens(): SessionTokens | null {

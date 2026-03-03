@@ -1,9 +1,9 @@
-import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { AuthRateLimitService } from './auth-rate-limit.service';
 
 @Injectable()
 export class AuthRateLimitGuard implements CanActivate {
-  constructor(private readonly rateLimit: AuthRateLimitService) {}
+  constructor(@Inject(AuthRateLimitService) private readonly rateLimit: AuthRateLimitService) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<{
