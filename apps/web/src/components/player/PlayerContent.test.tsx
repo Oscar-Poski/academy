@@ -110,7 +110,7 @@ describe('PlayerContent', () => {
     const metaItems = Array.from(container.querySelectorAll('.playerSectionMetaList > *')).map((item) =>
       item.textContent?.trim()
     );
-    expect(metaItems).toEqual(['In Progress', '55% complete', '2 blocks', '4 min read']);
+    expect(metaItems).toEqual(['En progreso', '55% completado', '2 bloques', '4 min de lectura']);
     expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toBeInTheDocument();
     const breadcrumbItems = container.querySelectorAll('.playerBreadcrumbList .playerBreadcrumbItem');
     expect(breadcrumbItems).toHaveLength(3);
@@ -145,7 +145,9 @@ describe('PlayerContent', () => {
       />
     );
 
-    expect(screen.getByText('Progress indicators unavailable right now.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Los indicadores de progreso no están disponibles en este momento.')
+    ).toBeInTheDocument();
     expect(screen.queryByTestId('lifecycle-analytics')).not.toBeInTheDocument();
     expect(playerActionRailSpy.mock.calls[0][0]).toMatchObject({
       currentSectionId: 'section-1',

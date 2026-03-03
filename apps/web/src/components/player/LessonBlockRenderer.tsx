@@ -1,4 +1,5 @@
 import type { SectionLessonBlock } from '@/src/lib/content-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import { CalloutBlock } from './blocks/CalloutBlock';
 import { ChecklistBlock } from './blocks/ChecklistBlock';
 import { CodeBlock } from './blocks/CodeBlock';
@@ -23,7 +24,7 @@ export function LessonBlockRenderer({ block }: LessonBlockRendererProps) {
     default:
       return (
         <div className="block blockUnknown">
-          Unsupported block type: <code>{String((block as { blockType?: unknown }).blockType)}</code>
+          {microcopy.player.blocks.unsupportedType} <code>{String((block as { blockType?: unknown }).blockType)}</code>
         </div>
       );
   }

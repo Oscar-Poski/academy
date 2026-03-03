@@ -1,5 +1,5 @@
 import type { AuthApiError } from '@/src/lib/auth/types';
-import { getKnownErrorMessage, microcopy } from '@/src/lib/copy/microcopy';
+import { getKnownErrorMessage, getKnownReasonMessage, microcopy } from '@/src/lib/copy/microcopy';
 
 type ErrorPayload = {
   code?: unknown;
@@ -18,7 +18,7 @@ function getRateLimitedSuffix(payload: ErrorPayload): string {
   if (payload.code !== 'rate_limited' || typeof payload.retry_after_seconds !== 'number') {
     return '';
   }
-  return ` ${microcopy.errors.rateLimitedSuffixPrefix} ${payload.retry_after_seconds} seconds.`;
+  return ` ${microcopy.errors.rateLimitedSuffixPrefix} ${payload.retry_after_seconds} ${microcopy.errors.rateLimitedSuffixSeconds}.`;
 }
 
 export function getAuthErrorMessage(payload: AuthApiError | null, fallback: string): string {
@@ -58,4 +58,8 @@ export function getErrorMessageFromUnknown(error: unknown, fallback: string): st
   }
 
   return getErrorMessageFromPayload(error, fallback);
+}
+
+export function getReasonMessage(reason: unknown): string {
+  return getKnownReasonMessage(reason) ?? (typeof reason === 'string' ? reason : '');
 }

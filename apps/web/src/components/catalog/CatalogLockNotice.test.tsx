@@ -7,7 +7,7 @@ describe('CatalogLockNotice', () => {
   it('renders locked badge and reason', () => {
     render(<CatalogLockNotice reason="Complete prerequisite section first." />);
 
-    expect(screen.getByText('Locked')).toHaveClass('lockBadge', 'lockBadge--locked');
+    expect(screen.getByText('Bloqueado')).toHaveClass('lockBadge', 'lockBadge--locked');
     expect(screen.getByText('Complete prerequisite section first.')).toHaveClass('catalogLockReason');
   });
 

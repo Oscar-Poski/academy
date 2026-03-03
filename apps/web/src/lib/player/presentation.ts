@@ -1,4 +1,5 @@
 import type { SectionProgressStatus } from '@/src/lib/progress-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 
 type FormatSectionMetaInput = {
   lessonBlockCount: number;
@@ -15,12 +16,12 @@ type FormatSectionMetaOutput = {
 export function getSectionStatusLabel(status: SectionProgressStatus): string {
   switch (status) {
     case 'completed':
-      return 'Completed';
+      return microcopy.player.status.completed;
     case 'in_progress':
-      return 'In Progress';
+      return microcopy.player.status.inProgress;
     case 'not_started':
     default:
-      return 'Not Started';
+      return microcopy.player.status.notStarted;
   }
 }
 
@@ -43,9 +44,11 @@ export function formatSectionMeta({
 }: FormatSectionMetaInput): FormatSectionMetaOutput {
   const completionLabel =
     typeof completionPct === 'number' && Number.isFinite(completionPct)
-      ? `${completionPct}% complete`
+      ? `${completionPct}% ${microcopy.player.meta.completedSuffix}`
       : null;
-  const lessonBlockLabel = `${lessonBlockCount} ${lessonBlockCount === 1 ? 'block' : 'blocks'}`;
+  const lessonBlockLabel = `${lessonBlockCount} ${
+    lessonBlockCount === 1 ? microcopy.player.meta.blockSingular : microcopy.player.meta.blockPlural
+  }`;
   const minutes =
     typeof estimatedSeconds === 'number' && estimatedSeconds > 0
       ? Math.max(1, Math.ceil(estimatedSeconds / 60))
@@ -54,6 +57,6 @@ export function formatSectionMeta({
   return {
     completionLabel,
     lessonBlockLabel,
-    durationLabel: minutes ? `${minutes} min read` : null
+    durationLabel: minutes ? `${minutes} ${microcopy.player.meta.readTimeSuffix}` : null
   };
 }

@@ -29,27 +29,27 @@ describe('SignupForm', () => {
   it('renders form fields and submit button', () => {
     render(<SignupForm />);
 
-    expect(screen.getByLabelText('Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign up' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Nombre')).toBeInTheDocument();
+    expect(screen.getByLabelText('Correo')).toBeInTheDocument();
+    expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeInTheDocument();
   });
 
   it('shows inline field errors and blocks submit when invalid', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
     render(<SignupForm />);
 
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '' } });
-    fireEvent.blur(screen.getByLabelText('Name'));
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'invalid-email' } });
-    fireEvent.blur(screen.getByLabelText('Email'));
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'short' } });
-    fireEvent.blur(screen.getByLabelText('Password'));
+    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: '' } });
+    fireEvent.blur(screen.getByLabelText('Nombre'));
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'invalid-email' } });
+    fireEvent.blur(screen.getByLabelText('Correo'));
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'short' } });
+    fireEvent.blur(screen.getByLabelText('Contraseña'));
 
-    expect(await screen.findByText('Name is required')).toBeInTheDocument();
-    expect(await screen.findByText('Enter a valid email address')).toBeInTheDocument();
-    expect(await screen.findByText('Password must be at least 8 characters long')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign up' })).toBeDisabled();
+    expect(await screen.findByText('El nombre es obligatorio')).toBeInTheDocument();
+    expect(await screen.findByText('Ingresa un correo válido')).toBeInTheDocument();
+    expect(await screen.findByText('La contraseña debe tener al menos 8 caracteres')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeDisabled();
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -57,10 +57,10 @@ describe('SignupForm', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
     render(<SignupForm />);
 
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'New Student' } });
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
+    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'New Student' } });
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'new@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/');
@@ -73,9 +73,9 @@ describe('SignupForm', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
     render(<SignupForm />);
 
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'new@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/learn/section-1');
@@ -90,12 +90,12 @@ describe('SignupForm', () => {
     );
     render(<SignupForm />);
 
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'existing@academy.local' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'existing@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Email already registered.')).toBeInTheDocument();
+      expect(screen.getByText('Este correo ya está registrado.')).toBeInTheDocument();
     });
     expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
@@ -114,13 +114,13 @@ describe('SignupForm', () => {
     );
     render(<SignupForm />);
 
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'new@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }));
 
     await waitFor(() => {
       expect(
-        screen.getByText('Too many auth attempts. Try again later. Try again in 30 seconds.')
+        screen.getByText('Demasiados intentos de autenticación. Intenta más tarde. Intenta de nuevo en 30 segundos.')
       ).toBeInTheDocument();
     });
   });
@@ -129,12 +129,12 @@ describe('SignupForm', () => {
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network'));
     render(<SignupForm />);
 
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'new@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Unable to create your account right now. Try again.')).toBeInTheDocument();
+      expect(screen.getByText('No pudimos crear tu cuenta en este momento. Intenta de nuevo.')).toBeInTheDocument();
     });
   });
 
@@ -148,12 +148,12 @@ describe('SignupForm', () => {
     );
 
     render(<SignupForm />);
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@academy.local' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    const button = screen.getByRole('button', { name: 'Sign up' });
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'new@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'password123' } });
+    const button = screen.getByRole('button', { name: 'Crear cuenta' });
     fireEvent.click(button);
 
-    expect(screen.getByRole('button', { name: 'Signing up...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Creando cuenta...' })).toBeDisabled();
 
     resolveFetch?.(new Response('{}', { status: 200 }));
     await waitFor(() => {

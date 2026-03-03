@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   getAuthErrorMessage,
   getErrorMessageFromPayload,
-  getErrorMessageFromUnknown
+  getErrorMessageFromUnknown,
+  getReasonMessage
 } from './error-messages';
 
 describe('error message mapping', () => {
@@ -15,7 +16,7 @@ describe('error message mapping', () => {
       'fallback'
     );
 
-    expect(message).toBe('Invalid email or password.');
+    expect(message).toBe('Correo o contraseña incorrectos.');
   });
 
   it('appends deterministic retry suffix for rate_limited payloads', () => {
@@ -28,7 +29,7 @@ describe('error message mapping', () => {
       'fallback'
     );
 
-    expect(message).toBe('Too many auth attempts. Try again later. Try again in 12 seconds.');
+    expect(message).toBe('Demasiados intentos de autenticación. Intenta más tarde. Intenta de nuevo en 12 segundos.');
   });
 
   it('returns fallback for unknown payload code', () => {
@@ -58,6 +59,22 @@ describe('error message mapping', () => {
       'fallback'
     );
 
-    expect(message).toBe('Something went wrong. Please try again.');
+    expect(message).toBe('Algo salió mal. Intenta de nuevo.');
+  });
+
+  it('maps known dynamic unlock and completion reasons to spanish copy', () => {
+    expect(getReasonMessage('Pass quiz before completing this section.')).toBe(
+      'Aprueba el quiz antes de completar esta sección.'
+    );
+    expect(getReasonMessage('Redeem credits to unlock module: m1')).toBe(
+      'Canjea créditos para desbloquear el módulo: m1'
+    );
+    expect(getReasonMessage('Reach level 3 to unlock module: mod-2')).toBe(
+      'Alcanza el nivel 3 para desbloquear el módulo: mod-2'
+    );
+  });
+
+  it('keeps unknown dynamic reasons as fallback raw text', () => {
+    expect(getReasonMessage('custom_unmapped_reason')).toBe('custom_unmapped_reason');
   });
 });

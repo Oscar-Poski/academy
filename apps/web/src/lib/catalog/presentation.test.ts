@@ -7,9 +7,9 @@ import {
 
 describe('catalog presentation helpers', () => {
   it('maps section status labels deterministically', () => {
-    expect(getSectionStatusLabel('not_started')).toBe('Not Started');
-    expect(getSectionStatusLabel('in_progress')).toBe('In Progress');
-    expect(getSectionStatusLabel('completed')).toBe('Completed');
+    expect(getSectionStatusLabel('not_started')).toBe('Sin comenzar');
+    expect(getSectionStatusLabel('in_progress')).toBe('En progreso');
+    expect(getSectionStatusLabel('completed')).toBe('Completada');
   });
 
   it('maps section status class names deterministically', () => {
@@ -19,8 +19,8 @@ describe('catalog presentation helpers', () => {
   });
 
   it('maps primary action labels deterministically', () => {
-    expect(getSectionPrimaryActionLabel('not_started')).toBe('Start');
-    expect(getSectionPrimaryActionLabel('in_progress')).toBe('Continue');
-    expect(getSectionPrimaryActionLabel('completed')).toBe('Review');
+    expect(getSectionPrimaryActionLabel('not_started')).toBe('Comenzar');
+    expect(getSectionPrimaryActionLabel('in_progress')).toBe('Continuar');
+    expect(getSectionPrimaryActionLabel('completed')).toBe('Repasar');
   });
 });

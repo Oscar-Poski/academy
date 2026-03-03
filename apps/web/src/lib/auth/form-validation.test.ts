@@ -4,14 +4,14 @@ import { validateLoginInput, validateSignupInput } from './form-validation';
 describe('auth form validation', () => {
   it('flags empty login email and password', () => {
     expect(validateLoginInput({ email: '', password: '' })).toEqual({
-      email: 'Email is required',
-      password: 'Password is required'
+      email: 'El correo es obligatorio',
+      password: 'La contraseña es obligatoria'
     });
   });
 
   it('flags malformed login email', () => {
     expect(validateLoginInput({ email: 'invalid-email', password: 'password123' })).toEqual({
-      email: 'Enter a valid email address'
+      email: 'Ingresa un correo válido'
     });
   });
 
@@ -23,7 +23,7 @@ describe('auth form validation', () => {
         password: 'password123'
       })
     ).toEqual({
-      name: 'Name is required'
+      name: 'El nombre es obligatorio'
     });
   });
 
@@ -35,7 +35,7 @@ describe('auth form validation', () => {
         password: 'short'
       })
     ).toEqual({
-      password: 'Password must be at least 8 characters long'
+      password: 'La contraseña debe tener al menos 8 caracteres'
     });
   });
 

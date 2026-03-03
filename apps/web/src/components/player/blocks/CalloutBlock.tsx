@@ -1,3 +1,5 @@
+import { microcopy } from '@/src/lib/copy/microcopy';
+
 type CalloutBlockProps = {
   contentJson: unknown;
 };
@@ -13,7 +15,7 @@ function isCalloutContent(value: unknown): value is { text: string; level?: stri
 
 export function CalloutBlock({ contentJson }: CalloutBlockProps) {
   if (!isCalloutContent(contentJson)) {
-    return <div className="block blockInvalid">Invalid callout block payload.</div>;
+    return <div className="block blockInvalid">{microcopy.player.blocks.invalidCalloutPayload}</div>;
   }
 
   const level =

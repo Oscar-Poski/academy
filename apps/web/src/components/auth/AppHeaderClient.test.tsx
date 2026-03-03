@@ -43,7 +43,7 @@ vi.mock('./LogoutButton', () => ({
         onAction?.();
       }}
     >
-      Log out
+      Cerrar sesión
     </button>
   )
 }));
@@ -59,9 +59,9 @@ describe('AppHeaderClient', () => {
     render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
 
     expect(screen.getByRole('link', { name: 'Academy MVP' })).toHaveAttribute('href', '/');
-    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Log in' })).toHaveAttribute('href', '/login');
-    expect(screen.getByRole('link', { name: 'Sign up' })).toHaveAttribute('href', '/signup');
+    expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/login');
+    expect(screen.getByRole('link', { name: 'Crear cuenta' })).toHaveAttribute('href', '/signup');
   });
 
   it('renders Home + email + logout for authenticated state', () => {
@@ -80,14 +80,14 @@ describe('AppHeaderClient', () => {
       />
     );
 
-    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument();
     expect(screen.getByText('student@academy.local')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument();
   });
 
   it('toggles menu open and closed from menu button', () => {
     render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
-    const menuButton = screen.getByRole('button', { name: 'Menu' });
+    const menuButton = screen.getByRole('button', { name: 'Menú' });
     const panel = screen.getByTestId('app-header-menu-panel');
 
     expect(menuButton).toHaveAttribute('aria-expanded', 'false');
@@ -97,36 +97,36 @@ describe('AppHeaderClient', () => {
     expect(menuButton).toHaveAttribute('aria-expanded', 'true');
     expect(panel).toHaveAttribute('data-open', 'true');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Close menu' }));
-    expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar menú' }));
+    expect(screen.getByRole('button', { name: 'Menú' })).toHaveAttribute('aria-expanded', 'false');
     expect(panel).toHaveAttribute('data-open', 'false');
   });
 
   it('moves focus to first menu action when opening the menu', () => {
     render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Menú' }));
 
-    expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Home' }));
+    expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Inicio' }));
   });
 
   it('closes menu on Escape and restores focus to toggle button', () => {
     render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Menú' }));
     fireEvent.keyDown(document, { key: 'Escape' });
 
-    expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false');
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Menu' }));
+    expect(screen.getByRole('button', { name: 'Menú' })).toHaveAttribute('aria-expanded', 'false');
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Menú' }));
   });
 
   it('closes menu when selecting a nav action', () => {
     render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Menú' }));
     expect(screen.getByTestId('app-header-menu-panel')).toHaveAttribute('data-open', 'true');
 
-    fireEvent.click(screen.getByRole('link', { name: 'Sign up' }));
+    fireEvent.click(screen.getByRole('link', { name: 'Crear cuenta' }));
     expect(screen.getByTestId('app-header-menu-panel')).toHaveAttribute('data-open', 'false');
   });
 
@@ -134,7 +134,7 @@ describe('AppHeaderClient', () => {
     usePathnameMock.mockReturnValue('/');
     render(<AppHeaderClient appName="Academy MVP" sessionProfile={{ authenticated: false }} />);
 
-    expect(screen.getByRole('link', { name: 'Home' })).toHaveClass('appNavLink--active');
+    expect(screen.getByRole('link', { name: 'Inicio' })).toHaveClass('appNavLink--active');
   });
 
   it('closes menu when logout action is triggered', () => {
@@ -153,8 +153,8 @@ describe('AppHeaderClient', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Menú' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
 
     expect(logoutOnActionMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('app-header-menu-panel')).toHaveAttribute('data-open', 'false');

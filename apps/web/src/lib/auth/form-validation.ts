@@ -29,13 +29,13 @@ export function validateLoginInput(input: LoginValidationInput): AuthFieldErrors
   const errors: AuthFieldErrors = {};
 
   if (email.length === 0) {
-    errors.email = 'Email is required';
+    errors.email = 'El correo es obligatorio';
   } else if (!isValidEmail(email)) {
-    errors.email = 'Enter a valid email address';
+    errors.email = 'Ingresa un correo válido';
   }
 
   if (password.length === 0) {
-    errors.password = 'Password is required';
+    errors.password = 'La contraseña es obligatoria';
   }
 
   return errors;
@@ -48,19 +48,19 @@ export function validateSignupInput(input: SignupValidationInput): AuthFieldErro
   const errors: AuthFieldErrors = {};
 
   if (name.length === 0) {
-    errors.name = 'Name is required';
+    errors.name = 'El nombre es obligatorio';
   }
 
   if (email.length === 0) {
-    errors.email = 'Email is required';
+    errors.email = 'El correo es obligatorio';
   } else if (!isValidEmail(email)) {
-    errors.email = 'Enter a valid email address';
+    errors.email = 'Ingresa un correo válido';
   }
 
   if (password.length === 0) {
-    errors.password = 'Password is required';
+    errors.password = 'La contraseña es obligatoria';
   } else if (password.length < 8) {
-    errors.password = 'Password must be at least 8 characters long';
+    errors.password = 'La contraseña debe tener al menos 8 caracteres';
   }
 
   return errors;

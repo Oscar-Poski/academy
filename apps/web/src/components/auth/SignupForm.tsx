@@ -87,7 +87,7 @@ export function SignupForm() {
 
       <Input
         id="signup-name"
-        label="Name"
+        label={microcopy.auth.fields.name}
         value={name}
         onChange={(event) => {
           setName(event.target.value);
@@ -101,7 +101,7 @@ export function SignupForm() {
 
       <Input
         id="signup-email"
-        label="Email"
+        label={microcopy.auth.fields.email}
         value={email}
         onChange={(event) => {
           setEmail(event.target.value);
@@ -115,7 +115,7 @@ export function SignupForm() {
 
       <Input
         id="signup-password"
-        label="Password"
+        label={microcopy.auth.fields.password}
         type="password"
         value={password}
         onChange={(event) => {

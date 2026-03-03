@@ -1,14 +1,15 @@
 import type { SectionProgressStatus } from '@/src/lib/progress-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 
 export function getSectionStatusLabel(status: SectionProgressStatus): string {
   switch (status) {
     case 'completed':
-      return 'Completed';
+      return microcopy.catalog.status.completed;
     case 'in_progress':
-      return 'In Progress';
+      return microcopy.catalog.status.inProgress;
     case 'not_started':
     default:
-      return 'Not Started';
+      return microcopy.catalog.status.notStarted;
   }
 }
 
@@ -27,11 +28,11 @@ export function getSectionStatusClassName(status: SectionProgressStatus): string
 export function getSectionPrimaryActionLabel(status: SectionProgressStatus): string {
   switch (status) {
     case 'completed':
-      return 'Review';
+      return microcopy.catalog.actions.review;
     case 'in_progress':
-      return 'Continue';
+      return microcopy.catalog.actions.continue;
     case 'not_started':
     default:
-      return 'Start';
+      return microcopy.catalog.actions.start;
   }
 }

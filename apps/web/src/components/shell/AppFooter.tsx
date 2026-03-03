@@ -24,7 +24,7 @@ export function AppFooter({ sessionProfile }: AppFooterProps) {
         <p className="appFooterMeta">
           {APP_NAME} · {year}
         </p>
-        <nav className="appFooterNav" aria-label="Footer navigation">
+        <nav className="appFooterNav" aria-label={microcopy.nav.footerNavigationAriaLabel}>
           <Link href="/" className="appNavLink">
             {microcopy.nav.home}
           </Link>

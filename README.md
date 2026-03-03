@@ -338,6 +338,12 @@ PR-58 web UI regression guardrail pack:
 - set repository branch protection to require the `web-regression` workflow check before merge
 - no backend/API/route contract changes in this PR
 
+PR-59 localización UX a español (México):
+- toda la interfaz visible de `apps/web` se muestra en español (México), incluyendo auth, home, catálogo, player, quiz, estados de carga y boundary de error
+- la app mantiene mapeo web-owned para códigos y razones conocidas de error/gating; razones desconocidas conservan fallback al texto original
+- no hay cambios en rutas, contratos de API ni esquema de base de datos
+- esta PR no traduce contenido curricular dinámico proveniente de seed/import (títulos y markdown de paths/modules/sections)
+
 PR-32 identity finalization:
 - protected learner endpoints (`progress`, `quiz`, `unlocks`, `gamification`) now require bearer auth
 - legacy `x-user-id` is ignored across the API and no longer resolves identity

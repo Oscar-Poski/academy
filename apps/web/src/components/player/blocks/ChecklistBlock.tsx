@@ -1,3 +1,5 @@
+import { microcopy } from '@/src/lib/copy/microcopy';
+
 type ChecklistBlockProps = {
   contentJson: unknown;
 };
@@ -14,7 +16,7 @@ function isChecklistContent(value: unknown): value is { items: string[] } {
 
 export function ChecklistBlock({ contentJson }: ChecklistBlockProps) {
   if (!isChecklistContent(contentJson)) {
-    return <div className="block blockInvalid">Invalid checklist block payload.</div>;
+    return <div className="block blockInvalid">{microcopy.player.blocks.invalidChecklistPayload}</div>;
   }
 
   return (

@@ -7,9 +7,9 @@ import {
 
 describe('player presentation helpers', () => {
   it('maps status label and class deterministically', () => {
-    expect(getSectionStatusLabel('not_started')).toBe('Not Started');
-    expect(getSectionStatusLabel('in_progress')).toBe('In Progress');
-    expect(getSectionStatusLabel('completed')).toBe('Completed');
+    expect(getSectionStatusLabel('not_started')).toBe('Sin comenzar');
+    expect(getSectionStatusLabel('in_progress')).toBe('En progreso');
+    expect(getSectionStatusLabel('completed')).toBe('Completada');
 
     expect(getSectionStatusClassName('not_started')).toBe('progressBadge progressBadge--notStarted');
     expect(getSectionStatusClassName('in_progress')).toBe('progressBadge progressBadge--inProgress');
@@ -24,9 +24,9 @@ describe('player presentation helpers', () => {
         completionPct: 45
       })
     ).toEqual({
-      completionLabel: '45% complete',
-      lessonBlockLabel: '2 blocks',
-      durationLabel: '3 min read'
+      completionLabel: '45% completado',
+      lessonBlockLabel: '2 bloques',
+      durationLabel: '3 min de lectura'
     });
   });
 
@@ -39,7 +39,7 @@ describe('player presentation helpers', () => {
       })
     ).toEqual({
       completionLabel: null,
-      lessonBlockLabel: '1 block',
+      lessonBlockLabel: '1 bloque',
       durationLabel: null
     });
   });

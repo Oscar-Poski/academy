@@ -88,10 +88,10 @@ describe('PathPage', () => {
     render(await PathPage({ params: { pathId: 'path-1' } }));
 
     expect(screen.getByRole('heading', { name: 'Web Foundations' })).toBeInTheDocument();
-    expect(screen.getByText('40% · 1/2 sections')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open module' })).toHaveAttribute('href', '/modules/module-1');
+    expect(screen.getByText('40% · 1/2 secciones')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Abrir módulo' })).toHaveAttribute('href', '/modules/module-1');
     expect(screen.getByText('Pass prerequisite quiz')).toBeInTheDocument();
-    expect(screen.queryAllByRole('link', { name: 'Open module' })).toHaveLength(1);
+    expect(screen.queryAllByRole('link', { name: 'Abrir módulo' })).toHaveLength(1);
   });
 
   it('keeps a non-fatal notice when progress is unavailable', async () => {
@@ -106,7 +106,7 @@ describe('PathPage', () => {
 
     render(await PathPage({ params: { pathId: 'path-1' } }));
 
-    const notice = screen.getByText('Progress indicators unavailable right now.');
+    const notice = screen.getByText('Los indicadores de progreso no están disponibles en este momento.');
     expect(notice).toBeInTheDocument();
     expect(notice).toHaveClass('stateInlineNotice');
   });

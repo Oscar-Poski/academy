@@ -97,13 +97,13 @@ describe('ModulePage', () => {
 
     render(await ModulePage({ params: { moduleId: 'module-1' } }));
 
-    expect(screen.getByText('Not Started')).toBeInTheDocument();
-    expect(screen.getByText('In Progress')).toBeInTheDocument();
-    expect(screen.getByText('Completed')).toBeInTheDocument();
+    expect(screen.getByText('Sin comenzar')).toBeInTheDocument();
+    expect(screen.getByText('En progreso')).toBeInTheDocument();
+    expect(screen.getByText('Completada')).toBeInTheDocument();
     expect(screen.getByText('42%')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Start' })).toHaveAttribute('href', '/learn/section-1');
-    expect(screen.getByRole('link', { name: 'Continue' })).toHaveAttribute('href', '/learn/section-2');
-    expect(screen.getByRole('link', { name: 'Review' })).toHaveAttribute('href', '/learn/section-3');
+    expect(screen.getByRole('link', { name: 'Comenzar' })).toHaveAttribute('href', '/learn/section-1');
+    expect(screen.getByRole('link', { name: 'Continuar' })).toHaveAttribute('href', '/learn/section-2');
+    expect(screen.getByRole('link', { name: 'Repasar' })).toHaveAttribute('href', '/learn/section-3');
   });
 
   it('renders locked section with concise lock notice and disabled action', async () => {
@@ -140,7 +140,7 @@ describe('ModulePage', () => {
     render(await ModulePage({ params: { moduleId: 'module-1' } }));
 
     expect(screen.getByText('Complete prior section')).toBeInTheDocument();
-    const lockedAction = screen.getAllByText('Locked').find((node) =>
+    const lockedAction = screen.getAllByText('Bloqueado').find((node) =>
       node.classList.contains('catalogPrimaryCta')
     );
     expect(lockedAction).toBeDefined();
@@ -161,7 +161,7 @@ describe('ModulePage', () => {
 
     render(await ModulePage({ params: { moduleId: 'module-1' } }));
 
-    const notice = screen.getByText('Progress indicators unavailable right now.');
+    const notice = screen.getByText('Los indicadores de progreso no están disponibles en este momento.');
     expect(notice).toBeInTheDocument();
     expect(notice).toHaveClass('stateInlineNotice');
   });

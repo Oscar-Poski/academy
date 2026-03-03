@@ -42,8 +42,9 @@ export default async function ModulePage({ params }: ModulePageProps) {
               <>
                 <span className="progressBadge">{microcopy.catalog.moduleProgress}</span>
                 <span className="pageProgressSummary">
-                  {moduleProgress.completionPct}% complete · {moduleProgress.completedSections}/
-                  {moduleProgress.totalSections} sections
+                  {moduleProgress.completionPct}% {microcopy.catalog.progress.completeSuffix} ·{' '}
+                  {moduleProgress.completedSections}/{moduleProgress.totalSections}{' '}
+                  {microcopy.catalog.progress.sectionsWord}
                 </span>
               </>
             ) : (

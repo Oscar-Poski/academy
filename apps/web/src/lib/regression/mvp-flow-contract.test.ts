@@ -131,10 +131,12 @@ describe('MVP flow contracts', () => {
       return source === 'resume' ? microcopy.home.resumeSection : microcopy.home.startLearning;
     }
 
-    expect(getHomePrimaryAction('resume')).toBe('Resume section');
-    expect(getHomePrimaryAction('fallback')).toBe('Start learning');
-    expect(microcopy.home.onboardingCta).toBe('Start your first section');
-    expect(microcopy.home.fallback).toBe('Learning recommendations are temporarily unavailable.');
+    expect(getHomePrimaryAction('resume')).toBe('Retomar sección');
+    expect(getHomePrimaryAction('fallback')).toBe('Comenzar a aprender');
+    expect(microcopy.home.onboardingCta).toBe('Comenzar mi primera sección');
+    expect(microcopy.home.fallback).toBe(
+      'Las recomendaciones de aprendizaje no están disponibles por el momento.'
+    );
   });
 
   it('keeps player and quiz error messages standardized and non-fatal', () => {

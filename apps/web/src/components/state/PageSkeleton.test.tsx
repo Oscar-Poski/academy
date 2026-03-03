@@ -10,7 +10,7 @@ describe('PageSkeleton', () => {
     const main = screen.getByRole('main');
     expect(main).toHaveAttribute('data-variant', 'home');
     expect(main).toHaveAttribute('aria-busy', 'true');
-    expect(screen.getByRole('status')).toHaveTextContent('Loading page content');
+    expect(screen.getByRole('status')).toHaveTextContent('Cargando contenido de la página');
     const hiddenBlocks = container.querySelectorAll('.stateSkeletonBlock[aria-hidden="true"]');
     expect(hiddenBlocks.length).toBeGreaterThan(0);
   });

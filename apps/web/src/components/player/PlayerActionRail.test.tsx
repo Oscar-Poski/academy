@@ -27,7 +27,7 @@ vi.mock('./PlayerNavButton', () => ({
 vi.mock('./PlayerCompleteButton', () => ({
   PlayerCompleteButton: (props: { sectionId: string }) => {
     playerCompleteButtonSpy(props);
-    return <div data-testid="complete-button">Mark Complete</div>;
+    return <div data-testid="complete-button">Marcar como completada</div>;
   }
 }));
 
@@ -59,9 +59,9 @@ describe('PlayerActionRail', () => {
       />
     );
 
-    expect(screen.getByTestId('nav-prev')).toHaveTextContent('Previous Section');
+    expect(screen.getByTestId('nav-prev')).toHaveTextContent('Sección anterior');
     expect(screen.getByTestId('complete-button')).toBeInTheDocument();
-    expect(screen.getByTestId('nav-next')).toHaveTextContent('Next Section');
+    expect(screen.getByTestId('nav-next')).toHaveTextContent('Sección siguiente');
     expect(screen.getByText('Pass quiz to continue')).toBeInTheDocument();
     expect(playerNavButtonSpy).toHaveBeenCalledTimes(2);
     expect(playerCompleteButtonSpy).toHaveBeenCalledTimes(1);

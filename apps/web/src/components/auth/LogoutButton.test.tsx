@@ -24,7 +24,7 @@ describe('LogoutButton', () => {
     const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
 
     render(<LogoutButton />);
-    fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith('/api/auth/logout', { method: 'POST' });
@@ -37,7 +37,7 @@ describe('LogoutButton', () => {
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network'));
 
     render(<LogoutButton />);
-    fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/login');
@@ -55,9 +55,9 @@ describe('LogoutButton', () => {
     );
 
     render(<LogoutButton />);
-    fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
 
-    expect(screen.getByRole('button', { name: 'Logging out...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Cerrando sesión...' })).toBeDisabled();
 
     resolveFetch?.(new Response('{}', { status: 200 }));
     await waitFor(() => {

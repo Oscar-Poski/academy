@@ -7,12 +7,12 @@ describe('CatalogProgressChip', () => {
   it('renders status-driven chip with mapped label/class', () => {
     render(<CatalogProgressChip status="in_progress" />);
 
-    expect(screen.getByText('In Progress')).toHaveClass('progressBadge', 'progressBadge--inProgress');
+    expect(screen.getByText('En progreso')).toHaveClass('progressBadge', 'progressBadge--inProgress');
   });
 
   it('renders generic label chip', () => {
-    render(<CatalogProgressChip label="42% complete" />);
+    render(<CatalogProgressChip label="42% completado" />);
 
-    expect(screen.getByText('42% complete')).toHaveClass('progressBadge');
+    expect(screen.getByText('42% completado')).toHaveClass('progressBadge');
   });
 });

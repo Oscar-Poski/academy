@@ -35,7 +35,7 @@ export function ModuleSectionRow({ section, status, completionPct, showProgress 
             className="catalogPrimaryCta isDisabled"
             aria-disabled="true"
             role="note"
-            aria-label={`Locked: ${lockReason}`}
+            aria-label={`${microcopy.catalog.lockedAriaPrefix} ${lockReason}`}
             title={lockReason}
           >
             {microcopy.catalog.locked}

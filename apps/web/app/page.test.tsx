@@ -57,8 +57,8 @@ describe('HomePage', () => {
     render(await HomePage());
 
     expect(requireAuthSession).toHaveBeenCalledWith('/');
-    expect(screen.getByRole('link', { name: 'Resume section' })).toHaveAttribute('href', '/learn/s-resume');
-    expect(screen.queryByRole('link', { name: 'Start your first section' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Retomar sección' })).toHaveAttribute('href', '/learn/s-resume');
+    expect(screen.queryByRole('link', { name: 'Comenzar mi primera sección' })).not.toBeInTheDocument();
   });
 
   it('renders onboarding state when continue-learning is empty and candidate exists', async () => {
@@ -73,9 +73,9 @@ describe('HomePage', () => {
 
     render(await HomePage());
 
-    expect(screen.getByRole('link', { name: 'Start your first section' })).toHaveAttribute('href', '/learn/s1');
-    expect(screen.getByText('You are all set. Start your first section.')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Resume section' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Comenzar mi primera sección' })).toHaveAttribute('href', '/learn/s1');
+    expect(screen.getByText('Todo está listo. Comienza tu primera sección.')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Retomar sección' })).not.toBeInTheDocument();
   });
 
   it('renders fallback message when both continue and onboarding are unavailable', async () => {
@@ -84,10 +84,10 @@ describe('HomePage', () => {
 
     render(await HomePage());
 
-    const notice = screen.getByText('Learning recommendations are temporarily unavailable.');
+    const notice = screen.getByText('Las recomendaciones de aprendizaje no están disponibles por el momento.');
     expect(notice).toBeInTheDocument();
     expect(notice).toHaveClass('stateInlineNotice');
-    expect(screen.queryByRole('link', { name: 'Resume section' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Start your first section' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Retomar sección' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Comenzar mi primera sección' })).not.toBeInTheDocument();
   });
 });

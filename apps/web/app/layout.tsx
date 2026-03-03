@@ -7,7 +7,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Academy MVP',
-  description: 'HTB-style learning platform scaffold'
+  description: 'Plataforma de aprendizaje estilo HTB'
 };
 
 export default async function RootLayout({
@@ -17,10 +17,10 @@ export default async function RootLayout({
 }>) {
   const sessionProfile = await getSessionProfile();
   return (
-    <html lang="en">
+    <html lang="es-MX">
       <body>
         <a href="#app-main-content" className="skipLink">
-          Skip to content
+          Ir al contenido
         </a>
         <div className="appShell">
           <AppHeader sessionProfile={sessionProfile} />

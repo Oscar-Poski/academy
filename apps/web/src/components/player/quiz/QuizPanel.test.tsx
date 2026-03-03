@@ -83,7 +83,7 @@ describe('QuizPanel', () => {
     expect(headings).toEqual(['Which method is read-only?', 'Name a common auth header']);
 
     expect(screen.getByRole('radio', { name: 'GET' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Your answer')).toBeInTheDocument();
+    expect(screen.getByLabelText('Tu respuesta')).toBeInTheDocument();
   });
 
   it('submit disabled/enabled transitions and success result rendering', async () => {
@@ -91,7 +91,7 @@ describe('QuizPanel', () => {
 
     render(<QuizPanel sectionId="section-1" quizDelivery={delivery} />);
 
-    const submitButton = screen.getByRole('button', { name: 'Submit Quiz' });
+    const submitButton = screen.getByRole('button', { name: 'Enviar quiz' });
     expect(submitButton).toBeDisabled();
 
     fireEvent.click(screen.getByRole('radio', { name: 'GET' }));
@@ -100,11 +100,11 @@ describe('QuizPanel', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Not Passed')).toBeInTheDocument();
+      expect(screen.getByText('No aprobado')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Score: 2/3')).toBeInTheDocument();
-    expect(screen.getByText('Attempt #1')).toBeInTheDocument();
+    expect(screen.getByText('Puntaje: 2/3')).toBeInTheDocument();
+    expect(screen.getByText('Intento #1')).toBeInTheDocument();
     expect(screen.getByText('GET is safe and idempotent.')).toBeInTheDocument();
     expect(screen.getByText('Authorization is commonly used for bearer tokens.')).toBeInTheDocument();
 
@@ -119,16 +119,16 @@ describe('QuizPanel', () => {
     render(<QuizPanel sectionId="section-1" quizDelivery={delivery} />);
 
     fireEvent.click(screen.getByRole('radio', { name: 'GET' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Submit Quiz' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar quiz' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Not Passed')).toBeInTheDocument();
+      expect(screen.getByText('No aprobado')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Retry Quiz' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Reintentar quiz' }));
 
-    expect(screen.queryByText('Not Passed')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Submit Quiz' })).toBeDisabled();
+    expect(screen.queryByText('No aprobado')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enviar quiz' })).toBeDisabled();
   });
 
   it('shows non-fatal error on submit failure', async () => {
@@ -137,10 +137,10 @@ describe('QuizPanel', () => {
     render(<QuizPanel sectionId="section-1" quizDelivery={delivery} />);
 
     fireEvent.click(screen.getByRole('radio', { name: 'GET' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Submit Quiz' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar quiz' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Unable to submit quiz right now. Try again.')).toBeInTheDocument();
+      expect(screen.getByText('No pudimos enviar el quiz en este momento. Intenta de nuevo.')).toBeInTheDocument();
     });
     expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
   });

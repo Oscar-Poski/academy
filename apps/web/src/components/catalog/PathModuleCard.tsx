@@ -24,7 +24,7 @@ export function PathModuleCard({ module, moduleProgress }: PathModuleCardProps) 
           {moduleProgress ? (
             <div className="pageMetaRow">
               <CatalogProgressChip
-                label={`${moduleProgress.completionPct}% · ${moduleProgress.completedSections}/${moduleProgress.totalSections} sections`}
+                label={`${moduleProgress.completionPct}% · ${moduleProgress.completedSections}/${moduleProgress.totalSections} ${microcopy.catalog.progress.sectionsWord}`}
               />
             </div>
           ) : null}
@@ -34,7 +34,7 @@ export function PathModuleCard({ module, moduleProgress }: PathModuleCardProps) 
             className="catalogPrimaryCta isDisabled"
             aria-disabled="true"
             role="note"
-            aria-label={`Locked: ${lockReason}`}
+            aria-label={`${microcopy.catalog.lockedAriaPrefix} ${lockReason}`}
             title={lockReason}
           >
             {microcopy.catalog.locked}
@@ -66,7 +66,7 @@ export function PathModuleCard({ module, moduleProgress }: PathModuleCardProps) 
                       className="catalogPrimaryCta isDisabled"
                       aria-disabled="true"
                       role="note"
-                      aria-label={`Locked: ${sectionLockReason}`}
+                      aria-label={`${microcopy.catalog.lockedAriaPrefix} ${sectionLockReason}`}
                       title={sectionLockReason}
                     >
                       {microcopy.catalog.locked}

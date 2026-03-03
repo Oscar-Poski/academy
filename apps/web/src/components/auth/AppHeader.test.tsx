@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { APP_NAME } from '@academy/shared';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppHeader } from './AppHeader';
 
 const appHeaderClientMock = vi.fn();
@@ -13,13 +14,17 @@ vi.mock('./AppHeaderClient', () => ({
 }));
 
 describe('AppHeader', () => {
+  beforeEach(() => {
+    appHeaderClientMock.mockClear();
+  });
+
   it('passes app name and anonymous session profile to client header', () => {
     render(<AppHeader sessionProfile={{ authenticated: false }} />);
 
     expect(screen.getByTestId('app-header-client')).toBeInTheDocument();
-    expect(appHeaderClientMock).toHaveBeenCalledWith(
+    expect(appHeaderClientMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        appName: 'Academy MVP',
+        appName: APP_NAME,
         sessionProfile: { authenticated: false }
       })
     );
@@ -40,9 +45,9 @@ describe('AppHeader', () => {
       />
     );
 
-    expect(appHeaderClientMock).toHaveBeenCalledWith(
+    expect(appHeaderClientMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        appName: 'Academy MVP',
+        appName: APP_NAME,
         sessionProfile: {
           authenticated: true,
           user: {

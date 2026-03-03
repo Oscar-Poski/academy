@@ -126,18 +126,22 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
               {result.passed ? microcopy.quiz.passed : microcopy.quiz.notPassed}
             </span>
             <span className="quizResultScore">
-              Score: {result.score}/{result.maxScore}
+              {microcopy.quiz.score}: {result.score}/{result.maxScore}
             </span>
-            <span className="quizResultAttempt">Attempt #{result.attemptNo}</span>
+            <span className="quizResultAttempt">
+              {microcopy.quiz.attempt} #{result.attemptNo}
+            </span>
           </div>
 
           <ul className="quizFeedbackList">
             {result.feedback.map((item) => (
               <li key={item.questionId} className="quizFeedbackItem">
                 <span className={`quizFeedbackStatus ${item.isCorrect ? 'isCorrect' : 'isIncorrect'}`}>
-                  {item.isCorrect ? 'Correct' : 'Incorrect'}
+                  {item.isCorrect ? microcopy.quiz.correct : microcopy.quiz.incorrect}
                 </span>
-                <span className="quizFeedbackPoints">{item.awardedPoints} pts</span>
+                <span className="quizFeedbackPoints">
+                  {item.awardedPoints} {microcopy.quiz.pointsSuffix}
+                </span>
                 {item.explanation ? <p className="quizFeedbackExplanation">{item.explanation}</p> : null}
               </li>
             ))}

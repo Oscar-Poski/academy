@@ -86,7 +86,7 @@ export function LoginForm() {
 
       <Input
         id="login-email"
-        label="Email"
+        label={microcopy.auth.fields.email}
         value={email}
         onChange={(event) => {
           setEmail(event.target.value);
@@ -100,7 +100,7 @@ export function LoginForm() {
 
       <Input
         id="login-password"
-        label="Password"
+        label={microcopy.auth.fields.password}
         type="password"
         value={password}
         onChange={(event) => {

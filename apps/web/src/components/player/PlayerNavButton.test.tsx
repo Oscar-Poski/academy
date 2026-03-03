@@ -36,7 +36,7 @@ describe('PlayerNavButton', () => {
     expect(screen.getByText('Next Section')).toHaveAttribute('aria-disabled', 'true');
     expect(screen.getByText('Next Section')).toHaveAttribute(
       'aria-label',
-      'Next Section unavailable: no target section available'
+      'Next Section no disponible: no hay una sección de destino disponible'
     );
     expect(screen.queryByRole('button', { name: 'Next Section' })).not.toBeInTheDocument();
   });
@@ -56,7 +56,7 @@ describe('PlayerNavButton', () => {
     expect(screen.getByText('Previous Section')).toHaveAttribute('aria-disabled', 'true');
     expect(screen.getByText('Previous Section')).toHaveAttribute(
       'aria-label',
-      'Previous Section unavailable: section is locked'
+      'Previous Section no disponible: la sección está bloqueada'
     );
     expect(screen.queryByRole('button', { name: 'Previous Section' })).not.toBeInTheDocument();
   });

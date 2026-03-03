@@ -1,3 +1,5 @@
+import { microcopy } from '@/src/lib/copy/microcopy';
+
 type MarkdownBlockProps = {
   contentJson: unknown;
 };
@@ -13,7 +15,7 @@ function isMarkdownContent(value: unknown): value is { markdown: string } {
 
 export function MarkdownBlock({ contentJson }: MarkdownBlockProps) {
   if (!isMarkdownContent(contentJson)) {
-    return <div className="block blockInvalid">Invalid markdown block payload.</div>;
+    return <div className="block blockInvalid">{microcopy.player.blocks.invalidMarkdownPayload}</div>;
   }
 
   return (

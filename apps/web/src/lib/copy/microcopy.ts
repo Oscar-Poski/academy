@@ -1,112 +1,179 @@
 export const microcopy = {
   nav: {
-    home: 'Home',
-    menu: 'Menu',
-    closeMenu: 'Close menu'
+    home: 'Inicio',
+    menu: 'Menú',
+    closeMenu: 'Cerrar menú',
+    primaryNavigationAriaLabel: 'Navegación principal',
+    footerNavigationAriaLabel: 'Navegación del pie de página'
   },
   auth: {
     actions: {
-      logIn: 'Log in',
-      signUp: 'Sign up',
-      logOut: 'Log out'
+      logIn: 'Iniciar sesión',
+      signUp: 'Crear cuenta',
+      logOut: 'Cerrar sesión'
     },
     headings: {
-      logIn: 'Log in',
-      signUp: 'Sign up'
+      logIn: 'Iniciar sesión',
+      signUp: 'Crear cuenta'
     },
     descriptions: {
-      logIn: 'Use your Academy credentials to continue learning.',
-      signUp: 'Create your Academy account to start learning.'
+      logIn: 'Usa tus credenciales de Academy para continuar aprendiendo.',
+      signUp: 'Crea tu cuenta de Academy para comenzar a aprender.'
     },
     links: {
-      needAccountPrefix: 'New here?',
-      needAccountAction: 'Sign up',
-      alreadyHaveAccountPrefix: 'Already have an account?',
-      alreadyHaveAccountAction: 'Log in'
+      needAccountPrefix: '¿Eres nuevo aquí?',
+      needAccountAction: 'Crear cuenta',
+      alreadyHaveAccountPrefix: '¿Ya tienes una cuenta?',
+      alreadyHaveAccountAction: 'Iniciar sesión'
+    },
+    fields: {
+      name: 'Nombre',
+      email: 'Correo',
+      password: 'Contraseña'
     },
     buttons: {
-      logIn: 'Log in',
-      loggingIn: 'Logging in...',
-      signUp: 'Sign up',
-      signingUp: 'Signing up...',
-      loggingOut: 'Logging out...'
+      logIn: 'Iniciar sesión',
+      loggingIn: 'Iniciando sesión...',
+      signUp: 'Crear cuenta',
+      signingUp: 'Creando cuenta...',
+      loggingOut: 'Cerrando sesión...'
     },
     errors: {
-      invalidCredentials: 'Invalid email or password.',
-      emailInUse: 'Email already registered.',
-      weakPassword: 'Password must be at least 8 characters long.',
-      invalidRegistrationInput: 'Invalid registration details.',
-      rateLimited: 'Too many auth attempts. Try again later.',
-      sessionExpired: 'Your session is no longer valid. Please log in again.',
-      signInUnavailable: 'Unable to log in right now. Try again.',
-      signUpUnavailable: 'Unable to create your account right now. Try again.'
+      invalidCredentials: 'Correo o contraseña incorrectos.',
+      emailInUse: 'Este correo ya está registrado.',
+      weakPassword: 'La contraseña debe tener al menos 8 caracteres.',
+      invalidRegistrationInput: 'Los datos de registro no son válidos.',
+      rateLimited: 'Demasiados intentos de autenticación. Intenta más tarde.',
+      sessionExpired: 'Tu sesión ya no es válida. Inicia sesión de nuevo.',
+      signInUnavailable: 'No pudimos iniciar sesión en este momento. Intenta de nuevo.',
+      signUpUnavailable: 'No pudimos crear tu cuenta en este momento. Intenta de nuevo.'
     }
   },
   home: {
-    sectionTitle: 'Continue learning',
-    resumeSection: 'Resume section',
-    startLearning: 'Start learning',
-    onboardingHint: 'You are all set. Start your first section.',
-    onboardingCta: 'Start your first section',
-    fallback: 'Learning recommendations are temporarily unavailable.'
+    sectionTitle: 'Continúa aprendiendo',
+    resumeSection: 'Retomar sección',
+    startLearning: 'Comenzar a aprender',
+    onboardingHint: 'Todo está listo. Comienza tu primera sección.',
+    onboardingCta: 'Comenzar mi primera sección',
+    fallback: 'Las recomendaciones de aprendizaje no están disponibles por el momento.'
   },
   catalog: {
-    pathLabel: 'Path',
-    moduleLabel: 'Module',
-    sectionsLabel: 'Sections',
-    openModule: 'Open module',
-    start: 'Start',
-    locked: 'Locked',
-    lockedReasonFallback: 'Locked',
-    noSectionsInModuleYet: 'No sections in this module yet.',
-    emptyModuleSections: 'No sections available yet.',
-    pathProgress: 'Path Progress',
-    moduleProgress: 'Module Progress',
-    progressUnavailable: 'Progress indicators unavailable right now.'
+    pathLabel: 'Ruta',
+    moduleLabel: 'Módulo',
+    sectionsLabel: 'Secciones',
+    openModule: 'Abrir módulo',
+    start: 'Comenzar',
+    locked: 'Bloqueado',
+    lockedReasonFallback: 'Bloqueado',
+    noSectionsInModuleYet: 'Aún no hay secciones en este módulo.',
+    emptyModuleSections: 'Aún no hay secciones disponibles.',
+    pathProgress: 'Progreso de la ruta',
+    moduleProgress: 'Progreso del módulo',
+    progressUnavailable: 'Los indicadores de progreso no están disponibles en este momento.',
+    progress: {
+      completeSuffix: 'completado',
+      modulesWord: 'módulos',
+      sectionsWord: 'secciones'
+    },
+    status: {
+      completed: 'Completada',
+      inProgress: 'En progreso',
+      notStarted: 'Sin comenzar'
+    },
+    actions: {
+      review: 'Repasar',
+      continue: 'Continuar',
+      start: 'Comenzar'
+    },
+    lockedAriaPrefix: 'Bloqueado:'
   },
   player: {
-    previousSection: 'Previous Section',
-    nextSection: 'Next Section',
-    progressUnavailable: 'Progress indicators unavailable right now.',
-    noLessonBlocks: 'No lesson blocks available for this section yet.',
+    previousSection: 'Sección anterior',
+    nextSection: 'Sección siguiente',
+    progressUnavailable: 'Los indicadores de progreso no están disponibles en este momento.',
+    noLessonBlocks: 'Aún no hay bloques de lección disponibles para esta sección.',
+    sidebarAriaLabel: 'Navegación del curso',
+    sidebarEyebrow: 'Ruta',
+    lockedAriaPrefix: 'Bloqueado:',
+    navigationUnavailable: {
+      locked: 'la sección está bloqueada',
+      missingTarget: 'no hay una sección de destino disponible'
+    },
+    status: {
+      completed: 'Completada',
+      inProgress: 'En progreso',
+      notStarted: 'Sin comenzar'
+    },
+    meta: {
+      completedSuffix: 'completado',
+      blockSingular: 'bloque',
+      blockPlural: 'bloques',
+      readTimeSuffix: 'min de lectura'
+    },
     complete: {
-      action: 'Mark Complete',
-      completing: 'Completing...',
-      completed: 'Completed',
-      blockedTitle: 'Completion blocked',
-      goToQuiz: 'Go to Quiz',
-      evaluateUnlock: 'Evaluate Unlock',
-      evaluatingUnlock: 'Evaluating...',
-      unlockedRetrying: 'Module unlocked. Retrying completion...',
-      stillLocked: 'Module is still locked. Resolve the remaining requirements and try again.',
-      completeFailed: 'Unable to mark section complete. Try again.',
-      evaluateFailed: 'Unable to evaluate unlock right now. Try again.'
+      action: 'Marcar como completada',
+      completing: 'Completando...',
+      completed: 'Completada',
+      blockedTitle: 'No se puede completar aún',
+      goToQuiz: 'Ir al quiz',
+      evaluateUnlock: 'Evaluar desbloqueo',
+      evaluatingUnlock: 'Evaluando...',
+      unlockedRetrying: 'Módulo desbloqueado. Reintentando completar...',
+      stillLocked: 'El módulo sigue bloqueado. Resuelve los requisitos restantes e intenta de nuevo.',
+      completeFailed: 'No pudimos marcar la sección como completada. Intenta de nuevo.',
+      evaluateFailed: 'No pudimos evaluar el desbloqueo en este momento. Intenta de nuevo.'
+    },
+    blocks: {
+      unsupportedType: 'Tipo de bloque no compatible:',
+      invalidMarkdownPayload: 'El contenido del bloque de markdown no es válido.',
+      invalidCalloutPayload: 'El contenido del bloque de aviso no es válido.',
+      invalidCodePayload: 'El contenido del bloque de código no es válido.',
+      invalidChecklistPayload: 'El contenido del bloque de checklist no es válido.',
+      quizPlaceholderBadge: 'Placeholder de quiz',
+      quizPlaceholderText: 'El contenido del quiz será interactivo en una próxima PR.'
     }
   },
   quiz: {
-    panelTitle: 'Section Quiz',
-    panelSubtitle: 'Answer the questions below and submit when you are ready.',
-    submit: 'Submit Quiz',
-    submitting: 'Submitting...',
-    retry: 'Retry Quiz',
-    passed: 'Passed',
-    notPassed: 'Not Passed',
-    submitFailed: 'Unable to submit quiz right now. Try again.'
+    panelTitle: 'Quiz de la sección',
+    panelSubtitle: 'Responde las preguntas y envía cuando estés listo.',
+    submit: 'Enviar quiz',
+    submitting: 'Enviando...',
+    retry: 'Reintentar quiz',
+    passed: 'Aprobado',
+    notPassed: 'No aprobado',
+    submitFailed: 'No pudimos enviar el quiz en este momento. Intenta de nuevo.',
+    yourAnswer: 'Tu respuesta',
+    score: 'Puntaje',
+    attempt: 'Intento',
+    correct: 'Correcta',
+    incorrect: 'Incorrecta',
+    pointsSuffix: 'pts'
   },
   state: {
-    loadingPage: 'Loading page content',
+    loadingPage: 'Cargando contenido de la página',
     globalError: {
-      title: 'Something went wrong',
-      message: 'The page failed to load. You can retry now or return home.',
-      tryAgain: 'Try again',
-      safeRouteTitle: 'Need a safe route?',
-      safeRouteMessage: 'Go back to the home page.'
+      title: 'Algo salió mal',
+      message: 'No se pudo cargar la página. Puedes reintentar ahora o volver al inicio.',
+      tryAgain: 'Intentar de nuevo',
+      safeRouteTitle: '¿Necesitas una ruta segura?',
+      safeRouteMessage: 'Regresa a la página de inicio.'
     }
   },
   errors: {
-    unauthorized: 'Your session is no longer valid. Please log in again.',
-    internalError: 'Something went wrong. Please try again.',
-    rateLimitedSuffixPrefix: 'Try again in'
+    unauthorized: 'Tu sesión ya no es válida. Inicia sesión de nuevo.',
+    internalError: 'Algo salió mal. Intenta de nuevo.',
+    rateLimitedSuffixPrefix: 'Intenta de nuevo en',
+    rateLimitedSuffixSeconds: 'segundos'
+  },
+  reasonMappings: {
+    passQuizBeforeComplete: 'Aprueba el quiz antes de completar esta sección.',
+    modulePrerequisitesNotMet: 'Aún no cumples los requisitos para desbloquear el módulo.',
+    insufficientCredits: 'No tienes créditos suficientes.',
+    completePrerequisiteSectionPrefix: 'Completa la sección prerequisito',
+    passQuizForSectionPrefix: 'Aprueba el quiz de la sección',
+    redeemCreditsPrefix: 'Canjea créditos para desbloquear el módulo',
+    reachLevelPrefix: 'Alcanza el nivel',
+    toUnlockModuleInfix: 'para desbloquear el módulo'
   }
 } as const;
 
@@ -126,4 +193,54 @@ export function getKnownErrorMessage(code: unknown): string | null {
   }
 
   return knownErrorMessages[code] ?? null;
+}
+
+export function getKnownReasonMessage(reason: unknown): string | null {
+  if (typeof reason !== 'string') {
+    return null;
+  }
+
+  const normalizedReason = reason.trim();
+  if (normalizedReason.length === 0) {
+    return null;
+  }
+
+  if (normalizedReason === 'Pass quiz before completing this section.') {
+    return microcopy.reasonMappings.passQuizBeforeComplete;
+  }
+
+  if (normalizedReason === 'Module unlock prerequisites are not met') {
+    return microcopy.reasonMappings.modulePrerequisitesNotMet;
+  }
+
+  if (normalizedReason === 'Insufficient credits') {
+    return microcopy.reasonMappings.insufficientCredits;
+  }
+
+  const completePrefix = 'Complete prerequisite section:';
+  if (normalizedReason.startsWith(completePrefix)) {
+    const sectionId = normalizedReason.slice(completePrefix.length).trim();
+    return `${microcopy.reasonMappings.completePrerequisiteSectionPrefix}: ${sectionId}`;
+  }
+
+  const passQuizPrefix = 'Pass quiz for section:';
+  if (normalizedReason.startsWith(passQuizPrefix)) {
+    const sectionId = normalizedReason.slice(passQuizPrefix.length).trim();
+    return `${microcopy.reasonMappings.passQuizForSectionPrefix}: ${sectionId}`;
+  }
+
+  const redeemPrefix = 'Redeem credits to unlock module:';
+  if (normalizedReason.startsWith(redeemPrefix)) {
+    const moduleId = normalizedReason.slice(redeemPrefix.length).trim();
+    return `${microcopy.reasonMappings.redeemCreditsPrefix}: ${moduleId}`;
+  }
+
+  const levelMatch = normalizedReason.match(/^Reach level\s+(\d+)\s+to unlock module:\s+(.+)$/);
+  if (levelMatch) {
+    const requiredLevel = levelMatch[1];
+    const moduleId = levelMatch[2];
+    return `${microcopy.reasonMappings.reachLevelPrefix} ${requiredLevel} ${microcopy.reasonMappings.toUnlockModuleInfix}: ${moduleId}`;
+  }
+
+  return null;
 }

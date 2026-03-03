@@ -10,7 +10,7 @@ import {
   completeSectionProgress,
   isCompletionBlockedError
 } from '@/src/lib/api-clients/progress.browser';
-import { getErrorMessageFromUnknown } from '@/src/lib/errors/error-messages';
+import { getErrorMessageFromUnknown, getReasonMessage } from '@/src/lib/errors/error-messages';
 import type { CompletionBlockedError, SectionProgress } from '@/src/lib/progress-types';
 
 type PlayerCompleteButtonProps = {
@@ -171,7 +171,7 @@ export function PlayerCompleteButton({
           </p>
           <ul className="completionBlockedReasons">
             {completionBlocked.reasons.map((reason) => (
-              <li key={reason}>{reason}</li>
+              <li key={reason}>{getReasonMessage(reason)}</li>
             ))}
           </ul>
           <div className="completionBlockedActions">

@@ -87,7 +87,7 @@ export function AppHeaderClient({ sessionProfile, appName }: AppHeaderClientProp
       >
         {appName}
       </Link>
-      <nav className="appHeaderMainNav appNav" aria-label="Primary navigation">
+      <nav className="appHeaderMainNav appNav" aria-label={microcopy.nav.primaryNavigationAriaLabel}>
         <button
           ref={menuButtonRef}
           type="button"

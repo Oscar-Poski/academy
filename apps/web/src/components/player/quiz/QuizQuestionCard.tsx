@@ -1,4 +1,5 @@
 import React from 'react';
+import { microcopy } from '@/src/lib/copy/microcopy';
 import type { QuizDeliveryQuestion } from '@/src/lib/quiz-types';
 
 type QuizQuestionCardProps = {
@@ -13,7 +14,7 @@ export function QuizQuestionCard({ question, value, disabled = false, onChange }
     <article className="quizQuestionCard">
       <header className="quizQuestionHeader">
         <h3 className="quizQuestionPrompt">{question.prompt}</h3>
-        <span className="quizQuestionPoints">{question.points} pt{question.points === 1 ? '' : 's'}</span>
+        <span className="quizQuestionPoints">{question.points} {microcopy.quiz.pointsSuffix}</span>
       </header>
 
       {question.type === 'mcq' ? (
@@ -34,7 +35,7 @@ export function QuizQuestionCard({ question, value, disabled = false, onChange }
         </div>
       ) : (
         <label className="quizTextLabel">
-          <span className="quizTextLabelText">Your answer</span>
+          <span className="quizTextLabelText">{microcopy.quiz.yourAnswer}</span>
           <input
             type="text"
             className="quizTextInput"

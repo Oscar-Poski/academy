@@ -29,23 +29,23 @@ describe('LoginForm', () => {
   it('renders form controls and submit button', () => {
     render(<LoginForm />);
 
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Correo')).toBeInTheDocument();
+    expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument();
   });
 
   it('shows inline field errors and blocks submit when invalid', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: '' } });
-    fireEvent.blur(screen.getByLabelText('Email'));
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: '' } });
-    fireEvent.blur(screen.getByLabelText('Password'));
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: '' } });
+    fireEvent.blur(screen.getByLabelText('Correo'));
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: '' } });
+    fireEvent.blur(screen.getByLabelText('Contraseña'));
 
-    expect(await screen.findByText('Email is required')).toBeInTheDocument();
-    expect(await screen.findByText('Password is required')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Log in' })).toBeDisabled();
+    expect(await screen.findByText('El correo es obligatorio')).toBeInTheDocument();
+    expect(await screen.findByText('La contraseña es obligatoria')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeDisabled();
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -53,9 +53,9 @@ describe('LoginForm', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'student@academy.local' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'student@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/');
@@ -68,7 +68,7 @@ describe('LoginForm', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
     render(<LoginForm />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith('/learn/section-1');
@@ -83,12 +83,12 @@ describe('LoginForm', () => {
     );
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'student@academy.local' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'wrong-password' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'student@academy.local' } });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'wrong-password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid email or password.')).toBeInTheDocument();
+      expect(screen.getByText('Correo o contraseña incorrectos.')).toBeInTheDocument();
     });
     expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
@@ -107,11 +107,11 @@ describe('LoginForm', () => {
     );
     render(<LoginForm />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     await waitFor(() => {
       expect(
-        screen.getByText('Too many auth attempts. Try again later. Try again in 25 seconds.')
+        screen.getByText('Demasiados intentos de autenticación. Intenta más tarde. Intenta de nuevo en 25 segundos.')
       ).toBeInTheDocument();
     });
   });
@@ -120,10 +120,10 @@ describe('LoginForm', () => {
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network'));
     render(<LoginForm />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Unable to log in right now. Try again.')).toBeInTheDocument();
+      expect(screen.getByText('No pudimos iniciar sesión en este momento. Intenta de nuevo.')).toBeInTheDocument();
     });
   });
 
@@ -137,9 +137,9 @@ describe('LoginForm', () => {
     );
 
     render(<LoginForm />);
-    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
-    expect(screen.getByRole('button', { name: 'Logging in...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Iniciando sesión...' })).toBeDisabled();
 
     resolveFetch?.(new Response('{}', { status: 200 }));
     await waitFor(() => {

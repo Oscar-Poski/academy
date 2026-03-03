@@ -77,16 +77,16 @@ describe('PlayerCompleteButton', () => {
     completeSectionProgress.mockRejectedValue(blockedError);
     renderButton(true);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Mark Complete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como completada' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Completion blocked')).toBeInTheDocument();
+      expect(screen.getByText('No se puede completar aún')).toBeInTheDocument();
     });
 
     expect(screen.getByText('Pass the quiz first')).toBeInTheDocument();
     expect(screen.getByText('Unlock requirements unmet')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Go to Quiz' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Evaluate Unlock' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ir al quiz' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Evaluar desbloqueo' })).toBeInTheDocument();
   });
 
   it('go to quiz action scrolls and focuses quiz panel', async () => {
@@ -101,13 +101,13 @@ describe('PlayerCompleteButton', () => {
     });
 
     renderButton(true);
-    fireEvent.click(screen.getByRole('button', { name: 'Mark Complete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como completada' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Go to Quiz' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Ir al quiz' })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Go to Quiz' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ir al quiz' }));
     expect(scrollIntoView).toHaveBeenCalled();
     expect(focus).toHaveBeenCalled();
 
@@ -125,16 +125,16 @@ describe('PlayerCompleteButton', () => {
     });
 
     renderButton(true);
-    fireEvent.click(screen.getByRole('button', { name: 'Mark Complete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como completada' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Evaluate Unlock' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Evaluar desbloqueo' })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Evaluate Unlock' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Evaluar desbloqueo' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Completed' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Completada' })).toBeInTheDocument();
     });
 
     expect(evaluateModuleUnlock).toHaveBeenCalledWith('module-1');
@@ -152,17 +152,19 @@ describe('PlayerCompleteButton', () => {
     });
 
     renderButton(false);
-    fireEvent.click(screen.getByRole('button', { name: 'Mark Complete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como completada' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Evaluate Unlock' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Evaluar desbloqueo' })).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('button', { name: 'Go to Quiz' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Evaluate Unlock' }));
+    expect(screen.queryByRole('button', { name: 'Ir al quiz' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Evaluar desbloqueo' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Module is still locked. Resolve the remaining requirements and try again.')).toBeInTheDocument();
+      expect(
+        screen.getByText('El módulo sigue bloqueado. Resuelve los requisitos restantes e intenta de nuevo.')
+      ).toBeInTheDocument();
     });
 
     expect(screen.getByText('Complete module prerequisites')).toBeInTheDocument();
@@ -173,10 +175,10 @@ describe('PlayerCompleteButton', () => {
     isCompletionBlockedError.mockReturnValue(false);
     renderButton(true);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Mark Complete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como completada' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Unable to mark section complete. Try again.')).toBeInTheDocument();
+      expect(screen.getByText('No pudimos marcar la sección como completada. Intenta de nuevo.')).toBeInTheDocument();
     });
     expect(document.querySelector('.uiAlert--danger')).toBeTruthy();
   });

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { PathTree } from '@/src/lib/content-types';
+import { microcopy } from '@/src/lib/copy/microcopy';
 
 type PlayerSidebarProps = {
   pathTree: PathTree;
@@ -8,9 +9,9 @@ type PlayerSidebarProps = {
 
 export function PlayerSidebar({ pathTree, currentSectionId }: PlayerSidebarProps) {
   return (
-    <aside className="playerSidebar" aria-label="Course navigation">
+    <aside className="playerSidebar" aria-label={microcopy.player.sidebarAriaLabel}>
       <div className="playerSidebarHeader">
-        <div className="playerSidebarEyebrow">Path</div>
+        <div className="playerSidebarEyebrow">{microcopy.player.sidebarEyebrow}</div>
         <h2 className="playerSidebarTitle">{pathTree.title}</h2>
       </div>
 
@@ -27,7 +28,7 @@ export function PlayerSidebar({ pathTree, currentSectionId }: PlayerSidebarProps
                 {module.lock?.isLocked ? (
                   <div className="playerTreeModuleLink isLocked">
                     <span>{module.title}</span>
-                    <span className="lockBadge lockBadge--locked">Locked</span>
+                    <span className="lockBadge lockBadge--locked">{microcopy.catalog.locked}</span>
                   </div>
                 ) : (
                   <Link className="playerTreeModuleLink" href={`/modules/${module.id}`}>
@@ -35,7 +36,7 @@ export function PlayerSidebar({ pathTree, currentSectionId }: PlayerSidebarProps
                   </Link>
                 )}
                 {module.lock?.isLocked ? (
-                  <p className="pageLockedReason">{module.lock.reasons[0] ?? 'Locked'}</p>
+                  <p className="pageLockedReason">{module.lock.reasons[0] ?? microcopy.catalog.lockedReasonFallback}</p>
                 ) : null}
               </div>
               <ul className="playerTreeSectionList">
@@ -48,7 +49,7 @@ export function PlayerSidebar({ pathTree, currentSectionId }: PlayerSidebarProps
                           className={`playerTreeSectionLink isLocked${isActive ? ' isActive playerSidebarActiveSection' : ''}`}
                         >
                           <span>{section.title}</span>
-                          <span className="lockBadge lockBadge--locked">Locked</span>
+                          <span className="lockBadge lockBadge--locked">{microcopy.catalog.locked}</span>
                         </div>
                       </li>
                     );

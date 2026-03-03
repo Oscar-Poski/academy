@@ -46,7 +46,7 @@ describe('RootLayout', () => {
     expect(screen.getByTestId('app-header')).toBeInTheDocument();
     expect(screen.getByTestId('layout-children')).toBeInTheDocument();
     expect(screen.getByTestId('app-footer')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute('href', '#app-main-content');
+    expect(screen.getByRole('link', { name: 'Ir al contenido' })).toHaveAttribute('href', '#app-main-content');
   });
 
   it('passes resolved session profile to header and footer', async () => {

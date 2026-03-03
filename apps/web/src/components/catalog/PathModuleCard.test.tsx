@@ -40,9 +40,9 @@ describe('PathModuleCard', () => {
     render(<PathModuleCard module={moduleBase} moduleProgress={moduleProgress} />);
 
     expect(screen.getByRole('heading', { name: 'HTTP Basics' })).toBeInTheDocument();
-    expect(screen.getByText('50% · 1/2 sections')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open module' })).toHaveAttribute('href', '/modules/module-1');
-    expect(screen.getByRole('link', { name: 'Start' })).toHaveAttribute('href', '/learn/section-1');
+    expect(screen.getByText('50% · 1/2 secciones')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Abrir módulo' })).toHaveAttribute('href', '/modules/module-1');
+    expect(screen.getByRole('link', { name: 'Comenzar' })).toHaveAttribute('href', '/learn/section-1');
   });
 
   it('renders lock reason and disabled CTA for locked module', () => {
@@ -59,16 +59,16 @@ describe('PathModuleCard', () => {
     render(<PathModuleCard module={lockedModule} />);
 
     expect(screen.getByText('Complete module prerequisites')).toBeInTheDocument();
-    const lockedAction = screen.getAllByText('Locked').find((node) =>
+    const lockedAction = screen.getAllByText('Bloqueado').find((node) =>
       node.classList.contains('catalogPrimaryCta')
     );
     expect(lockedAction).toBeDefined();
     expect(lockedAction).toHaveClass('isDisabled');
-    expect(screen.queryByRole('link', { name: 'Open module' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Abrir módulo' })).not.toBeInTheDocument();
   });
 
   it('renders empty-state notice when module has no sections', () => {
     render(<PathModuleCard module={{ ...moduleBase, sections: [] }} />);
-    expect(screen.getByText('No sections in this module yet.')).toBeInTheDocument();
+    expect(screen.getByText('Aún no hay secciones en este módulo.')).toBeInTheDocument();
   });
 });

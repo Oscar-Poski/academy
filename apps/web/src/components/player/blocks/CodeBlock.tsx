@@ -1,3 +1,5 @@
+import { microcopy } from '@/src/lib/copy/microcopy';
+
 type CodeBlockProps = {
   contentJson: unknown;
 };
@@ -13,7 +15,7 @@ function isCodeContent(value: unknown): value is { snippet: string; language?: s
 
 export function CodeBlock({ contentJson }: CodeBlockProps) {
   if (!isCodeContent(contentJson)) {
-    return <div className="block blockInvalid">Invalid code block payload.</div>;
+    return <div className="block blockInvalid">{microcopy.player.blocks.invalidCodePayload}</div>;
   }
 
   const language =

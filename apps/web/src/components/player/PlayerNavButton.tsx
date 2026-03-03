@@ -4,6 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { updateSectionPosition } from '@/src/lib/api-clients/progress.browser';
+import { microcopy } from '@/src/lib/copy/microcopy';
 
 type PlayerNavButtonProps = {
   direction: 'prev' | 'next';
@@ -26,14 +27,16 @@ export function PlayerNavButton({
   const [isNavigating, setIsNavigating] = useState(false);
 
   if (!targetSectionId || isLocked) {
-    const unavailableReason = isLocked ? 'section is locked' : 'no target section available';
+    const unavailableReason = isLocked
+      ? microcopy.player.navigationUnavailable.locked
+      : microcopy.player.navigationUnavailable.missingTarget;
 
     return (
       <span
         className="playerNavBtn isDisabled"
         aria-disabled="true"
         role="note"
-        aria-label={`${label} unavailable: ${unavailableReason}`}
+        aria-label={`${label} no disponible: ${unavailableReason}`}
         data-direction={direction}
       >
         {label}

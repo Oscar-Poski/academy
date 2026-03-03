@@ -33,8 +33,8 @@ export default async function PathPage({ params }: PathPageProps) {
               <>
                 <span className="progressBadge">{microcopy.catalog.pathProgress}</span>
                 <span className="pageProgressSummary">
-                  {pathProgress.completionPct}% complete · {pathProgress.completedModules}/
-                  {pathProgress.totalModules} modules
+                  {pathProgress.completionPct}% {microcopy.catalog.progress.completeSuffix} ·{' '}
+                  {pathProgress.completedModules}/{pathProgress.totalModules} {microcopy.catalog.progress.modulesWord}
                 </span>
               </>
             ) : (
