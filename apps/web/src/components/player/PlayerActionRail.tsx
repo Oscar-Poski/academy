@@ -34,7 +34,7 @@ export function PlayerActionRail({
     (navigation.prevSectionLock?.isLocked ? prevLockReason : null);
 
   return (
-    <Card as="footer" className="playerFooter playerActionRail playerCard" padding="none">
+    <Card as="footer" className="playerFooter playerActionRail playerCard playerActionRailCard" padding="none">
       <div className="playerActionRailInner">
         <PlayerNavButton
           direction="prev"

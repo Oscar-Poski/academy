@@ -105,7 +105,7 @@ export function PlayerContent({
       </Card>
 
       <div className="playerReadFrame">
-        <div className="playerReadingColumn">
+        <div className="playerReadingColumn playerMainColumn">
           <div className="playerBlocks playerBlockStack">
             {renderableLessonBlocks.length === 0 && !hasQuizBlockOnly ? (
               <InlineNotice className="playerCard playerEmptyState" message={microcopy.player.noLessonBlocks} />
@@ -121,16 +121,18 @@ export function PlayerContent({
           {quizDelivery ? <QuizPanel sectionId={currentSectionId} quizDelivery={quizDelivery} /> : null}
         </div>
 
-        <PlayerActionRail
-          currentSectionId={currentSectionId}
-          navigation={navigation}
-          lastBlockOrderToPersist={lastBlockOrderToPersist}
-          hasQuizPanel={Boolean(quizDelivery)}
-          pathId={breadcrumb.pathId}
-          moduleId={breadcrumb.moduleId}
-          sectionProgress={sectionProgress}
-          onCompleted={() => setIsCompleted(true)}
-        />
+        <div className="playerRailColumn">
+          <PlayerActionRail
+            currentSectionId={currentSectionId}
+            navigation={navigation}
+            lastBlockOrderToPersist={lastBlockOrderToPersist}
+            hasQuizPanel={Boolean(quizDelivery)}
+            pathId={breadcrumb.pathId}
+            moduleId={breadcrumb.moduleId}
+            sectionProgress={sectionProgress}
+            onCompleted={() => setIsCompleted(true)}
+          />
+        </div>
       </div>
     </section>
   );

@@ -1,3 +1,4 @@
+import React from 'react';
 import Link from 'next/link';
 import type { PathTree } from '@/src/lib/content-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
@@ -9,7 +10,7 @@ type PlayerSidebarProps = {
 
 export function PlayerSidebar({ pathTree, currentSectionId }: PlayerSidebarProps) {
   return (
-    <aside className="playerSidebar" aria-label={microcopy.player.sidebarAriaLabel}>
+    <aside className="playerSidebar playerSidebarCard" aria-label={microcopy.player.sidebarAriaLabel}>
       <div className="playerSidebarHeader">
         <div className="playerSidebarEyebrow">{microcopy.player.sidebarEyebrow}</div>
         <h2 className="playerSidebarTitle">{pathTree.title}</h2>

@@ -38,7 +38,7 @@ describe('PlayerActionRail', () => {
   });
 
   it('renders previous/complete/next controls and next lock reason', () => {
-    render(
+    const { container } = render(
       <PlayerActionRail
         currentSectionId="section-2"
         navigation={{
@@ -65,6 +65,7 @@ describe('PlayerActionRail', () => {
     expect(screen.getByText('Pass quiz to continue')).toBeInTheDocument();
     expect(playerNavButtonSpy).toHaveBeenCalledTimes(2);
     expect(playerCompleteButtonSpy).toHaveBeenCalledTimes(1);
+    expect(container.querySelector('.playerActionRailCard')).toBeInTheDocument();
   });
 
   it('falls back to previous lock reason when next is unlocked', () => {

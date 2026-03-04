@@ -1476,28 +1476,32 @@ main {
 
 .playerLayoutShell {
   max-width: 1320px;
-  margin: 1.5rem auto 3rem;
-  padding: 0 1rem;
+  margin: calc(var(--space-6) + var(--space-1)) auto var(--space-8);
+  padding: 0 var(--space-4);
 }
 
 .playerLayout {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 1rem;
+  grid-template-columns: minmax(270px, 320px) minmax(0, 1fr);
+  gap: var(--space-4);
   align-items: start;
 }
 
 .playerSidebar {
   position: sticky;
-  top: 1rem;
+  top: var(--space-4);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--color-surface-1) 92%, black);
-  padding: 1rem;
+  padding: var(--space-4);
+}
+
+.playerSidebarCard {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
 }
 
 .playerSidebarHeader {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .playerSidebarEyebrow {
@@ -1514,16 +1518,16 @@ main {
 
 .playerTree {
   display: grid;
-  gap: 0.9rem;
+  gap: var(--space-4);
 }
 
 .playerTreeModule {
   display: grid;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .playerTreeModuleHeader {
-  padding-bottom: 0.25rem;
+  padding-bottom: var(--space-2);
   border-bottom: 1px solid color-mix(in srgb, var(--color-text-muted) 24%, transparent);
 }
 
@@ -1551,15 +1555,15 @@ main {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.35rem;
+  gap: var(--space-2);
 }
 
 .playerTreeSectionLink {
   display: block;
-  padding: 0.45rem 0.6rem;
+  padding: var(--space-2) var(--space-3);
   color: var(--text);
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: 1px solid transparent;
 }
 
@@ -1584,11 +1588,13 @@ main {
 
 .playerContent {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .playerReadFrame {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  align-items: start;
   gap: var(--space-4);
 }
 
@@ -1598,6 +1604,14 @@ main {
   gap: var(--space-4);
 }
 
+.playerMainColumn {
+  min-width: 0;
+}
+
+.playerRailColumn {
+  min-width: 0;
+}
+
 .playerCard {
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
@@ -1605,7 +1619,7 @@ main {
 }
 
 .playerHeader {
-  padding: 1rem 1.25rem;
+  padding: var(--space-4) var(--space-5);
 }
 
 .playerBreadcrumb {
@@ -1644,12 +1658,12 @@ main {
 }
 
 .playerSectionTitle {
-  margin: 0.75rem 0 0;
-  font-size: 1.6rem;
+  margin: var(--space-3) 0 0;
+  font-size: clamp(1.4rem, 2.5vw, 1.75rem);
 }
 
 .playerHeaderMeta {
-  margin-top: 0.65rem;
+  margin-top: var(--space-3);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1681,7 +1695,7 @@ main {
 
 .playerBlocks {
   display: grid;
-  gap: 0.9rem;
+  gap: var(--space-4);
 }
 
 .playerBlockStack {
@@ -1697,9 +1711,9 @@ main {
 }
 
 .playerFooter {
-  padding: 1rem 1.25rem;
+  padding: var(--space-4) var(--space-5);
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .playerActionRail {
@@ -1708,10 +1722,14 @@ main {
   z-index: 5;
 }
 
+.playerActionRailCard {
+  border-color: color-mix(in srgb, var(--color-border-strong) 75%, transparent);
+}
+
 .playerActionRailInner {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: var(--space-3);
   align-items: flex-start;
 }
 
@@ -1719,7 +1737,7 @@ main {
   display: grid;
   align-content: start;
   justify-items: center;
-  gap: 0.35rem;
+  gap: var(--space-2);
   min-width: 180px;
 }
 
@@ -1763,9 +1781,9 @@ main {
   border: 1px solid var(--color-status-warning-border);
   background: var(--color-status-warning-soft-bg);
   border-radius: var(--radius-md);
-  padding: 0.7rem 0.75rem;
+  padding: var(--space-3);
   display: grid;
-  gap: 0.55rem;
+  gap: var(--space-2);
 }
 
 .completionBlockedTitle {
@@ -1777,9 +1795,9 @@ main {
 
 .completionBlockedReasons {
   margin: 0;
-  padding-left: 1.05rem;
+  padding-left: var(--space-4);
   display: grid;
-  gap: 0.3rem;
+  gap: var(--space-1);
   color: var(--color-status-warning-soft-text);
   font-size: 0.86rem;
 }
@@ -1787,7 +1805,7 @@ main {
 .completionBlockedActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .completionBlockedActionBtn {
@@ -1795,7 +1813,7 @@ main {
   border-radius: var(--radius-sm);
   background: var(--color-status-warning-action-bg);
   color: var(--color-status-warning-action-text);
-  padding: 0.45rem 0.7rem;
+  padding: var(--space-2) var(--space-3);
   font-weight: 600;
   cursor: pointer;
 }
@@ -2290,6 +2308,10 @@ main {
 
   .playerSidebar {
     position: static;
+  }
+
+  .playerReadFrame {
+    grid-template-columns: 1fr;
   }
 
   .playerFooter {

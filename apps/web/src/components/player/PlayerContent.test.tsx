@@ -116,7 +116,8 @@ describe('PlayerContent', () => {
     expect(breadcrumbItems).toHaveLength(3);
     expect(breadcrumbItems[2]).toHaveAttribute('aria-current', 'page');
     expect(container.querySelector('.playerReadFrame')).toBeInTheDocument();
-    expect(container.querySelector('.playerReadingColumn')).toBeInTheDocument();
+    expect(container.querySelector('.playerReadingColumn.playerMainColumn')).toBeInTheDocument();
+    expect(container.querySelector('.playerRailColumn')).toBeInTheDocument();
     expect(screen.getByTestId('lifecycle-analytics')).toBeInTheDocument();
     expect(screen.getByTestId('quiz-panel-section-1')).toBeInTheDocument();
     expect(playerActionRailSpy.mock.calls[0][0]).toMatchObject({
