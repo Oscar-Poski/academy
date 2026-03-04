@@ -615,6 +615,36 @@ main {
   min-height: 1.5rem;
 }
 
+.pathPage {
+  display: grid;
+}
+
+.pathPageStack {
+  gap: var(--space-5);
+}
+
+.pathSection {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.pathHero {
+  gap: var(--space-3);
+}
+
+.pathHeroSummary {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.pathHeroMeta {
+  align-items: center;
+}
+
+.pathModulesStack {
+  gap: var(--space-4);
+}
+
 .pageCard {
   padding: var(--space-4);
 }
@@ -1183,9 +1213,20 @@ main {
   gap: var(--space-3);
 }
 
+.catalogModuleHeaderMain {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
 .catalogModuleHeader h2 {
   margin: 0;
   font-size: 1.16rem;
+}
+
+.catalogModuleMeta {
+  display: grid;
+  gap: var(--space-2);
 }
 
 .catalogModuleBody {
@@ -1252,6 +1293,11 @@ main {
 
 .catalogSectionMain p {
   margin: 0;
+}
+
+.catalogSectionTitle {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
 }
 
 .catalogSectionActions {

@@ -36,16 +36,8 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
   return (
     <Card as="section" className="playerCard pageCard catalogModuleCard" padding="md" interactive>
       <header className="catalogModuleHeader">
-        <div>
+        <div className="catalogModuleHeaderMain">
           <h2>{module.title}</h2>
-          {isLocked ? <CatalogLockNotice reason={lockReason} /> : null}
-          {moduleProgress ? (
-            <div className="pageMetaRow">
-              <CatalogProgressChip
-                label={`${moduleProgress.completionPct}% · ${moduleProgress.completedSections}/${moduleProgress.totalSections} ${microcopy.catalog.progress.sectionsWord}`}
-              />
-            </div>
-          ) : null}
         </div>
         {isLocked ? (
           <span
@@ -64,10 +56,23 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
         )}
       </header>
 
+      {isLocked || moduleProgress ? (
+        <div className="catalogModuleMeta">
+          {isLocked ? <CatalogLockNotice reason={lockReason} /> : null}
+          {moduleProgress ? (
+            <div className="pageMetaRow">
+              <CatalogProgressChip
+                label={`${moduleProgress.completionPct}% · ${moduleProgress.completedSections}/${moduleProgress.totalSections} ${microcopy.catalog.progress.sectionsWord}`}
+              />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {module.sections.length === 0 ? (
         <p className="catalogMutedNotice">{microcopy.catalog.noSectionsInModuleYet}</p>
       ) : (
-        <ul className="catalogSectionList">
+        <ul className="catalogSectionList catalogModuleSections">
           {module.sections.map((section) => {
             const sectionLocked = section.lock?.isLocked === true;
             const sectionLockReason = section.lock?.reasons[0] ?? microcopy.catalog.lockedReasonFallback;
@@ -75,7 +80,7 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
             return (
               <li key={section.id} className="catalogSectionRow">
                 <div className="catalogSectionMain">
-                  <p>{section.title}</p>
+                  <p className="catalogSectionTitle">{section.title}</p>
                   {sectionLocked ? <CatalogLockNotice reason={sectionLockReason} /> : null}
                 </div>
                 <div className="catalogSectionActions">

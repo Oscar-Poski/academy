@@ -7,7 +7,7 @@ import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { PathModuleCard } from '@/src/components/catalog';
 import { InlineNotice } from '@/src/components/state';
-import { Card, Container, Stack } from '@/src/components/ui';
+import { Badge, Card, Container, Section, Stack } from '@/src/components/ui';
 
 type PathPageProps = {
   params: {
@@ -28,45 +28,55 @@ export default async function PathPage({ params }: PathPageProps) {
     );
 
     return (
-      <Container as="main" size="content">
-        <Card as="header" className="pageHeader playerCard catalogHero" padding="none">
-          <p className="pageEyebrow">{microcopy.catalog.pathLabel}</p>
-          <h1>{path.title}</h1>
-          {path.description ? <p className="pageDescription">{path.description}</p> : null}
-          <div className="pageMetaRow catalogHeroMeta">
-            {isAuthenticated && pathProgress ? (
-              <>
-                <span className="progressBadge">{microcopy.catalog.pathProgress}</span>
-                <span className="pageProgressSummary">
-                  {pathProgress.completionPct}% {microcopy.catalog.progress.completeSuffix} ·{' '}
-                  {pathProgress.completedModules}/{pathProgress.totalModules} {microcopy.catalog.progress.modulesWord}
-                </span>
-              </>
-            ) : isAuthenticated ? (
-              <InlineNotice
-                className="pageProgressNotice catalogMutedNotice"
-                message={microcopy.catalog.progressUnavailable}
-              />
-            ) : (
-              <p className="catalogAuthPrompt">
-                {microcopy.catalog.logInToTrackProgress}{' '}
-                <Link className="catalogAuthPromptLink" href={`/login?next=/paths/${params.pathId}`}>
-                  {microcopy.catalog.logInCta}
-                </Link>
-              </p>
-            )}
-          </div>
-        </Card>
+      <Container as="main" size="content" className="pathPage">
+        <Stack gap="lg" className="pathPageStack">
+          <Section as="section" spacing="sm" className="pathSection pathSection--hero">
+            <Card as="header" className="pageHeader playerCard catalogHero pathHero" padding="none">
+              <div className="pathHeroSummary">
+                <p className="pageEyebrow">{microcopy.catalog.pathLabel}</p>
+                <h1>{path.title}</h1>
+                {path.description ? <p className="pageDescription">{path.description}</p> : null}
+              </div>
+              <div className="pageMetaRow catalogHeroMeta pathHeroMeta">
+                {isAuthenticated && pathProgress ? (
+                  <>
+                    <Badge tone="info" size="sm" className="progressBadge">
+                      {microcopy.catalog.pathProgress}
+                    </Badge>
+                    <span className="pageProgressSummary">
+                      {pathProgress.completionPct}% {microcopy.catalog.progress.completeSuffix} ·{' '}
+                      {pathProgress.completedModules}/{pathProgress.totalModules} {microcopy.catalog.progress.modulesWord}
+                    </span>
+                  </>
+                ) : isAuthenticated ? (
+                  <InlineNotice
+                    className="pageProgressNotice catalogMutedNotice"
+                    message={microcopy.catalog.progressUnavailable}
+                  />
+                ) : (
+                  <p className="catalogAuthPrompt">
+                    {microcopy.catalog.logInToTrackProgress}{' '}
+                    <Link className="catalogAuthPromptLink" href={`/login?next=/paths/${params.pathId}`}>
+                      {microcopy.catalog.logInCta}
+                    </Link>
+                  </p>
+                )}
+              </div>
+            </Card>
+          </Section>
 
-        <Stack className="catalogStack" gap="md">
-          {path.modules.map((module) => (
-            <PathModuleCard
-              key={module.id}
-              module={module}
-              moduleProgress={moduleProgressById.get(module.id)}
-              isAuthenticated={isAuthenticated}
-            />
-          ))}
+          <Section as="section" spacing="sm" className="pathSection pathSection--modules">
+            <Stack className="catalogStack pathModulesStack" gap="md">
+              {path.modules.map((module) => (
+                <PathModuleCard
+                  key={module.id}
+                  module={module}
+                  moduleProgress={moduleProgressById.get(module.id)}
+                  isAuthenticated={isAuthenticated}
+                />
+              ))}
+            </Stack>
+          </Section>
         </Stack>
       </Container>
     );
