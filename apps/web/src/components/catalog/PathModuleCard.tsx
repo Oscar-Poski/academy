@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { actionClassName } from '@/src/components/ui';
 import type { PathTreeModule } from '@/src/lib/content-types';
 import type { PathModuleProgressItem } from '@/src/lib/progress-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
@@ -15,6 +16,22 @@ type PathModuleCardProps = {
 export function PathModuleCard({ module, moduleProgress, isAuthenticated }: PathModuleCardProps) {
   const isLocked = module.lock?.isLocked === true;
   const lockReason = module.lock?.reasons[0] ?? microcopy.catalog.lockedReasonFallback;
+  const openModuleClassName = actionClassName({
+    variant: 'primary',
+    size: 'sm',
+    className: 'catalogPrimaryCta'
+  });
+  const lockedCtaClassName = actionClassName({
+    variant: 'primary',
+    size: 'sm',
+    disabled: true,
+    className: 'catalogPrimaryCta isDisabled'
+  });
+  const sectionActionClassName = actionClassName({
+    variant: 'primary',
+    size: 'sm',
+    className: 'catalogPrimaryCta'
+  });
 
   return (
     <section className="playerCard pageCard catalogModuleCard">
@@ -32,7 +49,7 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
         </div>
         {isLocked ? (
           <span
-            className="catalogPrimaryCta isDisabled"
+            className={lockedCtaClassName}
             aria-disabled="true"
             role="note"
             aria-label={`${microcopy.catalog.lockedAriaPrefix} ${lockReason}`}
@@ -41,7 +58,7 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
             {microcopy.catalog.locked}
           </span>
         ) : (
-          <Link className="catalogPrimaryCta" href={`/modules/${module.id}`}>
+          <Link className={openModuleClassName} href={`/modules/${module.id}`}>
             {microcopy.catalog.openModule}
           </Link>
         )}
@@ -64,7 +81,7 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
                 <div className="catalogSectionActions">
                   {sectionLocked ? (
                     <span
-                      className="catalogPrimaryCta isDisabled"
+                      className={lockedCtaClassName}
                       aria-disabled="true"
                       role="note"
                       aria-label={`${microcopy.catalog.lockedAriaPrefix} ${sectionLockReason}`}
@@ -74,7 +91,7 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
                     </span>
                   ) : (
                     <Link
-                      className="catalogPrimaryCta"
+                      className={sectionActionClassName}
                       href={isAuthenticated ? `/learn/${section.id}` : `/login?next=/learn/${section.id}`}
                     >
                       {isAuthenticated ? microcopy.catalog.start : microcopy.catalog.logInToStartSection}

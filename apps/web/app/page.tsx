@@ -5,7 +5,7 @@ import { FeaturedCourses, HomeHero } from '@/src/components/home';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { getStartLearningCandidate } from '@/src/lib/onboarding/get-start-learning-candidate.server';
 import { InlineNotice } from '@/src/components/state';
-import { Container } from '@/src/components/ui';
+import { actionClassName, Container } from '@/src/components/ui';
 import Link from 'next/link';
 import React from 'react';
 
@@ -29,6 +29,12 @@ export default async function HomePage() {
     ]);
   }
 
+  const continueCtaClassName = actionClassName({
+    variant: 'primary',
+    size: 'md',
+    className: 'homeContinueLink'
+  });
+
   return (
     <Container as="main" size="content" className="homeLanding">
       <HomeHero authenticated={sessionProfile.authenticated} />
@@ -42,7 +48,7 @@ export default async function HomePage() {
                 {continueLearning.pathTitle} / {continueLearning.moduleTitle}
               </p>
               <p className="homeContinueSection">{continueLearning.sectionTitle}</p>
-              <Link className="homeContinueLink" href={`/learn/${continueLearning.sectionId}`}>
+              <Link className={continueCtaClassName} href={`/learn/${continueLearning.sectionId}`}>
                 {continueLearning.source === 'resume' ? microcopy.home.resumeSection : microcopy.home.startLearning}
               </Link>
             </div>
@@ -55,7 +61,7 @@ export default async function HomePage() {
                 {startLearningCandidate.sectionTitle}
               </p>
               <p className="homeContinueMuted homeOnboardingHint">{microcopy.home.onboardingHint}</p>
-              <Link className="homeContinueLink" href={`/learn/${startLearningCandidate.sectionId}`}>
+              <Link className={continueCtaClassName} href={`/learn/${startLearningCandidate.sectionId}`}>
                 {microcopy.home.onboardingCta}
               </Link>
             </div>

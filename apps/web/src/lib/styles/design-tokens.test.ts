@@ -45,10 +45,10 @@ describe('design token baseline', () => {
     expect(body).toContain('var(--color-bg-canvas)');
     expect(body).toContain('var(--color-text-primary)');
 
-    const appAuthAction = getRuleBlock('.appAuthAction');
-    expect(appAuthAction).toContain('var(--color-action-border)');
-    expect(appAuthAction).toContain('var(--color-action-bg)');
-    expect(appAuthAction).toContain('var(--color-text-primary)');
+    const uiButton = getRuleBlock('.uiButton');
+    expect(uiButton).toContain('var(--color-action-border)');
+    expect(uiButton).toContain('var(--color-action-bg)');
+    expect(uiButton).toContain('var(--color-text-primary)');
 
     const playerCard = getRuleBlock('.playerCard');
     expect(playerCard).toContain('var(--color-border-default)');
@@ -75,5 +75,12 @@ describe('design token baseline', () => {
   it('defines a shared focus-visible treatment for interactive controls', () => {
     expect(globalsCss).toContain(':where(a, button, input, textarea, select, [tabindex]):focus-visible');
     expect(globalsCss).toContain('outline: 2px solid var(--color-focus-ring)');
+  });
+
+  it('limits button variants to primary, secondary, and ghost', () => {
+    expect(globalsCss).toContain('.uiButton--primary');
+    expect(globalsCss).toContain('.uiButton--secondary');
+    expect(globalsCss).toContain('.uiButton--ghost');
+    expect(globalsCss).not.toContain('.uiButton--danger');
   });
 });

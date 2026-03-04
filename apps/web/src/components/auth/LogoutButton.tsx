@@ -7,7 +7,7 @@ import { microcopy } from '@/src/lib/copy/microcopy';
 
 type LogoutButtonProps = {
   className?: string;
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   onAction?: () => void;
 };

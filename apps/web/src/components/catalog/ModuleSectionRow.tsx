@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { actionClassName } from '@/src/components/ui';
 import type { ModuleDetailSection } from '@/src/lib/content-types';
 import type { SectionProgressStatus } from '@/src/lib/progress-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
@@ -25,6 +26,17 @@ export function ModuleSectionRow({
   const isLocked = section.lock?.isLocked === true;
   const actionLabel = getSectionPrimaryActionLabel(status);
   const lockReason = section.lock?.reasons[0] ?? microcopy.catalog.lockedReasonFallback;
+  const sectionActionClassName = actionClassName({
+    variant: 'primary',
+    size: 'sm',
+    className: 'catalogPrimaryCta'
+  });
+  const lockedActionClassName = actionClassName({
+    variant: 'primary',
+    size: 'sm',
+    disabled: true,
+    className: 'catalogPrimaryCta isDisabled'
+  });
 
   return (
     <li className="catalogSectionRow">
@@ -39,7 +51,7 @@ export function ModuleSectionRow({
         ) : null}
         {isLocked ? (
           <span
-            className="catalogPrimaryCta isDisabled"
+            className={lockedActionClassName}
             aria-disabled="true"
             role="note"
             aria-label={`${microcopy.catalog.lockedAriaPrefix} ${lockReason}`}
@@ -50,7 +62,7 @@ export function ModuleSectionRow({
         ) : (
           <Link
             href={isAuthenticated ? `/learn/${section.id}` : `/login?next=/learn/${section.id}`}
-            className="catalogPrimaryCta"
+            className={sectionActionClassName}
           >
             {isAuthenticated ? actionLabel : microcopy.catalog.logInToStartSection}
           </Link>

@@ -3,6 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { actionClassName } from '@/src/components/ui';
 import { updateSectionPosition } from '@/src/lib/api-clients/progress.browser';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
@@ -25,6 +26,17 @@ export function PlayerNavButton({
 }: PlayerNavButtonProps) {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
+  const navButtonClassName = actionClassName({
+    variant: 'secondary',
+    size: 'md',
+    className: 'playerNavBtn'
+  });
+  const disabledNavButtonClassName = actionClassName({
+    variant: 'secondary',
+    size: 'md',
+    disabled: true,
+    className: 'playerNavBtn isDisabled'
+  });
 
   if (!targetSectionId || isLocked) {
     const unavailableReason = isLocked
@@ -33,7 +45,7 @@ export function PlayerNavButton({
 
     return (
       <span
-        className="playerNavBtn isDisabled"
+        className={disabledNavButtonClassName}
         aria-disabled="true"
         role="note"
         aria-label={`${label} no disponible: ${unavailableReason}`}
@@ -66,7 +78,7 @@ export function PlayerNavButton({
   return (
     <button
       type="button"
-      className={`playerNavBtn${isNavigating ? ' isDisabled' : ''}`}
+      className={isNavigating ? disabledNavButtonClassName : navButtonClassName}
       onClick={handleClick}
       disabled={isNavigating}
       data-direction={direction}

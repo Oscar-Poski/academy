@@ -230,30 +230,12 @@ body {
 }
 
 .appAuthAction {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 0.35rem 0.7rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-action-border);
-  background: var(--color-action-bg);
-  color: var(--color-text-primary);
   text-decoration: none;
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: background var(--dur-base) var(--ease-standard);
+  white-space: nowrap;
 }
 
 .appAuthAction:hover {
-  background: var(--color-action-bg-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
-}
-
-.appAuthAction:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .appContent {
@@ -331,20 +313,7 @@ main {
 }
 
 .homeContinueLink {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.55rem var(--space-3);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-action-border);
-  background: var(--color-action-bg);
-  color: var(--color-text-primary);
   text-decoration: none;
-  font-weight: var(--font-weight-medium);
-  transition: background var(--dur-base) var(--ease-standard);
-}
-
-.homeContinueLink:hover {
-  background: var(--color-action-bg-hover);
 }
 
 .homeContinueMuted {
@@ -673,9 +642,26 @@ main {
   line-height: 1;
   cursor: pointer;
   transition:
+    transform var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
     background var(--dur-base) var(--ease-standard),
     border-color var(--dur-base) var(--ease-standard),
     color var(--dur-base) var(--ease-standard);
+}
+
+.uiButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.uiButton:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.uiButton:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 .uiButton--primary {
@@ -705,16 +691,6 @@ main {
   background: color-mix(in srgb, var(--color-surface-2) 55%, transparent);
 }
 
-.uiButton--danger {
-  border-color: var(--color-status-danger-border);
-  background: var(--color-status-danger-bg);
-  color: var(--color-danger-300);
-}
-
-.uiButton--danger:hover {
-  background: color-mix(in srgb, var(--color-status-danger-bg) 75%, var(--color-danger-400) 25%);
-}
-
 .uiButton--sm {
   min-height: 34px;
   padding: 0.35rem 0.7rem;
@@ -737,9 +713,16 @@ main {
   opacity: 0.92;
 }
 
-.uiButton:disabled {
+.uiButton.isDisabled,
+.uiButton:disabled,
+.uiButton[aria-disabled='true'] {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-default) 82%, black);
+  background: color-mix(in srgb, var(--color-surface-2) 65%, black);
+  color: var(--color-action-disabled);
 }
 
 .uiField {
@@ -1146,34 +1129,11 @@ main {
 }
 
 .catalogPrimaryCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 0.35rem 0.7rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-action-border);
-  background: var(--color-action-bg);
-  color: var(--color-text-primary);
   text-decoration: none;
-  font-weight: var(--font-weight-medium);
   white-space: nowrap;
-  transition:
-    transform var(--dur-base) var(--ease-standard),
-    background var(--dur-base) var(--ease-standard),
-    box-shadow var(--dur-base) var(--ease-standard);
-}
-
-.catalogPrimaryCta:hover {
-  background: var(--color-action-bg-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
 .catalogPrimaryCta.isDisabled {
-  border-color: color-mix(in srgb, var(--color-border-default) 82%, black);
-  background: color-mix(in srgb, var(--color-surface-2) 65%, black);
-  color: var(--color-action-disabled);
   cursor: not-allowed;
 }
 
@@ -1636,28 +1596,11 @@ main {
 }
 
 .playerNavBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 0.65rem 0.9rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-action-border);
-  background: var(--color-action-bg);
-  color: var(--color-text-primary);
   text-decoration: none;
-  font-weight: 600;
-}
-
-.playerNavBtn:hover {
-  background: var(--color-action-bg-hover);
 }
 
 .playerNavBtn.isDisabled,
 .playerNavBtn[aria-disabled='true'] {
-  border-color: color-mix(in srgb, var(--color-border-default) 82%, black);
-  background: color-mix(in srgb, var(--color-surface-2) 65%, black);
-  color: var(--color-action-disabled);
   cursor: not-allowed;
 }
 
@@ -1957,17 +1900,12 @@ main {
 
 .quizSubmitBtn,
 .quizRetryBtn {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--color-surface-2) 78%, black);
-  color: var(--color-text-primary);
-  padding: 0.55rem 0.9rem;
-  cursor: pointer;
+  border-color: var(--border);
+  text-decoration: none;
 }
 
 .quizSubmitBtn:disabled,
 .quizRetryBtn:disabled {
-  opacity: 0.6;
   cursor: not-allowed;
 }
 

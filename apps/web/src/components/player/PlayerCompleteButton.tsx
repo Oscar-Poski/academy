@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useState, useTransition } from 'react';
-import { Alert } from '@/src/components/ui';
+import { actionClassName, Alert } from '@/src/components/ui';
 import { evaluateModuleUnlock } from '@/src/lib/api-clients/unlocks.browser';
 import { postAnalyticsEvent } from '@/src/lib/api-clients/analytics.browser';
 import { microcopy } from '@/src/lib/copy/microcopy';
@@ -45,6 +45,12 @@ export function PlayerCompleteButton({
     : isCompleted
       ? microcopy.player.complete.completed
       : microcopy.player.complete.action;
+  const completeButtonClassName = actionClassName({
+    variant: 'primary',
+    size: 'md',
+    disabled: isDisabled,
+    className: `playerNavBtn playerCompleteBtn${isCompleted ? ' isSuccess' : ''}`
+  });
 
   async function handleClick() {
     if (isDisabled) {
@@ -153,7 +159,7 @@ export function PlayerCompleteButton({
     <div className="playerFooterCenter">
       <button
         type="button"
-        className={`playerNavBtn playerCompleteBtn${isCompleted ? ' isSuccess' : ''}`}
+        className={completeButtonClassName}
         onClick={handleClick}
         disabled={isDisabled}
       >

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { buttonClassName } from '@/src/components/ui';
+import { actionClassName } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import type { SessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import { LogoutButton } from './LogoutButton';
@@ -24,7 +24,7 @@ export function AppHeaderClient({ sessionProfile, appName }: AppHeaderClientProp
     pathname === '/courses' || pathname.startsWith('/paths/') || pathname.startsWith('/modules/');
   const homeLinkClass = `appNavLink${isHomeActive ? ' appNavLink--active' : ''}`;
   const coursesLinkClass = `appNavLink${isCoursesActive ? ' appNavLink--active' : ''}`;
-  const authLinkClass = buttonClassName({
+  const authLinkClass = actionClassName({
     variant: 'secondary',
     size: 'sm',
     className: 'appAuthAction'

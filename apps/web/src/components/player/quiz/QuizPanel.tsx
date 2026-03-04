@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useMemo, useState } from 'react';
-import { Alert } from '@/src/components/ui';
+import { actionClassName, Alert } from '@/src/components/ui';
 import { submitQuizAttempt } from '@/src/lib/api-clients/quiz.browser';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { getErrorMessageFromUnknown } from '@/src/lib/errors/error-messages';
@@ -27,6 +27,18 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
 
   const hasAnyAnswer = Object.values(answers).some((value) => value.trim().length > 0);
   const isSubmitDisabled = isSubmitting || !hasAnyAnswer;
+  const submitButtonClassName = actionClassName({
+    variant: 'primary',
+    size: 'md',
+    disabled: isSubmitDisabled,
+    className: 'quizSubmitBtn'
+  });
+  const retryButtonClassName = actionClassName({
+    variant: 'secondary',
+    size: 'md',
+    disabled: isSubmitting,
+    className: 'quizRetryBtn'
+  });
 
   function updateAnswer(questionId: string, value: string) {
     setAnswers((previous) => ({
@@ -103,11 +115,11 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
       </div>
 
       <div className="quizActions">
-        <button type="button" className="quizSubmitBtn" onClick={handleSubmit} disabled={isSubmitDisabled}>
+        <button type="button" className={submitButtonClassName} onClick={handleSubmit} disabled={isSubmitDisabled}>
           {isSubmitting ? microcopy.quiz.submitting : microcopy.quiz.submit}
         </button>
         {result ? (
-          <button type="button" className="quizRetryBtn" onClick={handleRetry} disabled={isSubmitting}>
+          <button type="button" className={retryButtonClassName} onClick={handleRetry} disabled={isSubmitting}>
             {microcopy.quiz.retry}
           </button>
         ) : null}

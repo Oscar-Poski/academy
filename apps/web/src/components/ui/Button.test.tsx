@@ -15,13 +15,13 @@ describe('Button', () => {
 
   it('applies variant and size classes', () => {
     render(
-      <Button variant="danger" size="lg">
-        Delete
+      <Button variant="ghost" size="lg">
+        View
       </Button>
     );
 
-    const button = screen.getByRole('button', { name: 'Delete' });
-    expect(button).toHaveClass('uiButton--danger');
+    const button = screen.getByRole('button', { name: 'View' });
+    expect(button).toHaveClass('uiButton--ghost');
     expect(button).toHaveClass('uiButton--lg');
   });
 

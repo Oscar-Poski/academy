@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { actionClassName } from '@/src/components/ui';
 import type { PathListItem } from '@/src/lib/content-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { InlineNotice } from '@/src/components/state';
@@ -10,6 +11,17 @@ type FeaturedCoursesProps = {
 };
 
 export function FeaturedCourses({ courses, unavailable }: FeaturedCoursesProps) {
+  const viewAllClassName = actionClassName({
+    variant: 'secondary',
+    size: 'sm',
+    className: 'appAuthAction'
+  });
+  const pathCtaClassName = actionClassName({
+    variant: 'primary',
+    size: 'sm',
+    className: 'catalogPrimaryCta homeFeaturedCta'
+  });
+
   return (
     <section className="homeFeatured">
       <div className="homeFeaturedHeader">
@@ -17,7 +29,7 @@ export function FeaturedCourses({ courses, unavailable }: FeaturedCoursesProps) 
           <h2>{microcopy.home.featured.title}</h2>
           <p className="pageDescription">{microcopy.home.featured.subtitle}</p>
         </div>
-        <Link className="appAuthAction" href="/courses">
+        <Link className={viewAllClassName} href="/courses">
           {microcopy.home.featured.viewAll}
         </Link>
       </div>
@@ -35,7 +47,7 @@ export function FeaturedCourses({ courses, unavailable }: FeaturedCoursesProps) 
               ) : (
                 <p className="homeFeaturedMeta">{microcopy.home.featured.descriptionFallback}</p>
               )}
-              <Link className="catalogPrimaryCta homeFeaturedCta" href={`/paths/${course.id}`}>
+              <Link className={pathCtaClassName} href={`/paths/${course.id}`}>
                 {microcopy.home.featured.viewPath}
               </Link>
             </article>

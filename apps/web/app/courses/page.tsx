@@ -1,10 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { getPath, getPaths } from '@/src/lib/api-clients/content.client';
+import { actionClassName, Container } from '@/src/components/ui';
 import type { PathListItem } from '@/src/lib/content-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { InlineNotice } from '@/src/components/state';
-import { Container } from '@/src/components/ui';
 
 type CoursesPathCardView = {
   id: string;
@@ -61,6 +61,12 @@ export default async function CoursesPage() {
     unavailable = true;
   }
 
+  const openPathClassName = actionClassName({
+    variant: 'primary',
+    size: 'sm',
+    className: 'catalogPrimaryCta coursesCardCta'
+  });
+
   return (
     <Container as="main" size="content" className="coursesShell">
       <header className="pageHeader playerCard catalogHero">
@@ -95,7 +101,7 @@ export default async function CoursesPage() {
                   </>
                 )}
               </div>
-              <Link className="catalogPrimaryCta coursesCardCta" href={`/paths/${card.id}`}>
+              <Link className={openPathClassName} href={`/paths/${card.id}`}>
                 {microcopy.courses.openPath}
               </Link>
             </article>

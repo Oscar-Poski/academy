@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { APP_NAME } from '@academy/shared';
-import { buttonClassName } from '@/src/components/ui';
+import { actionClassName } from '@/src/components/ui';
 import { LogoutButton } from '@/src/components/auth/LogoutButton';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import type { SessionProfile } from '@/src/lib/auth/get-session-profile.server';
@@ -11,7 +11,7 @@ type AppFooterProps = {
 };
 
 export function AppFooter({ sessionProfile }: AppFooterProps) {
-  const actionClassName = buttonClassName({
+  const authActionClassName = actionClassName({
     variant: 'ghost',
     size: 'sm',
     className: 'appAuthAction appFooterAction'
@@ -35,10 +35,10 @@ export function AppFooter({ sessionProfile }: AppFooterProps) {
             <LogoutButton variant="ghost" size="sm" className="appAuthAction appFooterAction" />
           ) : (
             <>
-              <Link href="/login" className={actionClassName}>
+              <Link href="/login" className={authActionClassName}>
                 {microcopy.auth.actions.logIn}
               </Link>
-              <Link href="/signup" className={actionClassName}>
+              <Link href="/signup" className={authActionClassName}>
                 {microcopy.auth.actions.signUp}
               </Link>
             </>
