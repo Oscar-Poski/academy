@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Container } from '@/src/components/ui';
+import { Container, Skeleton } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type PageSkeletonVariant = 'home' | 'catalog' | 'learn' | 'auth';
@@ -9,32 +9,16 @@ type PageSkeletonProps = {
 };
 
 export function PageSkeleton({ variant }: PageSkeletonProps) {
+  const blockCount = variant === 'auth' ? 2 : 3;
+
   return (
-    <Container
-      as="main"
-      size="content"
-      className={`stateSkeleton ${variant}Skeleton`}
-      data-variant={variant}
-      aria-busy="true"
-    >
+    <Container as="main" size="content" className={`uiSkeletonPage uiSkeletonPage--${variant}`} data-variant={variant} aria-busy="true">
       <p className="stateSrOnly" role="status" aria-live="polite">
         {microcopy.state.loadingPage}
       </p>
-      <Card as="div" className="stateSkeletonBlock stateSkeletonPulse" padding="none" aria-hidden="true">
-        <div className="stateSkeletonLine stateSkeletonLine--lg" />
-        <div className="stateSkeletonLine stateSkeletonLine--md" />
-      </Card>
-      <Card as="div" className="stateSkeletonBlock stateSkeletonPulse" padding="none" aria-hidden="true">
-        <div className="stateSkeletonLine stateSkeletonLine--md" />
-        <div className="stateSkeletonLine stateSkeletonLine--sm" />
-        <div className="stateSkeletonLine stateSkeletonLine--sm" />
-      </Card>
-      {variant !== 'auth' ? (
-        <Card as="div" className="stateSkeletonBlock stateSkeletonPulse" padding="none" aria-hidden="true">
-          <div className="stateSkeletonLine stateSkeletonLine--md" />
-          <div className="stateSkeletonLine stateSkeletonLine--sm" />
-        </Card>
-      ) : null}
+      {Array.from({ length: blockCount }).map((_, index) => (
+        <Skeleton key={index} variant="card" aria-hidden="true" />
+      ))}
     </Container>
   );
 }

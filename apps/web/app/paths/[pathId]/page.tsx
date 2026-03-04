@@ -66,7 +66,7 @@ export default async function PathPage({ params }: PathPageProps) {
           </Section>
 
           <Section as="section" spacing="sm" className="pathSection pathSection--modules">
-            <Stack className="catalogStack pathModulesStack" gap="md">
+            <Stack className="pathModulesStack" gap="md">
               {path.modules.map((module) => (
                 <PathModuleCard
                   key={module.id}

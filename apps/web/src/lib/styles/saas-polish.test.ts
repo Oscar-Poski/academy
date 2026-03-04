@@ -54,6 +54,7 @@ describe('saas polish styles', () => {
     expect(globalsCss).toContain('.homeHeroSupportItem');
     expect(globalsCss).toContain('.homeHeroActions');
     expect(globalsCss).toContain('.homeFeaturedCard');
+    expect(globalsCss).toContain('.coursesPage');
     expect(globalsCss).toContain('.coursesCard');
     expect(globalsCss).toContain('.catalogModuleCard');
     expect(globalsCss).toContain('.authPage');
@@ -112,7 +113,7 @@ describe('saas polish styles', () => {
     expect(reducedMotion).toContain('transition: none;');
 
     const compactBlock = getMediaBlock('max-width: 640px');
-    expect(compactBlock).toContain('.pageShell');
+    expect(compactBlock).not.toContain('.pageShell');
     expect(compactBlock).toContain('.homeLanding');
     expect(compactBlock).toContain('.homeHeroTitle');
     expect(compactBlock).toContain('.catalogSectionRow');

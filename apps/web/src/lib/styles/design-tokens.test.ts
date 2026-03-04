@@ -12,7 +12,7 @@ function getRuleBlock(selector: string): string {
 }
 
 describe('design token baseline', () => {
-  it('declares required semantic tokens and backward-compat aliases', () => {
+  it('declares required semantic tokens and removes migration aliases', () => {
     expect(globalsCss).toContain('--color-accent-300: #f9d14f;');
     expect(globalsCss).toContain('--color-accent-400: #f5c518;');
     expect(globalsCss).toContain('--color-bg-canvas:');
@@ -26,9 +26,16 @@ describe('design token baseline', () => {
     expect(globalsCss).toContain('--color-status-success-bg:');
     expect(globalsCss).toContain('--color-status-warning-bg:');
     expect(globalsCss).toContain('--color-status-danger-bg:');
-    expect(globalsCss).toContain('--border:');
-    expect(globalsCss).toContain('--accent:');
-    expect(globalsCss).toContain('--accent-soft:');
+    expect(globalsCss).not.toContain('--bg:');
+    expect(globalsCss).not.toContain('--panel:');
+    expect(globalsCss).not.toContain('--surface-1: var(');
+    expect(globalsCss).not.toContain('--surface-2: var(');
+    expect(globalsCss).not.toContain('--text:');
+    expect(globalsCss).not.toContain('--muted:');
+    expect(globalsCss).not.toContain('--accent:');
+    expect(globalsCss).not.toContain('--accent-soft:');
+    expect(globalsCss).not.toContain('--ok:');
+    expect(globalsCss).not.toContain('--border:');
   });
 
   it('maps typography tokens to next/font CSS variables', () => {
@@ -60,7 +67,7 @@ describe('design token baseline', () => {
     expect(progressBadge).toContain('var(--color-status-info-text)');
 
     const quizQuestionCard = getRuleBlock('.quizQuestionCard');
-    expect(quizQuestionCard).toContain('var(--border)');
+    expect(quizQuestionCard).toContain('var(--color-border-default)');
     expect(quizQuestionCard).toContain('var(--color-surface-2)');
 
     const interactiveCard = getRuleBlock('.uiCard--interactive');
@@ -69,10 +76,7 @@ describe('design token baseline', () => {
 
   it('has no unresolved border token usage', () => {
     const borderVarUsageCount = (globalsCss.match(/var\(--border\)/g) ?? []).length;
-    if (borderVarUsageCount > 0) {
-      expect(globalsCss).toContain('--border:');
-    }
-    expect(borderVarUsageCount).toBeGreaterThan(0);
+    expect(borderVarUsageCount).toBe(0);
   });
 
   it('defines a shared focus-visible treatment for interactive controls', () => {

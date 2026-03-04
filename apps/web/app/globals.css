@@ -92,18 +92,6 @@
   --color-status-danger-bg: rgba(127, 29, 29, 0.14);
   --color-status-danger-text: var(--color-danger-300);
 
-  /* Backward-compatible aliases */
-  --bg: #07080a;
-  --panel: var(--color-surface-1);
-  --surface-1: var(--color-surface-1);
-  --surface-2: var(--color-surface-2);
-  --text: var(--color-text-primary);
-  --text-muted: var(--color-text-muted);
-  --muted: var(--color-text-muted);
-  --accent: var(--color-accent-400);
-  --accent-soft: rgba(245, 197, 24, 0.18);
-  --ok: var(--color-success-400);
-  --border: var(--color-border-default);
 }
 
 * {
@@ -501,15 +489,13 @@ main {
 }
 
 /* Layout primitives */
-.uiContainer,
-.pageShell {
+.uiContainer {
   width: 100%;
   margin-inline: auto;
   padding-inline: var(--space-4);
 }
 
-.uiContainer--content,
-.pageShell {
+.uiContainer--content {
   max-width: 1080px;
   margin-block: calc(var(--space-7) + var(--space-1)) var(--space-8);
 }
@@ -561,8 +547,7 @@ main {
   gap: var(--space-3);
 }
 
-.uiStack--md,
-.pageStack {
+.uiStack--md {
   gap: var(--space-4);
 }
 
@@ -576,7 +561,7 @@ main {
 
 .pageEyebrow {
   margin: 0 0 0.35rem;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -597,18 +582,14 @@ main {
 }
 
 .pageProgressSummary {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .pageProgressNotice {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
-}
-
-.catalogStack {
-  gap: var(--space-5);
 }
 
 .catalogHero {
@@ -1140,12 +1121,12 @@ main {
   color: var(--color-status-info-text);
 }
 
-.stateSkeleton {
+.uiSkeletonPage {
   display: grid;
   gap: var(--space-4);
 }
 
-.stateSkeletonBlock {
+.uiSkeleton {
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--color-surface-1) 90%, black);
@@ -1154,35 +1135,49 @@ main {
   gap: var(--space-2);
 }
 
-.stateSkeletonLine {
+.uiSkeleton--text {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.uiSkeleton--card {
+  min-height: 0;
+}
+
+.uiSkeleton--page {
+  gap: var(--space-3);
+}
+
+.uiSkeletonLine {
   height: 0.75rem;
   border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--color-border-default) 70%, var(--color-surface-2));
 }
 
-.stateSkeletonLine--lg {
+.uiSkeletonLine--lg {
   width: min(360px, 82%);
   height: 1rem;
 }
 
-.stateSkeletonLine--md {
+.uiSkeletonLine--md {
   width: min(460px, 90%);
 }
 
-.stateSkeletonLine--sm {
+.uiSkeletonLine--sm {
   width: min(280px, 70%);
 }
 
-.stateSkeletonPulse {
+.uiSkeletonPulse {
   animation: state-skeleton-pulse 1.5s var(--ease-standard) infinite alternate;
 }
 
-.authSkeleton {
+.uiSkeletonPage--auth {
   max-width: 760px;
 }
 
-.catalogSkeleton,
-.learnSkeleton {
+.uiSkeletonPage--catalog,
+.uiSkeletonPage--learn {
   max-width: 1080px;
 }
 
@@ -1196,7 +1191,7 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stateSkeletonPulse {
+  .uiSkeletonPulse {
     animation: none;
   }
 
@@ -1409,7 +1404,7 @@ main {
   font-size: 0.84rem;
 }
 
-.coursesShell {
+.coursesPage {
   display: grid;
   gap: var(--space-6);
 }
@@ -1592,7 +1587,7 @@ main {
 }
 
 .playerSidebarEyebrow {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1651,7 +1646,7 @@ main {
 .playerTreeSectionLink {
   display: block;
   padding: var(--space-2) var(--space-3);
-  color: var(--text);
+  color: var(--color-text-primary);
   text-decoration: none;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
@@ -1717,7 +1712,7 @@ main {
 }
 
 .playerBreadcrumb {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -1768,7 +1763,7 @@ main {
 }
 
 .playerHeaderMetaText {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -1994,7 +1989,7 @@ main {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .blockCalloutText {
@@ -2010,7 +2005,7 @@ main {
 .blockCodeHeader {
   padding: 0.65rem 0.9rem;
   border-bottom: 1px solid var(--color-border-default);
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
   text-transform: lowercase;
 }
@@ -2057,7 +2052,7 @@ main {
 
 .blockQuizText {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .quizPanel {
@@ -2077,7 +2072,7 @@ main {
 
 .quizPanelSubtitle {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.95rem;
 }
 
@@ -2087,7 +2082,7 @@ main {
 }
 
 .quizQuestionCard {
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--color-surface-2) 72%, black);
   padding: 0.85rem;
@@ -2108,7 +2103,7 @@ main {
 }
 
 .quizQuestionPoints {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.82rem;
 }
 
@@ -2129,16 +2124,16 @@ main {
 }
 
 .quizTextLabelText {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
 .quizTextInput {
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
   padding: 0.55rem 0.65rem;
   background: color-mix(in srgb, var(--color-surface-2) 74%, black);
-  color: var(--text);
+  color: var(--color-text-primary);
 }
 
 .quizActions {
@@ -2149,7 +2144,7 @@ main {
 
 .quizSubmitBtn,
 .quizRetryBtn {
-  border-color: var(--border);
+  border-color: var(--color-border-default);
   text-decoration: none;
 }
 
@@ -2163,7 +2158,7 @@ main {
 }
 
 .quizResult {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--color-border-default);
   padding-top: 0.8rem;
   display: grid;
   gap: 0.65rem;
@@ -2196,7 +2191,7 @@ main {
 
 .quizResultScore,
 .quizResultAttempt {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -2209,7 +2204,7 @@ main {
 }
 
 .quizFeedbackItem {
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
   padding: 0.55rem 0.65rem;
   display: flex;
@@ -2235,14 +2230,14 @@ main {
 }
 
 .quizFeedbackPoints {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
 .quizFeedbackExplanation {
   margin: 0;
   width: 100%;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -2491,7 +2486,6 @@ main {
 
   .uiContainer--content,
   .uiContainer--wide,
-  .pageShell,
   .homeLanding {
     margin-top: var(--space-6);
   }

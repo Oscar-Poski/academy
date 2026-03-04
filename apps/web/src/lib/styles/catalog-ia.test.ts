@@ -45,7 +45,7 @@ describe('catalog IA styles', () => {
     expect(globalsCss).toContain('.pathHeroSummary');
     expect(globalsCss).toContain('.pathHeroMeta');
     expect(globalsCss).toContain('.pathModulesStack');
-    expect(globalsCss).toContain('.catalogStack');
+    expect(globalsCss).not.toContain('.catalogStack');
     expect(globalsCss).toContain('.catalogModuleCard');
     expect(globalsCss).toContain('.catalogModuleHeader');
     expect(globalsCss).toContain('.catalogModuleHeaderMain');
@@ -59,7 +59,8 @@ describe('catalog IA styles', () => {
     expect(globalsCss).toContain('.catalogSectionActions');
     expect(globalsCss).toContain('.catalogLockReason');
     expect(globalsCss).toContain('.catalogMutedNotice');
-    expect(globalsCss).toContain('.coursesShell');
+    expect(globalsCss).toContain('.coursesPage');
+    expect(globalsCss).not.toContain('.coursesShell');
     expect(globalsCss).toContain('.coursesStack');
     expect(globalsCss).toContain('.coursesSection');
     expect(globalsCss).toContain('.coursesGrid');

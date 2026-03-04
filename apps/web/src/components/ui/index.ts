@@ -6,3 +6,4 @@ export { Alert, type AlertProps } from './Alert';
 export { Container, type ContainerProps } from './Container';
 export { Section, type SectionProps } from './Section';
 export { Stack, type StackProps } from './Stack';
+export { Skeleton, type SkeletonProps } from './Skeleton';

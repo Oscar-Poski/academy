@@ -68,7 +68,7 @@ export default async function CoursesPage() {
   });
 
   return (
-    <Container as="main" size="content" className="coursesShell">
+    <Container as="main" size="content" className="coursesPage">
       <Stack gap="lg" className="coursesStack">
         <Section as="section" spacing="sm" className="coursesSection coursesSection--hero">
           <Card as="header" className="pageHeader playerCard catalogHero" padding="none">

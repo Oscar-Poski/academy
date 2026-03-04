@@ -42,14 +42,24 @@ describe('state system styles', () => {
     expect(globalsCss).toContain('.stateInlineNotice');
     expect(globalsCss).toContain('.stateInlineNotice--warning');
     expect(globalsCss).toContain('.stateInlineNotice--info');
-    expect(globalsCss).toContain('.stateSkeleton');
-    expect(globalsCss).toContain('.stateSkeletonLine');
-    expect(globalsCss).toContain('.stateSkeletonPulse');
+    expect(globalsCss).toContain('.uiSkeletonPage');
+    expect(globalsCss).toContain('.uiSkeleton');
+    expect(globalsCss).toContain('.uiSkeleton--text');
+    expect(globalsCss).toContain('.uiSkeleton--card');
+    expect(globalsCss).toContain('.uiSkeleton--page');
+    expect(globalsCss).toContain('.uiSkeletonLine');
+    expect(globalsCss).toContain('.uiSkeletonPulse');
     expect(globalsCss).toContain('.stateSrOnly');
     expect(globalsCss).toContain('.stateActions');
-    expect(globalsCss).toContain('.authSkeleton');
-    expect(globalsCss).toContain('.catalogSkeleton');
-    expect(globalsCss).toContain('.learnSkeleton');
+    expect(globalsCss).toContain('.uiSkeletonPage--auth');
+    expect(globalsCss).toContain('.uiSkeletonPage--catalog');
+    expect(globalsCss).toContain('.uiSkeletonPage--learn');
+    expect(globalsCss).not.toContain('.stateSkeleton');
+    expect(globalsCss).not.toContain('.stateSkeletonLine');
+    expect(globalsCss).not.toContain('.stateSkeletonPulse');
+    expect(globalsCss).not.toContain('.authSkeleton');
+    expect(globalsCss).not.toContain('.catalogSkeleton');
+    expect(globalsCss).not.toContain('.learnSkeleton');
   });
 
   it('includes responsive state action behavior in mobile media block', () => {
@@ -61,7 +71,7 @@ describe('state system styles', () => {
 
   it('includes reduced-motion fallback for skeleton animation', () => {
     expect(globalsCss).toContain('@media (prefers-reduced-motion: reduce)');
-    expect(globalsCss).toContain('.stateSkeletonPulse');
+    expect(globalsCss).toContain('.uiSkeletonPulse');
     expect(globalsCss).toContain('animation: none;');
   });
 });

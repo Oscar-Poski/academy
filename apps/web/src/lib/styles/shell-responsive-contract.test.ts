@@ -61,7 +61,7 @@ describe('shell responsive contract styles', () => {
     expect(compactBlock).toContain('.uiContainer--content');
     expect(compactBlock).toContain('.appHeaderInner');
     expect(compactBlock).toContain('.appFooterInner');
-    expect(compactBlock).toContain('.pageShell');
+    expect(compactBlock).not.toContain('.pageShell');
     expect(compactBlock).toContain('.homeLanding');
   });
 

@@ -51,11 +51,11 @@ describe('layout primitives styles', () => {
     expect(globalsCss).toContain('.uiStack--lg');
   });
 
-  it('keeps legacy compatibility selectors for shell and stack', () => {
-    expect(globalsCss).toContain('.pageShell');
-    expect(globalsCss).toContain('.pageStack');
-    expect(globalsCss).toContain('.catalogStack');
-    expect(globalsCss).toContain('.coursesShell');
+  it('removes legacy compatibility selectors for shell and stack', () => {
+    expect(globalsCss).not.toContain('.pageShell');
+    expect(globalsCss).not.toContain('.pageStack');
+    expect(globalsCss).not.toContain('.catalogStack');
+    expect(globalsCss).not.toContain('.coursesShell');
   });
 
   it('includes compact breakpoint behavior for uiContainer', () => {
