@@ -4,6 +4,7 @@ import { getPath, getPaths } from '@/src/lib/api-clients/content.client';
 import type { PathListItem } from '@/src/lib/content-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { InlineNotice } from '@/src/components/state';
+import { Container } from '@/src/components/ui';
 
 type CoursesPathCardView = {
   id: string;
@@ -61,7 +62,7 @@ export default async function CoursesPage() {
   }
 
   return (
-    <main className="pageShell coursesShell">
+    <Container as="main" size="content" className="coursesShell">
       <header className="pageHeader playerCard catalogHero">
         <p className="pageEyebrow">{microcopy.nav.courses}</p>
         <h1>{microcopy.courses.title}</h1>
@@ -101,6 +102,6 @@ export default async function CoursesPage() {
           ))}
         </section>
       )}
-    </main>
+    </Container>
   );
 }

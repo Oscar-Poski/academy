@@ -57,6 +57,8 @@ describe('shell responsive contract styles', () => {
     expect(globalsCss).toContain('@media (max-width: 640px)');
     const compactBlock = getMediaBlock('max-width: 640px');
 
+    expect(compactBlock).toContain('.uiContainer');
+    expect(compactBlock).toContain('.uiContainer--content');
     expect(compactBlock).toContain('.appHeaderInner');
     expect(compactBlock).toContain('.appFooterInner');
     expect(compactBlock).toContain('.pageShell');

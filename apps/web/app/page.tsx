@@ -5,6 +5,7 @@ import { FeaturedCourses, HomeHero } from '@/src/components/home';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { getStartLearningCandidate } from '@/src/lib/onboarding/get-start-learning-candidate.server';
 import { InlineNotice } from '@/src/components/state';
+import { Container } from '@/src/components/ui';
 import Link from 'next/link';
 import React from 'react';
 
@@ -29,7 +30,7 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="pageShell homeLanding">
+    <Container as="main" size="content" className="homeLanding">
       <HomeHero authenticated={sessionProfile.authenticated} />
       <FeaturedCourses courses={featuredPaths} unavailable={featuredUnavailable} />
       {sessionProfile.authenticated ? (
@@ -63,6 +64,6 @@ export default async function HomePage() {
           )}
         </section>
       ) : null}
-    </main>
+    </Container>
   );
 }

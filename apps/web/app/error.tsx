@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { StateCard } from '@/src/components/state';
+import { Container } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type ErrorPageProps = {
@@ -11,7 +12,7 @@ type ErrorPageProps = {
 
 export default function GlobalErrorPage({ reset }: ErrorPageProps) {
   return (
-    <main className="pageShell">
+    <Container as="main" size="content">
       <StateCard
         kind="error"
         titleAs="h1"
@@ -31,6 +32,6 @@ export default function GlobalErrorPage({ reset }: ErrorPageProps) {
           href: '/'
         }}
       />
-    </main>
+    </Container>
   );
 }

@@ -7,6 +7,7 @@ import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { PathModuleCard } from '@/src/components/catalog';
 import { InlineNotice } from '@/src/components/state';
+import { Container, Stack } from '@/src/components/ui';
 
 type PathPageProps = {
   params: {
@@ -27,7 +28,7 @@ export default async function PathPage({ params }: PathPageProps) {
     );
 
     return (
-      <main className="pageShell">
+      <Container as="main" size="content">
         <header className="pageHeader playerCard catalogHero">
           <p className="pageEyebrow">{microcopy.catalog.pathLabel}</p>
           <h1>{path.title}</h1>
@@ -57,7 +58,7 @@ export default async function PathPage({ params }: PathPageProps) {
           </div>
         </header>
 
-        <div className="pageStack catalogStack">
+        <Stack className="catalogStack" gap="md">
           {path.modules.map((module) => (
             <PathModuleCard
               key={module.id}
@@ -66,8 +67,8 @@ export default async function PathPage({ params }: PathPageProps) {
               isAuthenticated={isAuthenticated}
             />
           ))}
-        </div>
-      </main>
+        </Stack>
+      </Container>
     );
   } catch (error) {
     if (error instanceof ContentApiError && error.status === 404) {

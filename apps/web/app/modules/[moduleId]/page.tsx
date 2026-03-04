@@ -8,6 +8,7 @@ import type { ModuleSectionProgressItem } from '@/src/lib/progress-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { ModuleSectionRow } from '@/src/components/catalog';
 import { InlineNotice } from '@/src/components/state';
+import { Container } from '@/src/components/ui';
 
 type ModulePageProps = {
   params: {
@@ -28,7 +29,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
     );
 
     return (
-      <main className="pageShell">
+      <Container as="main" size="content">
         <header className="pageHeader playerCard catalogHero">
           <p className="pageEyebrow">{microcopy.catalog.moduleLabel}</p>
           <h1>{module.title}</h1>
@@ -91,7 +92,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
             </ul>
           )}
         </section>
-      </main>
+      </Container>
     );
   } catch (error) {
     if (error instanceof ContentApiError && error.status === 404) {

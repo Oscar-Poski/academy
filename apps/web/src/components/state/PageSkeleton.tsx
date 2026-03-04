@@ -1,4 +1,5 @@
 import React from 'react';
+import { Container } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type PageSkeletonVariant = 'home' | 'catalog' | 'learn' | 'auth';
@@ -9,7 +10,13 @@ type PageSkeletonProps = {
 
 export function PageSkeleton({ variant }: PageSkeletonProps) {
   return (
-    <main className={`pageShell stateSkeleton ${variant}Skeleton`} data-variant={variant} aria-busy="true">
+    <Container
+      as="main"
+      size="content"
+      className={`stateSkeleton ${variant}Skeleton`}
+      data-variant={variant}
+      aria-busy="true"
+    >
       <p className="stateSrOnly" role="status" aria-live="polite">
         {microcopy.state.loadingPage}
       </p>
@@ -28,6 +35,6 @@ export function PageSkeleton({ variant }: PageSkeletonProps) {
           <div className="stateSkeletonLine stateSkeletonLine--sm" />
         </div>
       ) : null}
-    </main>
+    </Container>
   );
 }

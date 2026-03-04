@@ -34,6 +34,10 @@ function getMediaBlock(query: string): string {
 
 describe('app shell styles', () => {
   it('declares required shell selectors', () => {
+    expect(globalsCss).toContain('.uiContainer');
+    expect(globalsCss).toContain('.uiContainer--content');
+    expect(globalsCss).toContain('.uiStack');
+    expect(globalsCss).toContain('.uiStack--md');
     expect(globalsCss).toContain('.skipLink');
     expect(globalsCss).toContain('.appHeaderMainNav');
     expect(globalsCss).toContain('.appHeaderMenuButton');
