@@ -27,12 +27,17 @@ describe('SignupForm', () => {
   });
 
   it('renders form fields and submit button', () => {
-    render(<SignupForm />);
+    const { container } = render(<SignupForm />);
 
     expect(screen.getByLabelText('Nombre')).toBeInTheDocument();
     expect(screen.getByLabelText('Correo')).toBeInTheDocument();
     expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeInTheDocument();
+    expect(container.querySelector('.authForm')).toBeInTheDocument();
+    expect(container.querySelector('.authFormHeader')).toBeInTheDocument();
+    expect(container.querySelector('.authFormFields')).toBeInTheDocument();
+    expect(container.querySelector('.authFormFooter')).toBeInTheDocument();
+    expect(container.querySelector('.authFormLinkRow')).toBeInTheDocument();
   });
 
   it('shows inline field errors and blocks submit when invalid', async () => {

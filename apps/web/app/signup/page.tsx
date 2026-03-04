@@ -3,9 +3,10 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { SignupForm } from '@/src/components/auth/SignupForm';
 import { PageSkeleton } from '@/src/components/state';
-import { Container } from '@/src/components/ui';
+import { Container, Section, Stack } from '@/src/components/ui';
 import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import { safeNextPath } from '@/src/lib/auth/safe-next-path';
+import { microcopy } from '@/src/lib/copy/microcopy';
 
 type SignupPageProps = {
   searchParams?: {
@@ -21,10 +22,17 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
   }
 
   return (
-    <Container as="main" size="content">
-      <Suspense fallback={<PageSkeleton variant="auth" />}>
-        <SignupForm />
-      </Suspense>
+    <Container as="main" size="content" className="authPage authPage--signup">
+      <Stack gap="lg" className="authPageStack">
+        <Section as="section" spacing="sm" className="authShell authShell--signup">
+          <header className="authShellHeader">
+            <p className="authShellEyebrow">{microcopy.auth.headings.signUp}</p>
+          </header>
+          <Suspense fallback={<PageSkeleton variant="auth" />}>
+            <SignupForm />
+          </Suspense>
+        </Section>
+      </Stack>
     </Container>
   );
 }

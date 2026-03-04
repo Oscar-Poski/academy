@@ -56,6 +56,16 @@ describe('saas polish styles', () => {
     expect(globalsCss).toContain('.homeFeaturedCard');
     expect(globalsCss).toContain('.coursesCard');
     expect(globalsCss).toContain('.catalogModuleCard');
+    expect(globalsCss).toContain('.authPage');
+    expect(globalsCss).toContain('.authPageStack');
+    expect(globalsCss).toContain('.authShell');
+    expect(globalsCss).toContain('.authShellHeader');
+    expect(globalsCss).toContain('.authShellEyebrow');
+    expect(globalsCss).toContain('.authForm');
+    expect(globalsCss).toContain('.authFormHeader');
+    expect(globalsCss).toContain('.authFormFields');
+    expect(globalsCss).toContain('.authFormFooter');
+    expect(globalsCss).toContain('.authFormLinkRow');
   });
 
   it('includes subtle motion hooks on cards and actions', () => {

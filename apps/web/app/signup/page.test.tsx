@@ -16,7 +16,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/src/components/auth/SignupForm', () => ({
-  SignupForm: () => <div>Signup Form</div>
+  SignupForm: () => <div data-testid="signup-form">Signup Form</div>
 }));
 
 import SignupPage from './page';
@@ -33,6 +33,8 @@ describe('SignupPage', () => {
     render(await SignupPage({}));
 
     expect(screen.getByText('Signup Form')).toBeInTheDocument();
+    expect(screen.getByTestId('signup-form').closest('.authShell')).toBeInTheDocument();
+    expect(screen.getByText('Crear cuenta')).toHaveClass('authShellEyebrow');
     expect(redirect).not.toHaveBeenCalled();
   });
 

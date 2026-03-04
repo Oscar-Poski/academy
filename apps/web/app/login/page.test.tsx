@@ -16,7 +16,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/src/components/auth/LoginForm', () => ({
-  LoginForm: () => <div>Login Form</div>
+  LoginForm: () => <div data-testid="login-form">Login Form</div>
 }));
 
 import LoginPage from './page';
@@ -33,6 +33,8 @@ describe('LoginPage', () => {
     render(await LoginPage({}));
 
     expect(screen.getByText('Login Form')).toBeInTheDocument();
+    expect(screen.getByTestId('login-form').closest('.authShell')).toBeInTheDocument();
+    expect(screen.getByText('Iniciar sesión')).toHaveClass('authShellEyebrow');
     expect(redirect).not.toHaveBeenCalled();
   });
 

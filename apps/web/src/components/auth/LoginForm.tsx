@@ -80,47 +80,52 @@ export function LoginForm() {
   }
 
   return (
-    <Card as="form" className="playerCard pageCard" onSubmit={onSubmit}>
-      <h1>{microcopy.auth.headings.logIn}</h1>
-      <p className="pageMuted">{microcopy.auth.descriptions.logIn}</p>
+    <Card as="form" className="playerCard pageCard authForm" onSubmit={onSubmit}>
+      <header className="authFormHeader">
+        <h1 className="authFormTitle">{microcopy.auth.headings.logIn}</h1>
+        <p className="pageMuted authFormDescription">{microcopy.auth.descriptions.logIn}</p>
+      </header>
 
-      <Input
-        id="login-email"
-        label={microcopy.auth.fields.email}
-        value={email}
-        onChange={(event) => {
-          setEmail(event.target.value);
-          setErrorMessage(null);
-        }}
-        onBlur={() => applyFieldValidation('email')}
-        error={fieldErrors.email}
-        autoComplete="email"
-        required
-      />
+      <div className="authFormFields">
+        <Input
+          id="login-email"
+          label={microcopy.auth.fields.email}
+          value={email}
+          onChange={(event) => {
+            setEmail(event.target.value);
+            setErrorMessage(null);
+          }}
+          onBlur={() => applyFieldValidation('email')}
+          error={fieldErrors.email}
+          autoComplete="email"
+          required
+        />
 
-      <Input
-        id="login-password"
-        label={microcopy.auth.fields.password}
-        type="password"
-        value={password}
-        onChange={(event) => {
-          setPassword(event.target.value);
-          setErrorMessage(null);
-        }}
-        onBlur={() => applyFieldValidation('password')}
-        error={fieldErrors.password}
-        autoComplete="current-password"
-        required
-      />
+        <Input
+          id="login-password"
+          label={microcopy.auth.fields.password}
+          type="password"
+          value={password}
+          onChange={(event) => {
+            setPassword(event.target.value);
+            setErrorMessage(null);
+          }}
+          onBlur={() => applyFieldValidation('password')}
+          error={fieldErrors.password}
+          autoComplete="current-password"
+          required
+        />
+      </div>
 
-      <Button type="submit" loading={submitting} disabled={isSubmitDisabled}>
-        {submitting ? microcopy.auth.buttons.loggingIn : microcopy.auth.buttons.logIn}
-      </Button>
-
-      {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
-      <p className="pageMuted">
-        {microcopy.auth.links.needAccountPrefix} <Link href="/signup">{microcopy.auth.links.needAccountAction}</Link>
-      </p>
+      <div className="authFormFooter">
+        <Button type="submit" loading={submitting} disabled={isSubmitDisabled}>
+          {submitting ? microcopy.auth.buttons.loggingIn : microcopy.auth.buttons.logIn}
+        </Button>
+        {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
+        <p className="pageMuted authFormLinkRow">
+          {microcopy.auth.links.needAccountPrefix} <Link href="/signup">{microcopy.auth.links.needAccountAction}</Link>
+        </p>
+      </div>
     </Card>
   );
 }

@@ -27,11 +27,16 @@ describe('LoginForm', () => {
   });
 
   it('renders form controls and submit button', () => {
-    render(<LoginForm />);
+    const { container } = render(<LoginForm />);
 
     expect(screen.getByLabelText('Correo')).toBeInTheDocument();
     expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument();
+    expect(container.querySelector('.authForm')).toBeInTheDocument();
+    expect(container.querySelector('.authFormHeader')).toBeInTheDocument();
+    expect(container.querySelector('.authFormFields')).toBeInTheDocument();
+    expect(container.querySelector('.authFormFooter')).toBeInTheDocument();
+    expect(container.querySelector('.authFormLinkRow')).toBeInTheDocument();
   });
 
   it('shows inline field errors and blocks submit when invalid', async () => {
