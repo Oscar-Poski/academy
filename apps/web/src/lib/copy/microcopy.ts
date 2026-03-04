@@ -54,8 +54,13 @@ export const microcopy = {
     hero: {
       eyebrow: 'Academia en línea',
       title: 'Aprende habilidades de IT desde cero con rutas guiadas y práctica inmediata.',
+      titleLead: 'Aprende habilidades de IT desde cero',
+      titleAccent: 'con rutas guiadas',
+      titleTail: 'y práctica inmediata.',
       subtitle:
         'Consigue trabajo en cualquier área de IT. Empieza a estudiar y avanza sección por sección.',
+      supportingPoints: ['Progreso visible por secciones', 'Contenido práctico desde el día uno', 'Rutas pensadas para conseguir empleo'],
+      proofLabel: 'Miles de estudiantes ya están avanzando con este método.',
       primaryCta: 'Explorar cursos',
       secondaryCtaAnon: 'Iniciar sesión',
       secondaryCtaAuth: 'Ir a mi inicio'

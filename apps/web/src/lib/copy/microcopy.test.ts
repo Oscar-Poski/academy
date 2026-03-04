@@ -43,6 +43,11 @@ describe('microcopy', () => {
 
   it('defines home hero and featured copy', () => {
     expect(microcopy.home.hero.title).toBe('Aprende habilidades de IT desde cero con rutas guiadas y práctica inmediata.');
+    expect(microcopy.home.hero.titleLead).toBe('Aprende habilidades de IT desde cero');
+    expect(microcopy.home.hero.titleAccent).toBe('con rutas guiadas');
+    expect(microcopy.home.hero.titleTail).toBe('y práctica inmediata.');
+    expect(microcopy.home.hero.supportingPoints).toHaveLength(3);
+    expect(microcopy.home.hero.proofLabel).toBe('Miles de estudiantes ya están avanzando con este método.');
     expect(microcopy.home.hero.primaryCta).toBe('Explorar cursos');
     expect(microcopy.home.hero.secondaryCtaAnon).toBe('Iniciar sesión');
     expect(microcopy.home.hero.secondaryCtaAuth).toBe('Ir a mi inicio');

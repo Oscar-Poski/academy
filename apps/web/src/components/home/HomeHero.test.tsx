@@ -22,6 +22,8 @@ describe('HomeHero', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Explorar cursos' })).toHaveAttribute('href', '/courses');
     expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/login');
+    expect(screen.getByText('Progreso visible por secciones')).toBeInTheDocument();
+    expect(screen.getByText('Miles de estudiantes ya están avanzando con este método.')).toBeInTheDocument();
   });
 
   it('renders authenticated secondary CTA', () => {

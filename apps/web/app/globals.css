@@ -347,16 +347,16 @@ main {
 
 .homeHero {
   overflow: hidden;
-  border-color: var(--color-action-border);
+  border-color: color-mix(in srgb, var(--color-action-border) 78%, var(--color-border-strong));
   background:
-    radial-gradient(circle at 0% 0%, rgba(250, 204, 21, 0.18), transparent 48%),
-    linear-gradient(160deg, color-mix(in srgb, var(--color-surface-2) 92%, black), var(--color-surface-1));
+    radial-gradient(circle at 0% 0%, rgba(245, 197, 24, 0.13), transparent 52%),
+    linear-gradient(160deg, color-mix(in srgb, var(--color-surface-2) 86%, black), var(--color-surface-1));
 }
 
 .homeHeroInner {
   display: grid;
   gap: var(--space-4);
-  padding: calc(var(--space-6) + var(--space-1));
+  padding: calc(var(--space-6) + var(--space-2));
 }
 
 .homeHeroEyebrow {
@@ -369,17 +369,49 @@ main {
 
 .homeHeroTitle {
   margin: 0;
-  max-width: 18ch;
+  max-width: 22ch;
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 3.9vw, 2.8rem);
-  line-height: 1.14;
+  font-size: clamp(2rem, 4.2vw, 3.1rem);
+  line-height: 1.08;
+}
+
+.homeHeroTitleAccent {
+  color: var(--color-accent-300);
 }
 
 .homeHeroSubtitle {
   margin: 0;
-  max-width: 58ch;
+  max-width: 64ch;
   color: var(--color-text-muted);
   line-height: var(--line-height-relaxed);
+}
+
+.homeHeroSupportList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.homeHeroSupportItem {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 70%, transparent);
+  background: color-mix(in srgb, var(--color-surface-2) 72%, black);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.homeHeroProof {
+  margin: calc(var(--space-1) * -1) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
 .homeHeroActions {
@@ -2136,12 +2168,20 @@ main {
   }
 
   .homeHeroInner {
-    padding: var(--space-4);
+    padding: var(--space-5) var(--space-4);
   }
 
   .homeHeroActions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .homeHeroSupportList {
+    gap: var(--space-2);
+  }
+
+  .homeHeroSupportItem {
+    white-space: normal;
   }
 
   .homeFeaturedHeader {
@@ -2244,12 +2284,16 @@ main {
 
   .homeHeroTitle {
     max-width: none;
-    font-size: clamp(1.5rem, 8.2vw, 2.1rem);
+    font-size: clamp(1.55rem, 8.2vw, 2.2rem);
   }
 
   .homeHeroSubtitle {
     max-width: none;
     font-size: 0.95rem;
+  }
+
+  .homeHeroProof {
+    font-size: var(--font-size-xs);
   }
 
   .homeFeaturedCard,

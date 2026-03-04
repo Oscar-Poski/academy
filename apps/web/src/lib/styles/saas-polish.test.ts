@@ -43,6 +43,9 @@ describe('saas polish styles', () => {
   it('declares landing and catalog polish selectors', () => {
     expect(globalsCss).toContain('.uiCard--interactive');
     expect(globalsCss).toContain('.homeHero');
+    expect(globalsCss).toContain('.homeHeroTitleAccent');
+    expect(globalsCss).toContain('.homeHeroSupportList');
+    expect(globalsCss).toContain('.homeHeroSupportItem');
     expect(globalsCss).toContain('.homeHeroActions');
     expect(globalsCss).toContain('.homeFeaturedCard');
     expect(globalsCss).toContain('.coursesCard');
@@ -83,5 +86,6 @@ describe('saas polish styles', () => {
     expect(compactBlock).toContain('.homeLanding');
     expect(compactBlock).toContain('.homeHeroTitle');
     expect(compactBlock).toContain('.catalogSectionRow');
+    expect(compactBlock).toContain('.homeHeroProof');
   });
 });
