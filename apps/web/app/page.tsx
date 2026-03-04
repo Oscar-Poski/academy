@@ -1,12 +1,9 @@
 import { getPaths } from '@/src/lib/api-clients/content.client';
 import { getContinueLearning } from '@/src/lib/api-clients/progress.server';
 import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
-import { FeaturedCourses, HomeHero } from '@/src/components/home';
-import { microcopy } from '@/src/lib/copy/microcopy';
+import { FeaturedCourses, HomeHero, HomePersonalizedStrip } from '@/src/components/home';
 import { getStartLearningCandidate } from '@/src/lib/onboarding/get-start-learning-candidate.server';
-import { InlineNotice } from '@/src/components/state';
-import { actionClassName, Card, Container } from '@/src/components/ui';
-import Link from 'next/link';
+import { Container, Section, Stack } from '@/src/components/ui';
 import React from 'react';
 
 export default async function HomePage() {
@@ -29,47 +26,21 @@ export default async function HomePage() {
     ]);
   }
 
-  const continueCtaClassName = actionClassName({
-    variant: 'primary',
-    size: 'md',
-    className: 'homeContinueLink'
-  });
-
   return (
     <Container as="main" size="content" className="homeLanding">
-      <HomeHero authenticated={sessionProfile.authenticated} />
-      <FeaturedCourses courses={featuredPaths} unavailable={featuredUnavailable} />
-      {sessionProfile.authenticated ? (
-        <section className="homeCard homePersonalizedStrip">
-          <h2>{microcopy.home.sectionTitle}</h2>
-          {continueLearning ? (
-            <Card as="div" className="homeContinueCard" padding="none">
-              <p className="homeContinuePath">
-                {continueLearning.pathTitle} / {continueLearning.moduleTitle}
-              </p>
-              <p className="homeContinueSection">{continueLearning.sectionTitle}</p>
-              <Link className={continueCtaClassName} href={`/learn/${continueLearning.sectionId}`}>
-                {continueLearning.source === 'resume' ? microcopy.home.resumeSection : microcopy.home.startLearning}
-              </Link>
-            </Card>
-          ) : startLearningCandidate ? (
-            <Card as="div" className="homeContinueCard homeOnboardingCard" padding="none">
-              <p className="homeContinuePath">
-                {startLearningCandidate.pathTitle} / {startLearningCandidate.moduleTitle}
-              </p>
-              <p className="homeContinueSection homeOnboardingTitle">
-                {startLearningCandidate.sectionTitle}
-              </p>
-              <p className="homeContinueMuted homeOnboardingHint">{microcopy.home.onboardingHint}</p>
-              <Link className={continueCtaClassName} href={`/learn/${startLearningCandidate.sectionId}`}>
-                {microcopy.home.onboardingCta}
-              </Link>
-            </Card>
-          ) : (
-            <InlineNotice className="homeContinueMuted" message={microcopy.home.fallback} />
-          )}
-        </section>
-      ) : null}
+      <Stack gap="lg" className="homeStack">
+        <Section as="div" spacing="sm" className="homeSection homeSection--hero">
+          <HomeHero authenticated={sessionProfile.authenticated} />
+        </Section>
+        <Section as="div" spacing="sm" className="homeSection homeSection--featured">
+          <FeaturedCourses courses={featuredPaths} unavailable={featuredUnavailable} />
+        </Section>
+        {sessionProfile.authenticated ? (
+          <Section as="section" spacing="sm" className="homeSection homeCard homePersonalizedStrip">
+            <HomePersonalizedStrip continueLearning={continueLearning} startLearningCandidate={startLearningCandidate} />
+          </Section>
+        ) : null}
+      </Stack>
     </Container>
   );
 }

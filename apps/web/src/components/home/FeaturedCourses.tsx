@@ -24,15 +24,15 @@ export function FeaturedCourses({ courses, unavailable }: FeaturedCoursesProps) 
 
   return (
     <section className="homeFeatured">
-      <div className="homeFeaturedHeader">
-        <div>
-          <h2>{microcopy.home.featured.title}</h2>
-          <p className="pageDescription">{microcopy.home.featured.subtitle}</p>
+      <header className="homeFeaturedHeader homeSectionHeader">
+        <div className="homeSectionHeading">
+          <h2 className="homeSectionTitle">{microcopy.home.featured.title}</h2>
+          <p className="pageDescription homeSectionDescription">{microcopy.home.featured.subtitle}</p>
         </div>
         <Link className={viewAllClassName} href="/courses">
           {microcopy.home.featured.viewAll}
         </Link>
-      </div>
+      </header>
       {unavailable ? (
         <InlineNotice className="homeContinueMuted" message={microcopy.home.featured.unavailable} />
       ) : courses.length === 0 ? (

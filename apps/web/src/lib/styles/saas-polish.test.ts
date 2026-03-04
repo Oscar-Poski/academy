@@ -42,6 +42,12 @@ function getMediaBlock(query: string): string {
 describe('saas polish styles', () => {
   it('declares landing and catalog polish selectors', () => {
     expect(globalsCss).toContain('.uiCard--interactive');
+    expect(globalsCss).toContain('.homeSection');
+    expect(globalsCss).toContain('.homeSectionHeader');
+    expect(globalsCss).toContain('.homeSectionTitle');
+    expect(globalsCss).toContain('.homeSectionDescription');
+    expect(globalsCss).toContain('.homeCard');
+    expect(globalsCss).toContain('.homePersonalizedStrip');
     expect(globalsCss).toContain('.homeHero');
     expect(globalsCss).toContain('.homeHeroTitleAccent');
     expect(globalsCss).toContain('.homeHeroSupportList');
