@@ -87,6 +87,12 @@ describe('saas polish styles', () => {
 
     const authAction = getRuleBlock('.appAuthAction:hover');
     expect(authAction).toContain('transform:');
+
+    const pageActionLink = getRuleBlock('.pageActionLink');
+    expect(pageActionLink).toContain('transition:');
+
+    const catalogAuthPromptLink = getRuleBlock('.catalogAuthPromptLink');
+    expect(catalogAuthPromptLink).toContain('transition:');
   });
 
   it('keeps reduced-motion and compact-breakpoint contracts', () => {
@@ -95,6 +101,14 @@ describe('saas polish styles', () => {
     expect(reducedMotion).toContain('.homeFeaturedCard');
     expect(reducedMotion).toContain('.coursesCard');
     expect(reducedMotion).toContain('.catalogModuleCard');
+    expect(reducedMotion).toContain('.pageActionLink');
+    expect(reducedMotion).toContain('.catalogAuthPromptLink');
+    expect(reducedMotion).toContain('.playerTreeModuleLink');
+    expect(reducedMotion).toContain('.playerTreeSectionLink');
+    expect(reducedMotion).toContain('.playerBreadcrumb a');
+    expect(reducedMotion).toContain('.playerCompleteBtn');
+    expect(reducedMotion).toContain('.quizSubmitBtn');
+    expect(reducedMotion).toContain('.quizRetryBtn');
     expect(reducedMotion).toContain('transition: none;');
 
     const compactBlock = getMediaBlock('max-width: 640px');

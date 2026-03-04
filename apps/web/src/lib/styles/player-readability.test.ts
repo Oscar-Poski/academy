@@ -33,6 +33,12 @@ function getMediaBlock(query: string): string {
 }
 
 describe('player readability styles', () => {
+  it('keeps player navigation motion selectors normalized', () => {
+    expect(globalsCss).toContain('.playerTreeModuleLink');
+    expect(globalsCss).toContain('.playerTreeSectionLink');
+    expect(globalsCss).toContain('.playerBreadcrumb a');
+  });
+
   it('declares required player readability selectors', () => {
     expect(globalsCss).toContain('.playerCard');
     expect(globalsCss).toContain('.block');

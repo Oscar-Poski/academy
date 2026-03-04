@@ -211,7 +211,8 @@ body {
   padding: 0.34rem 0.6rem;
   transition:
     background var(--dur-base) var(--ease-standard),
-    border-color var(--dur-base) var(--ease-standard);
+    border-color var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard);
 }
 
 .appNavLink:hover {
@@ -232,6 +233,10 @@ body {
 .appAuthAction {
   text-decoration: none;
   white-space: nowrap;
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard),
+    opacity var(--dur-base) var(--ease-standard);
 }
 
 .appAuthAction:hover {
@@ -660,6 +665,9 @@ main {
   color: var(--color-link);
   text-decoration: none;
   font-weight: var(--font-weight-medium);
+  transition:
+    color var(--dur-base) var(--ease-standard),
+    text-decoration-color var(--dur-base) var(--ease-standard);
 }
 
 .pageActionLink.isDisabled {
@@ -1195,9 +1203,17 @@ main {
   .uiButton,
   .appAuthAction,
   .appNavLink,
+  .pageActionLink,
+  .catalogAuthPromptLink,
   .homeContinueLink,
   .catalogPrimaryCta,
-  .playerNavBtn {
+  .playerNavBtn,
+  .quizSubmitBtn,
+  .quizRetryBtn,
+  .playerTreeModuleLink,
+  .playerTreeSectionLink,
+  .playerBreadcrumb a,
+  .playerCompleteBtn {
     transition: none;
   }
 
@@ -1299,6 +1315,12 @@ main {
 .catalogPrimaryCta {
   text-decoration: none;
   white-space: nowrap;
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    background var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard);
 }
 
 .catalogPrimaryCta.isDisabled {
@@ -1320,6 +1342,9 @@ main {
   color: var(--color-link);
   text-decoration: none;
   font-weight: var(--font-weight-medium);
+  transition:
+    color var(--dur-base) var(--ease-standard),
+    text-decoration-color var(--dur-base) var(--ease-standard);
 }
 
 .catalogAuthPromptLink:hover {
@@ -1597,6 +1622,9 @@ main {
   color: color-mix(in srgb, var(--color-link) 92%, white);
   text-decoration: none;
   font-weight: 600;
+  transition:
+    color var(--dur-base) var(--ease-standard),
+    text-decoration-color var(--dur-base) var(--ease-standard);
 }
 
 .playerTreeModuleLink.isLocked {
@@ -1627,6 +1655,10 @@ main {
   text-decoration: none;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
+  transition:
+    background var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard);
 }
 
 .playerTreeSectionLink:hover {
@@ -1713,6 +1745,9 @@ main {
 .playerBreadcrumb a {
   color: var(--color-link);
   text-decoration: none;
+  transition:
+    color var(--dur-base) var(--ease-standard),
+    text-decoration-color var(--dur-base) var(--ease-standard);
 }
 
 .playerBreadcrumb a:hover {
@@ -1815,6 +1850,12 @@ main {
 .playerCompleteBtn {
   border-color: color-mix(in srgb, var(--color-status-success-border) 85%, transparent);
   background: var(--color-status-success-bg);
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    background var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard);
 }
 
 .playerCompleteBtn:hover {
