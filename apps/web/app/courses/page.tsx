@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { getPath, getPaths } from '@/src/lib/api-clients/content.client';
-import { actionClassName, Card, Container } from '@/src/components/ui';
+import { actionClassName, Badge, Card, Container, Section, Stack } from '@/src/components/ui';
 import type { PathListItem } from '@/src/lib/content-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { InlineNotice } from '@/src/components/state';
@@ -69,45 +69,53 @@ export default async function CoursesPage() {
 
   return (
     <Container as="main" size="content" className="coursesShell">
-      <Card as="header" className="pageHeader playerCard catalogHero" padding="none">
-        <p className="pageEyebrow">{microcopy.nav.courses}</p>
-        <h1>{microcopy.courses.title}</h1>
-        <p className="pageDescription">{microcopy.courses.subtitle}</p>
-      </Card>
+      <Stack gap="lg" className="coursesStack">
+        <Section as="section" spacing="sm" className="coursesSection coursesSection--hero">
+          <Card as="header" className="pageHeader playerCard catalogHero" padding="none">
+            <p className="pageEyebrow">{microcopy.nav.courses}</p>
+            <h1>{microcopy.courses.title}</h1>
+            <p className="pageDescription">{microcopy.courses.subtitle}</p>
+          </Card>
+        </Section>
 
-      {unavailable ? (
-        <InlineNotice className="coursesMutedNotice" message={microcopy.courses.unavailable} />
-      ) : cards.length === 0 ? (
-        <InlineNotice className="coursesMutedNotice" message={microcopy.courses.empty} />
-      ) : (
-        <section className="coursesGrid" aria-label={microcopy.courses.title}>
-          {cards.map((card) => (
-            <Card key={card.id} as="article" className="playerCard pageCard coursesCard" padding="md" interactive>
-              <div className="coursesCardHeader">
-                <h2 className="coursesCardTitle">{card.title}</h2>
-              </div>
-              {card.description ? <p className="coursesCardDescription">{card.description}</p> : null}
-              <div className="coursesCardMeta">
-                {card.modulesCount === null || card.sectionsCount === null ? (
-                  <span className="coursesMutedNotice">{microcopy.courses.countUnavailable}</span>
-                ) : (
-                  <>
-                    <span className="progressBadge">
-                      {card.modulesCount} {microcopy.courses.modulesCountLabel}
-                    </span>
-                    <span className="progressBadge">
-                      {card.sectionsCount} {microcopy.courses.sectionsCountLabel}
-                    </span>
-                  </>
-                )}
-              </div>
-              <Link className={openPathClassName} href={`/paths/${card.id}`}>
-                {microcopy.courses.openPath}
-              </Link>
-            </Card>
-          ))}
-        </section>
-      )}
+        <Section as="section" spacing="sm" className="coursesSection coursesSection--grid">
+          {unavailable ? (
+            <InlineNotice className="coursesMutedNotice" message={microcopy.courses.unavailable} />
+          ) : cards.length === 0 ? (
+            <InlineNotice className="coursesMutedNotice" message={microcopy.courses.empty} />
+          ) : (
+            <div className="coursesGrid" aria-label={microcopy.courses.title}>
+              {cards.map((card) => (
+                <Card key={card.id} as="article" className="playerCard pageCard coursesCard" padding="md" interactive>
+                  <header className="coursesCardHeader">
+                    <h2 className="coursesCardTitle">{card.title}</h2>
+                  </header>
+                  <div className="coursesCardBody">
+                    {card.description ? <p className="coursesCardDescription">{card.description}</p> : null}
+                    <div className="coursesCardMeta">
+                      {card.modulesCount === null || card.sectionsCount === null ? (
+                        <span className="coursesMutedNotice">{microcopy.courses.countUnavailable}</span>
+                      ) : (
+                        <>
+                          <Badge tone="info" size="sm" className="progressBadge">
+                            {card.modulesCount} {microcopy.courses.modulesCountLabel}
+                          </Badge>
+                          <Badge tone="info" size="sm" className="progressBadge">
+                            {card.sectionsCount} {microcopy.courses.sectionsCountLabel}
+                          </Badge>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <Link className={openPathClassName} href={`/paths/${card.id}`}>
+                    {microcopy.courses.openPath}
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          )}
+        </Section>
+      </Stack>
     </Container>
   );
 }

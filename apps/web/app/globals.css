@@ -1278,19 +1278,29 @@ main {
 
 .coursesShell {
   display: grid;
+  gap: var(--space-6);
+}
+
+.coursesStack {
   gap: var(--space-5);
+}
+
+.coursesSection {
+  display: grid;
+  gap: var(--space-3);
 }
 
 .coursesGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
   gap: var(--space-5);
 }
 
 .coursesCard {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-3);
-  align-content: start;
+  min-height: 100%;
   transition:
     transform var(--dur-base) var(--ease-standard),
     box-shadow var(--dur-base) var(--ease-standard),
@@ -1322,6 +1332,12 @@ main {
   line-height: var(--line-height-relaxed);
 }
 
+.coursesCardBody {
+  display: grid;
+  gap: var(--space-3);
+  flex: 1;
+}
+
 .coursesCardMeta {
   display: flex;
   flex-wrap: wrap;
@@ -1331,7 +1347,8 @@ main {
 }
 
 .coursesCardCta {
-  justify-self: start;
+  align-self: flex-start;
+  margin-top: auto;
 }
 
 .coursesMutedNotice {

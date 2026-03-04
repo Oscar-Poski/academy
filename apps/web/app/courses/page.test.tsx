@@ -63,8 +63,8 @@ describe('CoursesPage', () => {
     expect(screen.getByRole('heading', { name: 'Cursos disponibles' })).toBeInTheDocument();
     expect(screen.getByText('Explora rutas públicas y entra a la que quieras comenzar.')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Web Foundations' })).toBeInTheDocument();
-    expect(screen.getByText('1 módulos')).toBeInTheDocument();
-    expect(screen.getByText('2 secciones')).toBeInTheDocument();
+    expect(screen.getByText('1 módulos')).toHaveClass('progressBadge');
+    expect(screen.getByText('2 secciones')).toHaveClass('progressBadge');
     expect(screen.getByRole('link', { name: 'Ver ruta' })).toHaveAttribute('href', '/paths/path-1');
   });
 

@@ -49,6 +49,14 @@ describe('catalog IA styles', () => {
     expect(globalsCss).toContain('.catalogSectionActions');
     expect(globalsCss).toContain('.catalogLockReason');
     expect(globalsCss).toContain('.catalogMutedNotice');
+    expect(globalsCss).toContain('.coursesShell');
+    expect(globalsCss).toContain('.coursesStack');
+    expect(globalsCss).toContain('.coursesSection');
+    expect(globalsCss).toContain('.coursesGrid');
+    expect(globalsCss).toContain('.coursesCard');
+    expect(globalsCss).toContain('.coursesCardMeta');
+    expect(globalsCss).toContain('.coursesCardCta');
+    expect(globalsCss).toContain('.progressBadge');
   });
 
   it('includes responsive catalog rules in mobile media block', () => {
@@ -58,6 +66,8 @@ describe('catalog IA styles', () => {
     expect(mediaBlock).toContain('.catalogPrimaryCta');
     expect(mediaBlock).toContain('.catalogSectionRow');
     expect(mediaBlock).toContain('.catalogSectionActions');
+    expect(mediaBlock).toContain('.coursesGrid');
+    expect(mediaBlock).toContain('.coursesCardCta');
   });
 
   it('keeps compact catalog spacing rules in 640px media block', () => {
