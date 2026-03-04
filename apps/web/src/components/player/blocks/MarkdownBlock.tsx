@@ -1,3 +1,4 @@
+import { Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type MarkdownBlockProps = {
@@ -15,12 +16,16 @@ function isMarkdownContent(value: unknown): value is { markdown: string } {
 
 export function MarkdownBlock({ contentJson }: MarkdownBlockProps) {
   if (!isMarkdownContent(contentJson)) {
-    return <div className="block blockInvalid">{microcopy.player.blocks.invalidMarkdownPayload}</div>;
+    return (
+      <Card as="div" className="block blockInvalid" padding="none">
+        {microcopy.player.blocks.invalidMarkdownPayload}
+      </Card>
+    );
   }
 
   return (
-    <section className="block blockMarkdown playerBlockProse">
+    <Card as="section" className="block blockMarkdown playerBlockProse" padding="none">
       <pre className="blockMarkdownText">{contentJson.markdown}</pre>
-    </section>
+    </Card>
   );
 }

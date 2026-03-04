@@ -5,7 +5,7 @@ import { FeaturedCourses, HomeHero } from '@/src/components/home';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { getStartLearningCandidate } from '@/src/lib/onboarding/get-start-learning-candidate.server';
 import { InlineNotice } from '@/src/components/state';
-import { actionClassName, Container } from '@/src/components/ui';
+import { actionClassName, Card, Container } from '@/src/components/ui';
 import Link from 'next/link';
 import React from 'react';
 
@@ -43,7 +43,7 @@ export default async function HomePage() {
         <section className="homeCard homePersonalizedStrip">
           <h2>{microcopy.home.sectionTitle}</h2>
           {continueLearning ? (
-            <div className="homeContinueCard">
+            <Card as="div" className="homeContinueCard" padding="none">
               <p className="homeContinuePath">
                 {continueLearning.pathTitle} / {continueLearning.moduleTitle}
               </p>
@@ -51,9 +51,9 @@ export default async function HomePage() {
               <Link className={continueCtaClassName} href={`/learn/${continueLearning.sectionId}`}>
                 {continueLearning.source === 'resume' ? microcopy.home.resumeSection : microcopy.home.startLearning}
               </Link>
-            </div>
+            </Card>
           ) : startLearningCandidate ? (
-            <div className="homeContinueCard homeOnboardingCard">
+            <Card as="div" className="homeContinueCard homeOnboardingCard" padding="none">
               <p className="homeContinuePath">
                 {startLearningCandidate.pathTitle} / {startLearningCandidate.moduleTitle}
               </p>
@@ -64,7 +64,7 @@ export default async function HomePage() {
               <Link className={continueCtaClassName} href={`/learn/${startLearningCandidate.sectionId}`}>
                 {microcopy.home.onboardingCta}
               </Link>
-            </div>
+            </Card>
           ) : (
             <InlineNotice className="homeContinueMuted" message={microcopy.home.fallback} />
           )}

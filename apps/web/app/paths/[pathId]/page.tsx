@@ -7,7 +7,7 @@ import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { PathModuleCard } from '@/src/components/catalog';
 import { InlineNotice } from '@/src/components/state';
-import { Container, Stack } from '@/src/components/ui';
+import { Card, Container, Stack } from '@/src/components/ui';
 
 type PathPageProps = {
   params: {
@@ -29,7 +29,7 @@ export default async function PathPage({ params }: PathPageProps) {
 
     return (
       <Container as="main" size="content">
-        <header className="pageHeader playerCard catalogHero">
+        <Card as="header" className="pageHeader playerCard catalogHero" padding="none">
           <p className="pageEyebrow">{microcopy.catalog.pathLabel}</p>
           <h1>{path.title}</h1>
           {path.description ? <p className="pageDescription">{path.description}</p> : null}
@@ -56,7 +56,7 @@ export default async function PathPage({ params }: PathPageProps) {
               </p>
             )}
           </div>
-        </header>
+        </Card>
 
         <Stack className="catalogStack" gap="md">
           {path.modules.map((module) => (

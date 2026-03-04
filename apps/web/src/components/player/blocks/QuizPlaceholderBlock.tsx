@@ -1,3 +1,4 @@
+import { Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type QuizPlaceholderBlockProps = {
@@ -17,9 +18,9 @@ export function QuizPlaceholderBlock({ contentJson }: QuizPlaceholderBlockProps)
   const prompt = getPrompt(contentJson);
 
   return (
-    <section className="block blockQuizPlaceholder">
+    <Card as="section" className="block blockQuizPlaceholder" padding="none">
       <div className="blockQuizBadge">{microcopy.player.blocks.quizPlaceholderBadge}</div>
       <p className="blockQuizText">{prompt ?? microcopy.player.blocks.quizPlaceholderText}</p>
-    </section>
+    </Card>
   );
 }

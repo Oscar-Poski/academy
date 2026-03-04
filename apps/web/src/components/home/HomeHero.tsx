@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { actionClassName } from '@/src/components/ui';
+import { actionClassName, Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type HomeHeroProps = {
@@ -20,7 +20,7 @@ export function HomeHero({ authenticated }: HomeHeroProps) {
   });
 
   return (
-    <section className="playerCard homeHero" aria-label={microcopy.home.hero.title}>
+    <Card as="section" className="playerCard homeHero" padding="none" aria-label={microcopy.home.hero.title}>
       <div className="homeHeroInner">
         <p className="homeHeroEyebrow">{microcopy.home.hero.eyebrow}</p>
         <h1 className="homeHeroTitle">{microcopy.home.hero.title}</h1>
@@ -34,6 +34,6 @@ export function HomeHero({ authenticated }: HomeHeroProps) {
           </Link>
         </div>
       </div>
-    </section>
+    </Card>
   );
 }

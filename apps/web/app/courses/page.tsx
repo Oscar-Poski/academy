@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { getPath, getPaths } from '@/src/lib/api-clients/content.client';
-import { actionClassName, Container } from '@/src/components/ui';
+import { actionClassName, Card, Container } from '@/src/components/ui';
 import type { PathListItem } from '@/src/lib/content-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { InlineNotice } from '@/src/components/state';
@@ -69,11 +69,11 @@ export default async function CoursesPage() {
 
   return (
     <Container as="main" size="content" className="coursesShell">
-      <header className="pageHeader playerCard catalogHero">
+      <Card as="header" className="pageHeader playerCard catalogHero" padding="none">
         <p className="pageEyebrow">{microcopy.nav.courses}</p>
         <h1>{microcopy.courses.title}</h1>
         <p className="pageDescription">{microcopy.courses.subtitle}</p>
-      </header>
+      </Card>
 
       {unavailable ? (
         <InlineNotice className="coursesMutedNotice" message={microcopy.courses.unavailable} />
@@ -82,7 +82,7 @@ export default async function CoursesPage() {
       ) : (
         <section className="coursesGrid" aria-label={microcopy.courses.title}>
           {cards.map((card) => (
-            <article key={card.id} className="playerCard pageCard coursesCard">
+            <Card key={card.id} as="article" className="playerCard pageCard coursesCard" padding="md" interactive>
               <div className="coursesCardHeader">
                 <h2 className="coursesCardTitle">{card.title}</h2>
               </div>
@@ -104,7 +104,7 @@ export default async function CoursesPage() {
               <Link className={openPathClassName} href={`/paths/${card.id}`}>
                 {microcopy.courses.openPath}
               </Link>
-            </article>
+            </Card>
           ))}
         </section>
       )}

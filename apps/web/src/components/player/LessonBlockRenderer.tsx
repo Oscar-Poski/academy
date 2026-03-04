@@ -1,4 +1,5 @@
 import type { SectionLessonBlock } from '@/src/lib/content-types';
+import { Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { CalloutBlock } from './blocks/CalloutBlock';
 import { ChecklistBlock } from './blocks/ChecklistBlock';
@@ -23,9 +24,9 @@ export function LessonBlockRenderer({ block }: LessonBlockRendererProps) {
       return null;
     default:
       return (
-        <div className="block blockUnknown">
+        <Card as="div" className="block blockUnknown" padding="none">
           {microcopy.player.blocks.unsupportedType} <code>{String((block as { blockType?: unknown }).blockType)}</code>
-        </div>
+        </Card>
       );
   }
 }

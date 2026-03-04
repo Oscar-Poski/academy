@@ -1,3 +1,4 @@
+import { Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type ChecklistBlockProps = {
@@ -16,11 +17,15 @@ function isChecklistContent(value: unknown): value is { items: string[] } {
 
 export function ChecklistBlock({ contentJson }: ChecklistBlockProps) {
   if (!isChecklistContent(contentJson)) {
-    return <div className="block blockInvalid">{microcopy.player.blocks.invalidChecklistPayload}</div>;
+    return (
+      <Card as="div" className="block blockInvalid" padding="none">
+        {microcopy.player.blocks.invalidChecklistPayload}
+      </Card>
+    );
   }
 
   return (
-    <section className="block blockChecklist">
+    <Card as="section" className="block blockChecklist" padding="none">
       <ul className="blockChecklistList">
         {contentJson.items.map((item) => (
           <li key={item} className="blockChecklistItem">
@@ -31,6 +36,6 @@ export function ChecklistBlock({ contentJson }: ChecklistBlockProps) {
           </li>
         ))}
       </ul>
-    </section>
+    </Card>
   );
 }

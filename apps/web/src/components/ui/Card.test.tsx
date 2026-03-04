@@ -24,4 +24,16 @@ describe('Card', () => {
     expect(card).toHaveClass('uiCard--outlined');
     expect(card).toHaveClass('uiCard--pad-lg');
   });
+
+  it('supports interactive class and polymorphic rendering', () => {
+    render(
+      <Card as="section" data-testid="card" interactive>
+        Content
+      </Card>
+    );
+    const card = screen.getByTestId('card');
+
+    expect(card.tagName).toBe('SECTION');
+    expect(card).toHaveClass('uiCard--interactive');
+  });
 });

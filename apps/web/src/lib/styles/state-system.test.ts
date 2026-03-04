@@ -34,6 +34,7 @@ function getMediaBlock(query: string): string {
 
 describe('state system styles', () => {
   it('declares required state selectors', () => {
+    expect(globalsCss).toContain('.uiCard');
     expect(globalsCss).toContain('.stateCard');
     expect(globalsCss).toContain('.stateCard--error');
     expect(globalsCss).toContain('.stateCard--empty');

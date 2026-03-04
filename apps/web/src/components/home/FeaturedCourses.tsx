@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { actionClassName } from '@/src/components/ui';
+import { actionClassName, Card } from '@/src/components/ui';
 import type { PathListItem } from '@/src/lib/content-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { InlineNotice } from '@/src/components/state';
@@ -40,7 +40,13 @@ export function FeaturedCourses({ courses, unavailable }: FeaturedCoursesProps) 
       ) : (
         <div className="homeFeaturedGrid" aria-label={microcopy.home.featured.title}>
           {courses.map((course) => (
-            <article key={course.id} className="playerCard pageCard homeFeaturedCard">
+            <Card
+              key={course.id}
+              as="article"
+              className="playerCard pageCard homeFeaturedCard"
+              padding="md"
+              interactive
+            >
               <h3 className="homeFeaturedCardTitle">{course.title}</h3>
               {course.description ? (
                 <p className="homeFeaturedMeta">{course.description}</p>
@@ -50,7 +56,7 @@ export function FeaturedCourses({ courses, unavailable }: FeaturedCoursesProps) 
               <Link className={pathCtaClassName} href={`/paths/${course.id}`}>
                 {microcopy.home.featured.viewPath}
               </Link>
-            </article>
+            </Card>
           ))}
         </div>
       )}

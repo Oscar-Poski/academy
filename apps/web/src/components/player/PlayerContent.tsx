@@ -13,6 +13,7 @@ import {
   getSectionStatusLabel
 } from '@/src/lib/player/presentation';
 import { InlineNotice } from '@/src/components/state';
+import { Card } from '@/src/components/ui';
 import { LessonBlockRenderer } from './LessonBlockRenderer';
 import { PlayerActionRail } from './PlayerActionRail';
 import { PlayerLifecycleAnalytics } from './PlayerLifecycleAnalytics';
@@ -72,7 +73,7 @@ export function PlayerContent({
           isCompleted={isCompleted}
         />
       ) : null}
-      <header className="playerHeader playerCard">
+      <Card as="header" className="playerHeader playerCard" padding="none">
         <nav className="playerBreadcrumb" aria-label="Breadcrumb">
           <ol className="playerBreadcrumbList">
             <li className="playerBreadcrumbItem">
@@ -101,7 +102,7 @@ export function PlayerContent({
           <span className="playerMetaChip">{sectionMeta.lessonBlockLabel}</span>
           {sectionMeta.durationLabel ? <span className="playerMetaChip">{sectionMeta.durationLabel}</span> : null}
         </div>
-      </header>
+      </Card>
 
       <div className="playerReadFrame">
         <div className="playerReadingColumn">

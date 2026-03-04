@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { actionClassName } from '@/src/components/ui';
+import { actionClassName, Card } from '@/src/components/ui';
 import type { PathTreeModule } from '@/src/lib/content-types';
 import type { PathModuleProgressItem } from '@/src/lib/progress-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
@@ -34,7 +34,7 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
   });
 
   return (
-    <section className="playerCard pageCard catalogModuleCard">
+    <Card as="section" className="playerCard pageCard catalogModuleCard" padding="md" interactive>
       <header className="catalogModuleHeader">
         <div>
           <h2>{module.title}</h2>
@@ -103,6 +103,6 @@ export function PathModuleCard({ module, moduleProgress, isAuthenticated }: Path
           })}
         </ul>
       )}
-    </section>
+    </Card>
   );
 }

@@ -62,6 +62,9 @@ describe('design token baseline', () => {
     const quizQuestionCard = getRuleBlock('.quizQuestionCard');
     expect(quizQuestionCard).toContain('var(--border)');
     expect(quizQuestionCard).toContain('var(--color-surface-2)');
+
+    const interactiveCard = getRuleBlock('.uiCard--interactive');
+    expect(interactiveCard).toContain('var(--dur-base)');
   });
 
   it('has no unresolved border token usage', () => {

@@ -34,6 +34,8 @@ function getMediaBlock(query: string): string {
 
 describe('player readability styles', () => {
   it('declares required player readability selectors', () => {
+    expect(globalsCss).toContain('.playerCard');
+    expect(globalsCss).toContain('.block');
     expect(globalsCss).toContain('.playerReadFrame');
     expect(globalsCss).toContain('.playerReadingColumn');
     expect(globalsCss).toContain('.playerSectionMetaList');

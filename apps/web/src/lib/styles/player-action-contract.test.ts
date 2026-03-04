@@ -13,6 +13,7 @@ describe('player action contract styles', () => {
   });
 
   it('preserves completion blocked and error surfaces', () => {
+    expect(globalsCss).toContain('.playerCard');
     expect(globalsCss).toContain('.completionBlockedCard');
     expect(globalsCss).toContain('.completionBlockedTitle');
     expect(globalsCss).toContain('.completionBlockedReasons');

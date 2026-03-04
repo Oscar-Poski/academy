@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import type { QuizDeliveryQuestion } from '@/src/lib/quiz-types';
 
@@ -11,7 +12,7 @@ type QuizQuestionCardProps = {
 
 export function QuizQuestionCard({ question, value, disabled = false, onChange }: QuizQuestionCardProps) {
   return (
-    <article className="quizQuestionCard">
+    <Card as="article" className="quizQuestionCard" padding="none">
       <header className="quizQuestionHeader">
         <h3 className="quizQuestionPrompt">{question.prompt}</h3>
         <span className="quizQuestionPoints">{question.points} {microcopy.quiz.pointsSuffix}</span>
@@ -45,6 +46,6 @@ export function QuizQuestionCard({ question, value, disabled = false, onChange }
           />
         </label>
       )}
-    </article>
+    </Card>
   );
 }

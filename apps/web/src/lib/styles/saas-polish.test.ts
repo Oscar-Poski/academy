@@ -41,6 +41,7 @@ function getMediaBlock(query: string): string {
 
 describe('saas polish styles', () => {
   it('declares landing and catalog polish selectors', () => {
+    expect(globalsCss).toContain('.uiCard--interactive');
     expect(globalsCss).toContain('.homeHero');
     expect(globalsCss).toContain('.homeHeroActions');
     expect(globalsCss).toContain('.homeFeaturedCard');
@@ -49,6 +50,10 @@ describe('saas polish styles', () => {
   });
 
   it('includes subtle motion hooks on cards and actions', () => {
+    const interactiveCard = getRuleBlock('.uiCard--interactive');
+    expect(interactiveCard).toContain('transition:');
+    expect(globalsCss).toContain('.uiCard--interactive:hover');
+
     const featuredCard = getRuleBlock('.homeFeaturedCard');
     expect(featuredCard).toContain('transition:');
     expect(globalsCss).toContain('.homeFeaturedCard:hover');
@@ -67,6 +72,7 @@ describe('saas polish styles', () => {
 
   it('keeps reduced-motion and compact-breakpoint contracts', () => {
     const reducedMotion = getMediaBlock('prefers-reduced-motion: reduce');
+    expect(reducedMotion).toContain('.uiCard--interactive');
     expect(reducedMotion).toContain('.homeFeaturedCard');
     expect(reducedMotion).toContain('.coursesCard');
     expect(reducedMotion).toContain('.catalogModuleCard');

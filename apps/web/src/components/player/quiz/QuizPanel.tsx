@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useMemo, useState } from 'react';
-import { actionClassName, Alert } from '@/src/components/ui';
+import { actionClassName, Alert, Card } from '@/src/components/ui';
 import { submitQuizAttempt } from '@/src/lib/api-clients/quiz.browser';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { getErrorMessageFromUnknown } from '@/src/lib/errors/error-messages';
@@ -91,10 +91,12 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
   }
 
   return (
-    <section
+    <Card
+      as="section"
       id="section-quiz-panel"
       tabIndex={-1}
       className="playerCard quizPanel"
+      padding="none"
       aria-label={microcopy.quiz.panelTitle}
     >
       <header className="quizPanelHeader">
@@ -160,6 +162,6 @@ export function QuizPanel({ sectionId, quizDelivery }: QuizPanelProps) {
           </ul>
         </section>
       ) : null}
-    </section>
+    </Card>
   );
 }

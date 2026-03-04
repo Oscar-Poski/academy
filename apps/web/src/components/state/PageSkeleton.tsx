@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container } from '@/src/components/ui';
+import { Card, Container } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type PageSkeletonVariant = 'home' | 'catalog' | 'learn' | 'auth';
@@ -20,20 +20,20 @@ export function PageSkeleton({ variant }: PageSkeletonProps) {
       <p className="stateSrOnly" role="status" aria-live="polite">
         {microcopy.state.loadingPage}
       </p>
-      <div className="stateSkeletonBlock stateSkeletonPulse" aria-hidden="true">
+      <Card as="div" className="stateSkeletonBlock stateSkeletonPulse" padding="none" aria-hidden="true">
         <div className="stateSkeletonLine stateSkeletonLine--lg" />
         <div className="stateSkeletonLine stateSkeletonLine--md" />
-      </div>
-      <div className="stateSkeletonBlock stateSkeletonPulse" aria-hidden="true">
+      </Card>
+      <Card as="div" className="stateSkeletonBlock stateSkeletonPulse" padding="none" aria-hidden="true">
         <div className="stateSkeletonLine stateSkeletonLine--md" />
         <div className="stateSkeletonLine stateSkeletonLine--sm" />
         <div className="stateSkeletonLine stateSkeletonLine--sm" />
-      </div>
+      </Card>
       {variant !== 'auth' ? (
-        <div className="stateSkeletonBlock stateSkeletonPulse" aria-hidden="true">
+        <Card as="div" className="stateSkeletonBlock stateSkeletonPulse" padding="none" aria-hidden="true">
           <div className="stateSkeletonLine stateSkeletonLine--md" />
           <div className="stateSkeletonLine stateSkeletonLine--sm" />
-        </div>
+        </Card>
       ) : null}
     </Container>
   );

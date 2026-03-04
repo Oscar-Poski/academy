@@ -8,6 +8,7 @@ type CardOwnProps<As extends React.ElementType> = {
   as?: As;
   variant?: CardVariant;
   padding?: CardPadding;
+  interactive?: boolean;
   className?: string;
 };
 
@@ -18,6 +19,7 @@ export function Card<As extends React.ElementType = 'div'>({
   as,
   variant = 'surface',
   padding = 'md',
+  interactive = false,
   className,
   ...rest
 }: CardProps<As>) {
@@ -25,7 +27,13 @@ export function Card<As extends React.ElementType = 'div'>({
 
   return (
     <Component
-      className={cn('uiCard', `uiCard--${variant}`, `uiCard--pad-${padding}`, className)}
+      className={cn(
+        'uiCard',
+        `uiCard--${variant}`,
+        `uiCard--pad-${padding}`,
+        interactive && 'uiCard--interactive',
+        className
+      )}
       {...rest}
     />
   );

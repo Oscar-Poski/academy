@@ -1,3 +1,4 @@
+import { Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type CodeBlockProps = {
@@ -15,18 +16,22 @@ function isCodeContent(value: unknown): value is { snippet: string; language?: s
 
 export function CodeBlock({ contentJson }: CodeBlockProps) {
   if (!isCodeContent(contentJson)) {
-    return <div className="block blockInvalid">{microcopy.player.blocks.invalidCodePayload}</div>;
+    return (
+      <Card as="div" className="block blockInvalid" padding="none">
+        {microcopy.player.blocks.invalidCodePayload}
+      </Card>
+    );
   }
 
   const language =
     'language' in contentJson && typeof contentJson.language === 'string' ? contentJson.language : 'text';
 
   return (
-    <section className="block blockCode">
+    <Card as="section" className="block blockCode" padding="none">
       <div className="blockCodeHeader">{language}</div>
       <pre className="blockCodePre">
         <code>{contentJson.snippet}</code>
       </pre>
-    </section>
+    </Card>
   );
 }

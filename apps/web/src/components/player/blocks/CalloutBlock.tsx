@@ -1,3 +1,4 @@
+import { Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 
 type CalloutBlockProps = {
@@ -15,16 +16,20 @@ function isCalloutContent(value: unknown): value is { text: string; level?: stri
 
 export function CalloutBlock({ contentJson }: CalloutBlockProps) {
   if (!isCalloutContent(contentJson)) {
-    return <div className="block blockInvalid">{microcopy.player.blocks.invalidCalloutPayload}</div>;
+    return (
+      <Card as="div" className="block blockInvalid" padding="none">
+        {microcopy.player.blocks.invalidCalloutPayload}
+      </Card>
+    );
   }
 
   const level =
     'level' in contentJson && typeof contentJson.level === 'string' ? contentJson.level : 'info';
 
   return (
-    <section className={`block blockCallout blockCallout-${level}`}>
+    <Card as="section" className={`block blockCallout blockCallout-${level}`} padding="none">
       <div className="blockCalloutLabel">{level}</div>
       <p className="blockCalloutText">{contentJson.text}</p>
-    </section>
+    </Card>
   );
 }

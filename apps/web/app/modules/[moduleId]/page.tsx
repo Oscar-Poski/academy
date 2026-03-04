@@ -8,7 +8,7 @@ import type { ModuleSectionProgressItem } from '@/src/lib/progress-types';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { ModuleSectionRow } from '@/src/components/catalog';
 import { InlineNotice } from '@/src/components/state';
-import { Container } from '@/src/components/ui';
+import { Card, Container } from '@/src/components/ui';
 
 type ModulePageProps = {
   params: {
@@ -30,7 +30,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
 
     return (
       <Container as="main" size="content">
-        <header className="pageHeader playerCard catalogHero">
+        <Card as="header" className="pageHeader playerCard catalogHero" padding="none">
           <p className="pageEyebrow">{microcopy.catalog.moduleLabel}</p>
           <h1>{module.title}</h1>
           {module.description ? <p className="pageDescription">{module.description}</p> : null}
@@ -66,9 +66,9 @@ export default async function ModulePage({ params }: ModulePageProps) {
               </p>
             )}
           </div>
-        </header>
+        </Card>
 
-        <section className="playerCard pageCard catalogModuleBody">
+        <Card as="section" className="playerCard pageCard catalogModuleBody" padding="md">
           <h2>{microcopy.catalog.sectionsLabel}</h2>
           {module.sections.length === 0 ? (
             <InlineNotice className="catalogMutedNotice" message={microcopy.catalog.emptyModuleSections} />
@@ -91,7 +91,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
               })}
             </ul>
           )}
-        </section>
+        </Card>
       </Container>
     );
   } catch (error) {

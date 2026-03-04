@@ -1,6 +1,7 @@
 import React from 'react';
 import type { SectionNavigation } from '@/src/lib/content-types';
 import type { SectionProgress } from '@/src/lib/progress-types';
+import { Card } from '@/src/components/ui';
 import { microcopy } from '@/src/lib/copy/microcopy';
 import { PlayerCompleteButton } from './PlayerCompleteButton';
 import { PlayerNavButton } from './PlayerNavButton';
@@ -33,7 +34,7 @@ export function PlayerActionRail({
     (navigation.prevSectionLock?.isLocked ? prevLockReason : null);
 
   return (
-    <footer className="playerFooter playerActionRail playerCard">
+    <Card as="footer" className="playerFooter playerActionRail playerCard" padding="none">
       <div className="playerActionRailInner">
         <PlayerNavButton
           direction="prev"
@@ -64,6 +65,6 @@ export function PlayerActionRail({
         />
       </div>
       {footerLockReason ? <p className="playerNavLockReason playerActionRailLockReason">{footerLockReason}</p> : null}
-    </footer>
+    </Card>
   );
 }

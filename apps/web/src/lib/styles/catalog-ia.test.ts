@@ -34,6 +34,8 @@ function getMediaBlock(query: string): string {
 
 describe('catalog IA styles', () => {
   it('declares required catalog selectors', () => {
+    expect(globalsCss).toContain('.playerCard');
+    expect(globalsCss).toContain('.pageCard');
     expect(globalsCss).toContain('.catalogHero');
     expect(globalsCss).toContain('.catalogHeroMeta');
     expect(globalsCss).toContain('.catalogStack');
