@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import { AppHeader } from '@/src/components/auth/AppHeader';
 import { AppFooter } from '@/src/components/shell/AppFooter';
 import { getSessionProfile } from '@/src/lib/auth/get-session-profile.server';
@@ -10,6 +11,18 @@ export const metadata: Metadata = {
   description: 'Plataforma de aprendizaje estilo HTB'
 };
 
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-ui',
+  display: 'swap'
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono-ui',
+  display: 'swap'
+});
+
 export default async function RootLayout({
   children
 }: Readonly<{
@@ -17,7 +30,7 @@ export default async function RootLayout({
 }>) {
   const sessionProfile = await getSessionProfile();
   return (
-    <html lang="es-MX">
+    <html lang="es-MX" className={`${inter.variable} ${jetBrainsMono.variable}`}>
       <body>
         <a href="#app-main-content" className="skipLink">
           Ir al contenido

@@ -13,8 +13,8 @@ function getRuleBlock(selector: string): string {
 
 describe('design token baseline', () => {
   it('declares required semantic tokens and backward-compat aliases', () => {
-    expect(globalsCss).toContain('--color-accent-300: #fde047;');
-    expect(globalsCss).toContain('--color-accent-400: #facc15;');
+    expect(globalsCss).toContain('--color-accent-300: #f9d14f;');
+    expect(globalsCss).toContain('--color-accent-400: #f5c518;');
     expect(globalsCss).toContain('--color-bg-canvas:');
     expect(globalsCss).toContain('--color-surface-1:');
     expect(globalsCss).toContain('--color-surface-2:');
@@ -27,6 +27,16 @@ describe('design token baseline', () => {
     expect(globalsCss).toContain('--color-status-warning-bg:');
     expect(globalsCss).toContain('--color-status-danger-bg:');
     expect(globalsCss).toContain('--border:');
+    expect(globalsCss).toContain('--accent:');
+    expect(globalsCss).toContain('--accent-soft:');
+  });
+
+  it('maps typography tokens to next/font CSS variables', () => {
+    expect(globalsCss).toContain("--font-display: var(--font-ui), 'Inter', 'Segoe UI', sans-serif;");
+    expect(globalsCss).toContain("--font-body: var(--font-ui), 'Inter', 'Segoe UI', sans-serif;");
+    expect(globalsCss).toContain(
+      "--font-mono: var(--font-mono-ui), 'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;"
+    );
   });
 
   it('uses CSS vars in core shell selectors', () => {

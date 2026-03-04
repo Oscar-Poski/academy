@@ -12,6 +12,11 @@ vi.mock('@/src/lib/auth/get-session-profile.server', () => ({
   getSessionProfile
 }));
 
+vi.mock('next/font/google', () => ({
+  Inter: () => ({ variable: 'mocked-inter-font' }),
+  JetBrains_Mono: () => ({ variable: 'mocked-mono-font' })
+}));
+
 vi.mock('@/src/components/auth/AppHeader', () => ({
   AppHeader: ({ sessionProfile }: { sessionProfile: unknown }) => {
     appHeaderMock(sessionProfile);
