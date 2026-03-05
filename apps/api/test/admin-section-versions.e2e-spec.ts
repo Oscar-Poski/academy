@@ -112,6 +112,81 @@ describe('Admin Section Versions API (e2e)', () => {
     }
   });
 
+  it('GET /v1/admin/content/sections returns section catalog metadata', async () => {
+    const fixture = await createSectionWithVersions();
+
+    const response = await request(app.getHttpServer())
+      .get('/v1/admin/content/sections')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBe(true);
+    const row = response.body.find(
+      (item: { sectionId: string; sectionSlug: string }) =>
+        item.sectionId === fixture.section.id && item.sectionSlug === fixture.section.slug
+    );
+    expect(row).toBeTruthy();
+    expect(row).toMatchObject({
+      pathSlug: 'web-pentest-path',
+      moduleSlug: 'http-basics-module',
+      sectionSlug: fixture.section.slug
+    });
+  });
+
+  it('GET /v1/admin/content/sections/:sectionSlug/versions returns ordered summaries', async () => {
+    const fixture = await createSectionWithVersions({ includeV3Draft: true });
+
+    const response = await request(app.getHttpServer())
+      .get(`/v1/admin/content/sections/${fixture.section.slug}/versions`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body).toHaveLength(3);
+    expect(response.body.map((v: { versionNumber: number }) => v.versionNumber)).toEqual([3, 2, 1]);
+    expect(response.body.every((row: { sectionId: string }) => row.sectionId === fixture.section.id)).toBe(true);
+  });
+
+  it('POST /v1/admin/content/publish publishes by section slug + version number', async () => {
+    const fixture = await createSectionWithVersions();
+
+    const response = await request(app.getHttpServer())
+      .post('/v1/admin/content/publish')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        section_slug: fixture.section.slug,
+        version_number: fixture.v2.versionNumber
+      })
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      sectionId: fixture.section.id,
+      versionId: fixture.v2.id,
+      versionNumber: fixture.v2.versionNumber,
+      status: 'published'
+    });
+  });
+
+  it('POST /v1/admin/content/publish preserves publish conflict responses', async () => {
+    const fixture = await createSectionWithVersions();
+
+    const response = await request(app.getHttpServer())
+      .post('/v1/admin/content/publish')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        section_slug: fixture.section.slug,
+        version_number: fixture.v1.versionNumber
+      })
+      .expect(409);
+
+    expect(response.body).toMatchObject({
+      code: 'publish_conflict',
+      reason: 'target_not_draft',
+      sectionId: fixture.section.id,
+      versionId: fixture.v1.id
+    });
+  });
+
   it('GET /v1/admin/sections/:sectionId/versions/:versionId returns version preview with ordered blocks', async () => {
     const fixture = await createSectionWithVersions();
 
@@ -286,6 +361,20 @@ describe('Admin Section Versions API (e2e)', () => {
     await request(app.getHttpServer())
       .get(`/v1/admin/sections/nonexistent-section-id/versions`)
       .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(404);
+
+    await request(app.getHttpServer())
+      .get('/v1/admin/content/sections/nonexistent-section-slug/versions')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(404);
+
+    await request(app.getHttpServer())
+      .post('/v1/admin/content/publish')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        section_slug: fixtureOne.section.slug,
+        version_number: 99999
+      })
       .expect(404);
   });
 

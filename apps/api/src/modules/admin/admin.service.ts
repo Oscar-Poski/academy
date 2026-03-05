@@ -10,6 +10,7 @@ import { SectionVersionStatus } from '@prisma/client';
 import path from 'node:path';
 import type {
   AdminPublishConflictErrorDto,
+  ContentSectionCatalogItemDto,
   ImportContentRequestDto,
   ImportContentResponseDto,
   ImportValidationSummaryBucketDto,
@@ -17,7 +18,8 @@ import type {
   PublishSectionVersionResponseDto,
   PublishConflictReason,
   SectionVersionDetailDto,
-  SectionVersionSummaryDto
+  SectionVersionSummaryDto,
+  SlugPublishRequestDto
 } from './dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ObservabilityService } from '../observability/observability.service';
@@ -49,6 +51,87 @@ export class AdminService {
 
       throw error;
     }
+  }
+
+  async listContentSections(): Promise<ContentSectionCatalogItemDto[]> {
+    const sections = await this.prisma.section.findMany({
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        hasQuiz: true,
+        module: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            path: {
+              select: {
+                id: true,
+                slug: true,
+                title: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return sections
+      .map((section) => ({
+        pathId: section.module.path.id,
+        pathSlug: section.module.path.slug,
+        pathTitle: section.module.path.title,
+        moduleId: section.module.id,
+        moduleSlug: section.module.slug,
+        moduleTitle: section.module.title,
+        sectionId: section.id,
+        sectionSlug: section.slug,
+        sectionTitle: section.title,
+        hasQuiz: section.hasQuiz
+      }))
+      .sort((a, b) => {
+        const pathCompare = a.pathSlug.localeCompare(b.pathSlug);
+        if (pathCompare !== 0) {
+          return pathCompare;
+        }
+
+        const moduleCompare = a.moduleSlug.localeCompare(b.moduleSlug);
+        if (moduleCompare !== 0) {
+          return moduleCompare;
+        }
+
+        return a.sectionSlug.localeCompare(b.sectionSlug);
+      });
+  }
+
+  async listSectionVersionsBySlug(sectionSlug: string): Promise<SectionVersionSummaryDto[]> {
+    const section = await this.getSectionBySlugOrThrow(sectionSlug);
+    return this.listSectionVersions(section.id);
+  }
+
+  async publishSectionVersionBySlug(
+    body: SlugPublishRequestDto
+  ): Promise<PublishSectionVersionResponseDto> {
+    const sectionSlug = this.validateSectionSlug(body?.section_slug);
+    const versionNumber = this.validateVersionNumber(body?.version_number);
+    const section = await this.getSectionBySlugOrThrow(sectionSlug);
+
+    const version = await this.prisma.sectionVersion.findUnique({
+      where: {
+        sectionId_versionNumber: {
+          sectionId: section.id,
+          versionNumber
+        }
+      },
+      select: { id: true }
+    });
+
+    if (!version) {
+      throw new NotFoundException(`Version ${versionNumber} not found for section slug ${sectionSlug}`);
+    }
+
+    return this.publishSectionVersion(section.id, version.id);
   }
 
   async listSectionVersions(sectionId: string): Promise<SectionVersionSummaryDto[]> {
@@ -157,6 +240,22 @@ export class AdminService {
   private validateMode(value: unknown): 'dryRun' | 'apply' {
     if (value !== 'dryRun' && value !== 'apply') {
       throw new BadRequestException('mode must be "dryRun" or "apply"');
+    }
+
+    return value;
+  }
+
+  private validateSectionSlug(value: unknown): string {
+    if (typeof value !== 'string' || value.trim().length === 0) {
+      throw new BadRequestException('section_slug is required');
+    }
+
+    return value.trim();
+  }
+
+  private validateVersionNumber(value: unknown): number {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) {
+      throw new BadRequestException('version_number must be a positive integer');
     }
 
     return value;
@@ -273,6 +372,22 @@ export class AdminService {
     if (!section) {
       throw new NotFoundException(`Section ${sectionId} not found`);
     }
+  }
+
+  private async getSectionBySlugOrThrow(sectionSlug: string): Promise<{ id: string; slug: string }> {
+    const section = await this.prisma.section.findUnique({
+      where: { slug: sectionSlug },
+      select: {
+        id: true,
+        slug: true
+      }
+    });
+
+    if (!section) {
+      throw new NotFoundException(`Section slug ${sectionSlug} not found`);
+    }
+
+    return section;
   }
 
   private async getSectionVersionOrThrow(sectionId: string, versionId: string) {

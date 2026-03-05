@@ -22,6 +22,7 @@ describe('Admin RBAC enforcement (e2e)', () => {
   const fixtureLearnerPassword = 'password123';
 
   let sectionId = '';
+  let sectionSlug = '';
   let publishedVersionId = '';
   let draftVersionId = '';
   let tempBundleDir = '';
@@ -67,6 +68,7 @@ describe('Admin RBAC enforcement (e2e)', () => {
 
     const sectionFixture = await createSectionFixture();
     sectionId = sectionFixture.sectionId;
+    sectionSlug = sectionFixture.sectionSlug;
     publishedVersionId = sectionFixture.publishedVersionId;
     draftVersionId = sectionFixture.draftVersionId;
 
@@ -129,6 +131,25 @@ describe('Admin RBAC enforcement (e2e)', () => {
       .post(`/v1/admin/sections/${sectionId}/publish/${draftVersionId}`)
       .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(200);
+
+    await request(app.getHttpServer())
+      .get('/v1/admin/content/sections')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get(`/v1/admin/content/sections/${sectionSlug}/versions`)
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .post('/v1/admin/content/publish')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        section_slug: sectionSlug,
+        version_number: 2
+      })
+      .expect(409);
   });
 
   it('denies learner bearer token on all admin routes with standardized 403', async () => {
@@ -155,6 +176,28 @@ describe('Admin RBAC enforcement (e2e)', () => {
       request(app.getHttpServer())
         .post(`/v1/admin/sections/${sectionId}/publish/${publishedVersionId}`)
         .set('Authorization', `Bearer ${learnerAccessToken}`)
+    );
+
+    await expectForbidden(
+      request(app.getHttpServer())
+        .get('/v1/admin/content/sections')
+        .set('Authorization', `Bearer ${learnerAccessToken}`)
+    );
+
+    await expectForbidden(
+      request(app.getHttpServer())
+        .get(`/v1/admin/content/sections/${sectionSlug}/versions`)
+        .set('Authorization', `Bearer ${learnerAccessToken}`)
+    );
+
+    await expectForbidden(
+      request(app.getHttpServer())
+        .post('/v1/admin/content/publish')
+        .set('Authorization', `Bearer ${learnerAccessToken}`)
+        .send({
+          section_slug: sectionSlug,
+          version_number: 1
+        })
     );
   });
 
@@ -197,12 +240,13 @@ describe('Admin RBAC enforcement (e2e)', () => {
 
   async function createSectionFixture(): Promise<{
     sectionId: string;
+    sectionSlug: string;
     publishedVersionId: string;
     draftVersionId: string;
   }> {
     const seededModule = await prisma.module.findUnique({
       where: { slug: 'http-basics-module' },
-      select: { id: true }
+      select: { id: true, slug: true }
     });
     if (!seededModule) {
       throw new Error('Seeded module missing. Run API migrate+seed first.');
@@ -217,7 +261,7 @@ describe('Admin RBAC enforcement (e2e)', () => {
         sortOrder: 9999,
         hasQuiz: false
       },
-      select: { id: true }
+      select: { id: true, slug: true }
     });
 
     const published = await prisma.sectionVersion.create({
@@ -260,6 +304,7 @@ describe('Admin RBAC enforcement (e2e)', () => {
 
     return {
       sectionId: section.id,
+      sectionSlug: section.slug,
       publishedVersionId: published.id,
       draftVersionId: draft.id
     };

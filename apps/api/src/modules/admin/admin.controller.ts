@@ -3,11 +3,13 @@ import { AdminBearerAuthGuard } from '../auth/admin-bearer-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import type {
+  ContentSectionCatalogItemDto,
   ImportContentRequestDto,
   ImportContentResponseDto,
   PublishSectionVersionResponseDto,
   SectionVersionDetailDto,
-  SectionVersionSummaryDto
+  SectionVersionSummaryDto,
+  SlugPublishRequestDto
 } from './dto';
 import { AdminService } from './admin.service';
 
@@ -21,6 +23,26 @@ export class AdminController {
   @HttpCode(200)
   importContent(@Body() body: ImportContentRequestDto): Promise<ImportContentResponseDto> {
     return this.adminService.importContent(body);
+  }
+
+  @Get('content/sections')
+  listContentSections(): Promise<ContentSectionCatalogItemDto[]> {
+    return this.adminService.listContentSections();
+  }
+
+  @Get('content/sections/:sectionSlug/versions')
+  listSectionVersionsBySlug(
+    @Param('sectionSlug') sectionSlug: string
+  ): Promise<SectionVersionSummaryDto[]> {
+    return this.adminService.listSectionVersionsBySlug(sectionSlug);
+  }
+
+  @Post('content/publish')
+  @HttpCode(200)
+  publishSectionVersionBySlug(
+    @Body() body: SlugPublishRequestDto
+  ): Promise<PublishSectionVersionResponseDto> {
+    return this.adminService.publishSectionVersionBySlug(body);
   }
 
   @Get('sections/:sectionId/versions')

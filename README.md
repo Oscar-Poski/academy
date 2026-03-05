@@ -124,6 +124,50 @@ pnpm --filter @academy/web test:regression
 pnpm --filter @academy/web typecheck
 ```
 
+## Content Creator Quickstart (PR-2)
+
+This flow is for non-dev creators using CLI-only content operations (no admin UI).
+
+1. Create a new lesson draft file:
+
+```bash
+pnpm content:new -- --path-slug web-pentest-path --path-title "Web Pentest Path" --module-slug http-basics-module --module-title "HTTP Basics" --section-slug request-response-cycle --section-title "Request and Response Cycle" --version 1
+```
+
+2. Edit frontmatter + Markdown body in the generated file under `content/bundles/`.
+3. Validate content bundle before import:
+
+```bash
+pnpm content:validate
+pnpm content:validate:strict
+```
+
+4. Import draft content:
+
+```bash
+pnpm content:import
+```
+
+5. Preview and publish selected version:
+
+```bash
+pnpm content:preview -- --section-slug request-response-cycle --version 1 --no-open
+pnpm content:publish -- --section-slug request-response-cycle --version 1 --yes
+```
+
+Required env for API-backed commands:
+- `ACADEMY_API_BASE_URL` (defaults to `http://localhost:3001`)
+- one auth option:
+  - `ACADEMY_ADMIN_ACCESS_TOKEN`, or
+  - `ACADEMY_ADMIN_EMAIL` + `ACADEMY_ADMIN_PASSWORD`
+
+Notes:
+- One file is one section version.
+- Frontmatter contract details are documented in `content/README.md`.
+- `content:publish` is explicit and never auto-runs during import.
+- CLI slug resolution now uses admin slug-first endpoints under `/v1/admin/content/*` (no public path crawling).
+- for non-local publish targets, use `--confirm <section-slug>@v<n>` in addition to `--yes`.
+
 ## Feature Summary
 
 - Auth lifecycle with bearer tokens + rotating refresh tokens
@@ -139,7 +183,7 @@ pnpm --filter @academy/web typecheck
 ## Documentation
 
 - Admin-facing consolidated summary: `plans/ADMIN_APP_SUMMARY.md`
-- Release checklist: `plans/RELEASE_CHECKLIST_PR41.md`
+- Creator operations runbook: `docs/content-ops.md`
 
 ## Notes
 
